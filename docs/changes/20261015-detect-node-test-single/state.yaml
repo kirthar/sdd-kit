@@ -1,0 +1,5 @@
+id: 20261015-detect-node-test-single
+route: quick
+capabilities: [init]
+approvals: {}
+prs: []
