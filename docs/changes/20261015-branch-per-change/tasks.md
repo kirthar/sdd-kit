@@ -40,7 +40,7 @@
 - Outermost test: a log with red then green is reported proven and a log without red is NO-GO naming the missing red run, at skill-instruction level: `sdd tdd log` output for both cases plus a check that SKILL.md instructs the proven and NO-GO reports; the wording itself is confirmed by a manual run
 - Depends on: T3
 - Package: .
-- Status: todo
+- Status: done
 
 ## T6: Offer to commit exactly the files init wrote
 - Covers: AC-7, AC-8, AC-19
