@@ -93,3 +93,10 @@ test('pointer naming a change present in the checkout wins over other open chang
   writeActive(dir, 'a');
   assert.equal(resolveActive(dir), 'a');
 });
+
+test('stale pointer with exactly one open change resolves to it and leaves the pointer alone (AC-4, AC-17)', () => {
+  const dir = tmpRepo(open('b'));
+  writeActive(dir, 'a');
+  assert.equal(resolveActive(dir), 'b');
+  assert.equal(readActive(dir), 'a');
+});

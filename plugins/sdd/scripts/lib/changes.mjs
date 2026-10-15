@@ -80,5 +80,5 @@ export function resolveActive(root) {
   const open = listChanges(root).map((c) => c.id);
   const pointer = readActive(root);
   if (pointer && open.includes(pointer)) return pointer;
-  return null;
+  return open.length === 1 ? open[0] : null;
 }
