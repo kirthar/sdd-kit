@@ -1,5 +1,6 @@
 id: 20261015-branch-per-change
 route: standard
 capabilities: [lifecycle, init, hooks, validation]
-approvals: {}
+approvals:
+  route: { by: kirthar, at: 2026-10-15T17:45:45.340Z }
 prs: []
