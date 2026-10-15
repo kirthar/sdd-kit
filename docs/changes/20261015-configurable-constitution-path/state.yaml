@@ -3,4 +3,5 @@ route: standard
 capabilities: [config, rules, init]
 approvals:
   route: { by: kirthar, at: 2026-10-15T16:21:46.108Z }
+  spec: { by: kirthar, at: 2026-10-15T17:45:45.169Z }
 prs: []
