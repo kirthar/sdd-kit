@@ -1,0 +1,28 @@
+name: Feature request
+description: Propose a change to the kit's behaviour.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What you are trying to do and what gets in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+      description: What should happen instead, ideally as Given / When / Then.
+    validations:
+      required: true
+  - type: dropdown
+    id: route
+    attributes:
+      label: Expected size
+      description: Which route would this change take in the kit itself?
+      options: [quick, standard, full, not sure]
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

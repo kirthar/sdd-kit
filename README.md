@@ -1,5 +1,10 @@
 # sdd — spec-driven development for Claude Code
 
+[![CI](https://github.com/kirthar/sdd-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/kirthar/sdd-kit/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/kirthar/sdd-kit)](https://github.com/kirthar/sdd-kit/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757)](https://code.claude.com/docs/en/plugins)
+
 **Problem:** coding agents either skip design entirely or bury a one-line fix under pages of spec.
 They also take irreversible actions (force pushes, merges) and forget the lessons from last week.
 
@@ -7,6 +12,15 @@ They also take irreversible actions (force pushes, merges) and forget the lesson
 and enforces the rules that matter with hooks and validators — not just prompts.
 
 ![Demo: a quick fix with a failing test first, a blocked force push and a draft pull request](docs/assets/demo.svg)
+
+## Why
+
+Coding agents are fast, and a team needs more than speed to trust them. Without a process that
+scales with the size of a change, small fixes drown in ceremony while large ones skip design.
+Without automatic guardrails, one force push or self-approved step undoes that trust; without
+measurement, nobody knows whether the agent actually follows the process. This kit encodes how a
+team works with agents: the size of the change sets the process, a person approves each phase,
+critical rules are enforced by tools, and the effect is measured with evals.
 
 ## Three routes
 
@@ -47,6 +61,13 @@ Then, in your repository: `/sdd:init`. Requirements: Claude Code, git, Node.js �
 `/sdd:init` · `/sdd:approve` · `/sdd:archive` · `/sdd:adopt` · `/sdd:learn` · `/sdd:sync` ·
 `/sdd:autopilot` · `/sdd:release-check` — only you can run these.
 
+## How this was built
+
+The kit was built with its own method: a constitution and ADRs first, component specs with
+acceptance criteria, evals written before the skills, then implementation by directing Claude Code
+task by task with tests first. The specs, ADRs and evals live in this repository, and the
+improvement over a no-plugin baseline is measured in [docs/evals.md](docs/evals.md).
+
 ## Learn more
 
 - [Quickstart](docs/QUICKSTART.md) — first change in five minutes
@@ -58,3 +79,5 @@ Then, in your repository: `/sdd:init`. Requirements: Claude Code, git, Node.js �
 - [Design decisions](docs/adr/) · [Component specs](docs/specs/) · [Evals](docs/evals.md) · [Design influences](docs/design-influences.md)
 
 MIT licensed.
+
+Author: Chris Fuertes — [chris.cat](https://chris.cat)

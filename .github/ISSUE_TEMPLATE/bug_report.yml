@@ -1,0 +1,35 @@
+name: Bug report
+description: Something in the kit does not behave as its specs say.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran, what you expected, what you got. Paste exact output.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The smallest repository or command sequence that shows it.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: "sdd plugin, Claude Code (`claude --version`), Node.js, OS"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [init, routes and approvals, validation, archive, hooks, autopilot, integrations, docs, other]
+  - type: textarea
+    id: spec
+    attributes:
+      label: Related spec
+      description: The requirement or acceptance criterion in docs/specs/ that this breaks, if you know it.
