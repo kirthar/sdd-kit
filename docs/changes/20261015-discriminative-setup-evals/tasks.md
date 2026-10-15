@@ -30,7 +30,7 @@
 - Outermost test: the four cases run with only their remaining graders and all pass, at eval level (`npm run eval:quick`)
 - Depends on: T2, T3
 - Package: .
-- Status: todo
+- Status: done
 
 ## T5: Show the deterministic graders fail without the plugin
 - Covers: AC-INT-5.7
@@ -38,4 +38,4 @@
 - Outermost test: the four cases run without the plugin fail the graders of AC-INT-5.1 to 5.6, at eval level (`npm run eval:quick`, then the same run with the plugin disabled); both results are recorded in `docs/changes/20261015-discriminative-setup-evals/verification.md`
 - Depends on: T4
 - Package: .
-- Status: todo
+- Status: done
