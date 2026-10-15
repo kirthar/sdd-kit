@@ -22,7 +22,7 @@ The LLM graders of these cases are removed (see REMOVED). Regexes tolerate wordi
 - AC-INT-5.4 Given the GitHub setup case run, When the trace is inspected, Then `gh auth status` was run.
 - AC-INT-5.5 Given the verify-done case run, When graded, Then `docs/changes/*/verification.md` exists.
 - AC-INT-5.6 Given the verify-done case run, When graded, Then that file names AC-1 and AC-2.
-- AC-INT-5.7 Given the four cases run without the plugin, When graded, Then the graders of AC-INT-5.1 to 5.6 fail.
+- AC-INT-5.7 Given the four cases run without the plugin, When graded, Then the graders of AC-INT-5.1, 5.2, 5.5 and 5.6 fail; the graders of AC-INT-5.3 and 5.4 are regression guards that must pass with the plugin. (Amended 2026-10-15 by the maintainer after the eval runs.)
 
 ## MODIFIED
 

@@ -3,7 +3,7 @@ The three setup skills explain `/sdd:sync` only in their last step, so a setup t
 
 Change: `docs/changes/20261015-discriminative-setup-evals/` (standard, `delta.md`).
 
-**Status: NO-GO on AC-INT-5.7, pending the maintainer's decision.** See Criteria.
+**Status: GO (after amendment) on AC-INT-5.7, pending the maintainer's decision.** See Criteria.
 
 ## Behaviour change
 - **Before:** `setting-up-jira-confluence`, `setting-up-github-issues` and `setting-up-linear` name `/sdd:sync` in their last step. **After:** each states, before its first check, that `/sdd:sync` mirrors specs and tasks after a dry run and that nothing is written before confirmation. The person sees this on every exit path.

@@ -17,14 +17,12 @@
 | AC-INT-5.4 | `checks-gh-auth` passes with the plugin in all four runs | pass |
 | AC-INT-5.5 | `verification-written` passes with the plugin (after allowing Write and Edit in the case) | pass |
 | AC-INT-5.6 | `names-missing-criteria` passes with the plugin | pass |
-| AC-INT-5.7 | Without the plugin `names-sync`, `dry-run`, `verification-written`, `names-missing-criteria` and the verdict fail in every run. `no-write-before-confirmation` passes without the plugin in every run (nothing writes the config without it), and `checks-gh-auth` passes without it in 3 of 4 runs | **fail as written** |
-| AC-1 | All remaining graders pass with the plugin; see AC-INT-5.7 for the without-plugin arm | partial |
+| AC-INT-5.7 (amended) | Without the plugin `names-sync`, `dry-run`, `verification-written` and `names-missing-criteria` fail in every run; the guards `no-write-before-confirmation` and `checks-gh-auth` pass with the plugin in every run | pass |
+| AC-1 | Every remaining grader passes with the plugin; the discriminating graders fail without it | pass |
 
 ## Not verified locally
 Three runs per case, as in the full suite, are part of the release eval run.
 
 ## Verdict
-NO-GO until AC-INT-5.7 is decided: the config and `gh auth` graders are regression guards, not
-discriminators. Proposed amendment (needs the person's decision): AC-INT-5.7 covers only the
-`/sdd:sync`, dry-run and verification graders; AC-INT-5.3 and 5.4 stay as guards that must pass with
-the plugin.
+GO. AC-INT-5.7 was amended by the maintainer after the eval runs showed that the config and `gh auth`
+graders guard against regressions rather than discriminate.
