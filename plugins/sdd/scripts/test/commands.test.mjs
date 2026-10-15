@@ -298,3 +298,56 @@ test('archive applies full-route living spec deltas and creates a new capability
   assert.match(spec, /### REQ-REV-1: Review a booking\nOne review per booking\./);
   assert.match(spec, /### REQ-REV-2: Reject invalid reviews/);
 });
+
+// ---- new: branch per change (REQ-LIFE-1; AC-1, AC-2, AC-3, AC-13) ----
+
+const git = (cwd, ...args) => spawnSync('git', ['-c', 'user.name=T', '-c', 'user.email=t@example.com', ...args], { cwd, encoding: 'utf8' });
+const branchOf = (cwd) => git(cwd, 'branch', '--show-current').stdout.trim();
+function committedRepo() {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'src.txt': 'one\n' });
+  git(root, 'add', '--', '.sdd/config.yaml', 'src.txt');
+  git(root, 'commit', '-q', '-m', 'init');
+  return root;
+}
+
+test('sdd new on the base branch lands on sdd/<id> with folder and pointer (AC-1)', () => {
+  const root = committedRepo();
+  const r = run(root, 'new', 'fix-typo', '--route', 'quick');
+  assert.equal(r.status, 0, r.stderr);
+  const id = readActive(root);
+  assert.match(id, /-fix-typo$/);
+  assert.equal(branchOf(root), `sdd/${id}`);
+  assert.ok(fs.existsSync(path.join(root, 'docs/changes', id, 'state.yaml')));
+});
+
+test('sdd new stays on a feature branch (AC-2)', () => {
+  const root = committedRepo();
+  git(root, 'switch', '-q', '-c', 'feature/x');
+  const r = run(root, 'new', 'fix-typo', '--route', 'quick');
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(branchOf(root), 'feature/x');
+  assert.ok(readActive(root));
+});
+
+test('sdd new stops with nothing created when sdd/<id> exists (AC-3)', () => {
+  const root = committedRepo();
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  git(root, 'branch', `sdd/${today}-fix-typo`);
+  const r = run(root, 'new', 'fix-typo', '--route', 'quick');
+  assert.equal(r.status, 1);
+  assert.match(r.stdout + r.stderr, new RegExp(`sdd/${today}-fix-typo`));
+  assert.equal(branchOf(root), 'main');
+  assert.equal(fs.existsSync(path.join(root, 'docs/changes')), false);
+  assert.equal(readActive(root), null);
+});
+
+test('sdd new stops with nothing created when the switch fails on a dirty tree (AC-13)', () => {
+  const root = committedRepo();
+  fs.writeFileSync(path.join(root, 'src.txt'), 'dirty\n');
+  const r = run(root, 'new', 'fix-typo', '--route', 'quick');
+  assert.equal(r.status, 1);
+  assert.match(r.stdout + r.stderr, /dirty|uncommitted/i);
+  assert.equal(branchOf(root), 'main');
+  assert.equal(fs.existsSync(path.join(root, 'docs/changes')), false);
+  assert.equal(readActive(root), null);
+});
