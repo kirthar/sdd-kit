@@ -43,7 +43,7 @@ required: []
 - Outermost test: new init eval proposes the configured location on re-run and does not create `.sdd/constitution.md`, at eval level; AC-INIT-5.1 is shown by an observed `sdd validate` run on a generated constitution, and the missing size and denylist check (pre-existing gap) is reported, not fixed here
 - Depends on: T4
 - Package: .
-- Status: todo
+- Status: done
 
 ## T6: Configure this repository and replace literal constitution paths
 - Covers: AC-1
