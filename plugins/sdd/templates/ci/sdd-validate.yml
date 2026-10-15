@@ -1,0 +1,22 @@
+# Validates specs, changes and tasks with the sdd kit on every pull request.
+name: sdd validate
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: kirthar/sdd-kit
+          ref: v0.1.0                 # pin a released tag
+          path: .sdd-kit
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node .sdd-kit/plugins/sdd/scripts/sdd.mjs validate --all

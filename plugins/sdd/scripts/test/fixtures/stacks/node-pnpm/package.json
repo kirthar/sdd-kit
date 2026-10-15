@@ -1,0 +1,9 @@
+{
+  "name": "node-pnpm-fixture",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  }
+}

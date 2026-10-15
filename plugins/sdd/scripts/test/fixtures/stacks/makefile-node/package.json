@@ -1,0 +1,10 @@
+{
+  "name": "makefile-node-fixture",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "build": "tsc -p ."
+  }
+}

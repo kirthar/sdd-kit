@@ -1,0 +1,4 @@
+{
+  "name": "api",
+  "scripts": { "test": "jest", "build": "tsc" }
+}
