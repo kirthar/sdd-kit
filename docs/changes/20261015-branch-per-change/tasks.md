@@ -8,7 +8,7 @@
 - Outermost test: resolver returns the pointer change, the single open change, or none, and leaves the pointer file untouched, at unit level in a temp repo
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T2: Use the resolver in status and context and tdd and the approval gate
 - Covers: AC-5, AC-18
