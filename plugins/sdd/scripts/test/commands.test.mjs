@@ -91,6 +91,24 @@ test('status names the next command for each open change (AC-LIFE-11.1)', () => 
   assert.equal(s.changes[0].next, '/sdd:tasks');
 });
 
+test('status reports the single open change active when the pointer is stale (AC-4, AC-5)', () => {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'docs/changes/b/state.yaml': state('b', 'quick') });
+  writeActive(root, 'a');
+  const s = status(root);
+  assert.equal(s.active, 'b');
+  assert.equal(s.changes[0].active, true);
+  writeFiles(root, { 'docs/changes/c/state.yaml': state('c', 'quick') });
+  const two = status(root);
+  assert.equal(two.active, null);
+  assert.ok(two.changes.every((c) => !c.active));
+});
+
+test('context names the single open change when the pointer is stale', () => {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'docs/changes/b/state.yaml': state('b', 'quick') });
+  writeActive(root, 'a');
+  assert.match(context(root), /Active change: b \(quick\)/);
+});
+
 // ---- archive (REQ-VAL-2) ----
 
 test('archive applies deltas deterministically and moves the folder (AC-VAL-2.2)', () => {
@@ -145,6 +163,14 @@ test('tdd records red then green in the shared log', () => {
   const log = readTddLog(root, 'c1');
   assert.deepEqual(log.map((e) => e.phase), ['red', 'green']);
   assert.ok(fs.existsSync(path.join(sddCommonDir(root), 'tdd', 'c1.log')));
+});
+
+test('tdd logs under the single open change when the pointer is stale (AC-18)', () => {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'docs/changes/b/state.yaml': state('b', 'quick') });
+  writeActive(root, 'a');
+  assert.equal(tdd(root, 'red', ['node', '-e', 'process.exit(3)']).exitCode, 0);
+  assert.deepEqual(readTddLog(root, 'b').map((e) => e.phase), ['red']);
+  assert.deepEqual(readTddLog(root, 'a'), []);
 });
 
 // ---- scan (REQ-VAL-3) ----

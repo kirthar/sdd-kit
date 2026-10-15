@@ -53,6 +53,21 @@ test('full change with every approval allows', () => {
   assert.equal(evaluate(write(root, 'src/a.ts')).decision, 'allow');
 });
 
+test('stale pointer with one open change gates on that change (AC-4)', () => {
+  const root = repoWith('quick', ['route']);
+  writeActive(root, 'gone');
+  assert.equal(evaluate(write(root, 'src/a.ts')).decision, 'allow');
+});
+
+test('stale pointer with two open changes blocks source edits (AC-5)', () => {
+  const root = repoWith('quick', ['route']);
+  writeFiles(root, { 'docs/changes/c2/state.yaml': state('c2', 'quick', ['route']) });
+  writeActive(root, 'gone');
+  const r = evaluate(write(root, 'src/a.ts'));
+  assert.equal(r.decision, 'block');
+  assert.match(r.reason, /no active change/);
+});
+
 test('gates.enforce false allows (AC-HOOK-4.4)', () => {
   const root = tmpRepo({ '.sdd/config.yaml': 'version: 1\ngates: { enforce: false }\n' });
   assert.equal(evaluate(write(root, 'src/a.ts')).decision, 'allow');
@@ -84,6 +99,7 @@ test('other tools are ignored', () => {
 
 test('a linked worktree uses its own active pointer (AC-HOOK-4.5)', () => {
   const root = repoWith('quick', ['route'], { active: false });
+  writeFiles(root, { 'docs/changes/c2/state.yaml': state('c2', 'quick', ['route']) });
   const git = (...a) => execFileSync('git', ['-C', root, '-c', 'user.name=t', '-c', 'user.email=t@e.invalid', ...a]);
   git('add', '-A');
   git('commit', '-qm', 'init');

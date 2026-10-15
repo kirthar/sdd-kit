@@ -3,9 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from '../scripts/vendor/js-yaml.mjs';
-import { findProjectRoot, readActive } from '../scripts/lib/git.mjs';
+import { findProjectRoot } from '../scripts/lib/git.mjs';
 import { loadConfig } from '../scripts/lib/config.mjs';
-import { loadChange, missingApprovals, nextCommand } from '../scripts/lib/changes.mjs';
+import { loadChange, missingApprovals, nextCommand, resolveActive } from '../scripts/lib/changes.mjs';
 import { matchesAny } from '../scripts/lib/glob.mjs';
 import { autopilotActive } from '../scripts/lib/locks.mjs';
 
@@ -36,7 +36,7 @@ export function evaluate(payload) {
   }
   if (rel.startsWith('docs/') || rel.startsWith('.sdd/') || matchesAny(rel, config.gates?.exempt)) return allow();
 
-  const id = readActive(root);
+  const id = resolveActive(root);
   const change = id && loadChange(root, id);
   if (!change) {
     return block('no active change. Ask the person to start one with `/sdd:new "<description>"` and confirm it with `/sdd:approve <id> route`.');
