@@ -14,7 +14,7 @@
 - Outermost test: the setup cases' graders match a run's last message, `.sdd/config.yaml` and tool trace, at eval level (`npm run eval:quick`); the `dry-run` grader is also created for github-issues and linear so AC-INT-5.2 holds in all three cases; only the run confirms that `gh auth status` is traceable in the sandbox
 - Depends on: T1
 - Package: .
-- Status: todo
+- Status: done
 
 ## T3: Commit the deterministic verify done graders
 - Covers: AC-INT-5.5, AC-INT-5.6
