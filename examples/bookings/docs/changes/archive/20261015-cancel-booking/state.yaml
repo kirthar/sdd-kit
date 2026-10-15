@@ -1,0 +1,8 @@
+id: 20261015-cancel-booking
+route: standard
+capabilities: [bookings]
+approvals:
+  route: { by: "Example Reviewer", at: 2026-10-15T15:18:34.729Z }
+  spec: { by: "Example Reviewer", at: 2026-10-15T15:18:34.808Z }
+  tasks: { by: "Example Reviewer", at: 2026-10-15T15:18:34.888Z }
+prs: []

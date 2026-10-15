@@ -1,0 +1,9 @@
+id: 20261015-booking-reviews
+route: full
+capabilities: [reviews]
+approvals:
+  route: { by: "Example Reviewer", at: 2026-10-15T15:19:00.813Z }
+  functional: { by: "Example Reviewer", at: 2026-10-15T15:19:00.890Z }
+  tasks: { by: "Example Reviewer", at: 2026-10-15T15:19:55.623Z }
+  spec: { by: "Example Reviewer", at: 2026-10-15T15:19:52.290Z }
+prs: []

@@ -1,0 +1,53 @@
+openapi: 3.0.3
+info:
+  title: Booking reviews
+  version: "1.0.0"
+paths:
+  /bookings/{bookingId}/review:
+    post:
+      summary: Review a confirmed booking
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReviewInput" }
+      responses:
+        "201":
+          description: Review stored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Review" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+components:
+  schemas:
+    ReviewInput:
+      type: object
+      required: [rating]
+      properties:
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        text: { type: string, maxLength: 2000 }
+    Review:
+      allOf:
+        - $ref: "#/components/schemas/ReviewInput"
+        - type: object
+          required: [bookingId]
+          properties:
+            bookingId: { type: string }
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+  responses:
+    Error:
+      description: Request rejected
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }

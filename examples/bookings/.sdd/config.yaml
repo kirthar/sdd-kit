@@ -1,0 +1,19 @@
+version: 1
+base_branch: main
+packages:
+  - path: .
+    commands:
+      test: npm test
+      test_single: "node --test --test-name-pattern"
+      lint: npm run lint
+      format: ""
+      build: ""
+testing: { tdd: strict, doubles: explicit }
+git: { integration: merge }
+commit: { format: conventional }
+pr: { draft: true, auto_ready: false, forge: none }
+gates: { enforce: true, exempt: [] }
+routes: { quick_max_files: 5 }
+release: { branch: main }
+autopilot: { enabled: false }
+integrations: {}

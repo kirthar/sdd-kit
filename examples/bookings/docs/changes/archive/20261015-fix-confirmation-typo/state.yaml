@@ -1,0 +1,6 @@
+id: 20261015-fix-confirmation-typo
+route: quick
+capabilities: [bookings]
+approvals:
+  route: { by: "Example Reviewer", at: 2026-10-15T15:15:36.252Z }
+prs: []

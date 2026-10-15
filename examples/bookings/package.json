@@ -1,0 +1,6 @@
+{
+  "name": "bookings-example",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test", "lint": "node --check src/bookings.js && node --check src/reviews.js" }
+}
