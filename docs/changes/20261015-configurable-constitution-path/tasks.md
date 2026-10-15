@@ -54,3 +54,18 @@ required: []
 - Status: done
 
 Notes for T6: edit `AGENTS.md` and `templates/agents-section.md` together (re-init rewrites the section from the template). Merge the delta into the living specs `config.md`, `rules.md` and `init.md`. Leave `docs/specs/hooks.md` and the hooks as they are: they stay on the default path (out of scope), so this repository's constitution loses autopilot write protection until the follow-up change; the PR description says so. A search found no literal in `CONTRIBUTING.md` or `docs/specs/autopilot.md`. The person adds `init` to `capabilities` in `state.yaml` before approval.
+
+## T7: Validate the constitution size IDs evidence and wording
+- Covers: AC-INIT-5.1
+- Expected paths: plugins/sdd/scripts/lib/validate.mjs, plugins/sdd/scripts/test/validate.test.mjs, docs/constitution.md, docs/specs/validation.md
+- Outermost test: sdd validate on a constitution that breaks each rule at module level
+- Depends on: T2
+- Package: .
+- Status: todo
+
+Added 2026-10-15 by maintainer decision (AC-INIT-5.1 was carried over with no implementation). Rule
+`V-CONSTITUTION` on the file at `paths.constitution`: more than 40 counted lines is an error; each
+invariant row needs an ID matching `[A-Z]+[0-9]+`, a non-empty "Violated when" cell and an Evidence
+cell naming at least one existing repository file; a row using a generic-value word ("quality",
+"simplicity", "best practices", "clean code", "excellence") is an error. This repository's
+constitution gains an Evidence column so it passes.
