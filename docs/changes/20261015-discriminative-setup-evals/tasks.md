@@ -6,7 +6,7 @@
 - Outermost test: each setup skill names `/sdd:sync`, the dry run and "nothing is written before confirmation" before its first check, at repository test level (`npm test`), as a new structural test in `tools/` that parses each SKILL.md and fails first because the explanation sits in the last step; the existing no-secret and failed-connection-test behaviour (AC-INT-1.1, AC-INT-1.2) stays unchanged
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T2: Commit the deterministic setup graders
 - Covers: AC-INT-1.4, AC-INT-5.1, AC-INT-5.2, AC-INT-5.3, AC-INT-5.4
