@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { tmpRepo, CONFIG, state } from './helpers.mjs';
 import { findRepoRoot, gitDir, commonDir, readActive, writeActive } from '../lib/git.mjs';
 import { loadConfig, validateConfig } from '../lib/config.mjs';
-import { requiredApprovals, missingApprovals, loadChange, derivePhase, nextCommand } from '../lib/changes.mjs';
+import { requiredApprovals, missingApprovals, loadChange, derivePhase, nextCommand, resolveActive } from '../lib/changes.mjs';
 
 test('finds repo root from a nested directory', () => {
   const dir = tmpRepo({ 'src/a.js': '' });
@@ -84,4 +84,12 @@ test('project root is the nearest folder with .sdd/config.yaml inside the reposi
   const dir = tmpRepo({ 'examples/app/.sdd/config.yaml': CONFIG, 'examples/app/src/a.js': '' });
   assert.equal(findProjectRoot(path.join(dir, 'examples/app/src')), fs.realpathSync(path.join(dir, 'examples/app')));
   assert.equal(findProjectRoot(dir), fs.realpathSync(dir));
+});
+
+const open = (id) => ({ [`docs/changes/${id}/state.yaml`]: state(id, 'quick') });
+
+test('pointer naming a change present in the checkout wins over other open changes (AC-6)', () => {
+  const dir = tmpRepo({ ...open('a'), ...open('b') });
+  writeActive(dir, 'a');
+  assert.equal(resolveActive(dir), 'a');
 });

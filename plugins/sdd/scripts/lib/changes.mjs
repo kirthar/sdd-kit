@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from '../vendor/js-yaml.mjs';
+import { readActive } from './git.mjs';
 
 export const ROUTES = ['quick', 'standard', 'full'];
 export const ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,59}$/;
@@ -72,4 +73,12 @@ export function nextCommand(change) {
 
 export function codeWritesAllowed(change) {
   return missingApprovals(change.state).length === 0;
+}
+
+// The active change id for this checkout, or null. Only reads; never rewrites the pointer.
+export function resolveActive(root) {
+  const open = listChanges(root).map((c) => c.id);
+  const pointer = readActive(root);
+  if (pointer && open.includes(pointer)) return pointer;
+  return null;
 }
