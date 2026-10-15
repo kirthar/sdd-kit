@@ -48,4 +48,4 @@
 - Outermost test: the documented commit sequence (explicit `git add -- <paths>` and `git commit -- <paths>`) in a temp repo yields one `chore: adopt sdd` commit with exactly the written paths, a clean tree, and none of the previously staged files; declining leaves files uncommitted with no commit, at skill-instruction level; the accept/decline flow is confirmed by a manual run
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
