@@ -1,0 +1,41 @@
+# Model-backed evals cost tokens, so they run on demand or weekly, never on every pull request.
+name: evals
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: Runs per case
+        default: "3"
+  schedule:
+    - cron: "0 3 * * 1"
+permissions:
+  contents: read
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Skip without credentials
+        if: env.ANTHROPIC_API_KEY == ''
+        run: echo "ANTHROPIC_API_KEY is not set; skipping evals." && exit 0
+      - if: env.ANTHROPIC_API_KEY != ''
+        run: npm install -g @anthropic-ai/claude-code
+      - if: env.ANTHROPIC_API_KEY != ''
+        working-directory: plugins/sdd
+        env:
+          CLAUDE_CODE_SYNC_PLUGIN_INSTALL: "1"
+          RUNS: ${{ inputs.runs || '3' }}
+        run: >
+          claude plugin eval . --runs "$RUNS" --scaffold --trust-plugin
+          --allow-tools Bash Write Edit Agent --no-publish --threshold 0
+          --json eval-result.json
+      - if: env.ANTHROPIC_API_KEY != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-result
+          path: plugins/sdd/eval-result.json

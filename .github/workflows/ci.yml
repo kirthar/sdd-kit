@@ -1,0 +1,43 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [20, 22]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: git config --global user.name ci && git config --global user.email ci@example.invalid
+      - run: npm test
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install -g @anthropic-ai/claude-code
+      - name: Plugin and marketplace manifests
+        run: claude plugin validate . && claude plugin validate plugins/sdd
+      - name: Kit specs, templates and leak scan
+        run: node plugins/sdd/scripts/sdd.mjs validate --all
+      - name: Example project (OpenAPI checked with the pinned linter)
+        working-directory: examples/bookings
+        run: node ../../plugins/sdd/scripts/sdd.mjs validate --all
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker://rhysd/actionlint:1.7.7
+        with:
+          args: -color .github/workflows/ci.yml .github/workflows/evals.yml plugins/sdd/templates/ci/sdd-validate.yml
