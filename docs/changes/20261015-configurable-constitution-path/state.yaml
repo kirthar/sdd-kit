@@ -1,6 +1,6 @@
 id: 20261015-configurable-constitution-path
 route: standard
-capabilities: [config, rules]
+capabilities: [config, rules, init]
 approvals:
   route: { by: kirthar, at: 2026-10-15T16:21:46.108Z }
 prs: []
