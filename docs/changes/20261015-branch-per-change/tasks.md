@@ -32,7 +32,7 @@
 - Outermost test: `sdd new` on main lands on `sdd/<id>` with folder and pointer, stays on a feature branch, and stops with nothing created when the branch exists or the switch fails on a dirty tree, at CLI level in a temp repo
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T5: Verify reads the tdd log for quick changes
 - Covers: AC-11, AC-12
