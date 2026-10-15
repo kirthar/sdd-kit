@@ -1,7 +1,9 @@
 # Contributing
 
-Changes to the kit follow its own process: a change under `docs/` (spec delta or ADR), tests first,
-a draft pull request.
+Every change to this repository starts with `/sdd:new`; the change folder is part of the PR.
+The kit's own configuration lives in `.sdd/`; its constitution is `docs/constitution.md` and its
+living specs are `docs/specs/`. Run Claude Code with the plugin from this checkout:
+`claude --plugin-dir ./plugins/sdd`.
 
 ## Development
 ```bash

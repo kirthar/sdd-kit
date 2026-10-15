@@ -1,6 +1,6 @@
 # Spec: optional integrations
 
-Status: draft · Cites: K1, K6, K7 · ADRs: 0005
+Status: current · Cites: K1, K6, K7 · ADRs: 0005
 
 ## Purpose
 Let teams mirror specs and tasks into their own wiki and tracker without the kit depending on,
@@ -8,7 +8,8 @@ or shipping, any server.
 
 ## Requirements
 
-**REQ-INT-1 — Setup skills (auto).** `setting-up-jira-confluence`, `setting-up-github-issues`,
+### REQ-INT-1: Setup skills
+Setup skills (auto). `setting-up-jira-confluence`, `setting-up-github-issues`,
 `setting-up-linear`. Each: explains what the integration does; detects whether a suitable MCP
 server or CLI (`gh`) is already available; guides the person to add their own (with
 `<placeholders>` for URLs), keeping credentials in environment variables or their secret manager;
@@ -19,7 +20,8 @@ confirmation.
 - AC-INT-1.2 Given the connection test fails, When setup ends, Then the integration is not enabled and the
   failure is explained (auth vs not found vs network).
 
-**REQ-INT-2 — `/sdd:sync [<id>]` (user-only).** For each enabled integration: dry-run listing
+### REQ-INT-2: Sync
+`/sdd:sync [<id>]` (user-only). For each enabled integration: dry-run listing
 every create/update (spec page, one ticket per task with a body that links back to the repo
 file and heading, dependency links), then confirmation, then apply. Remote IDs are stored in
 `docs/changes/<id>/sync.yaml`, making re-runs reconcile instead of duplicate. One write is
@@ -32,11 +34,15 @@ performed and read back before the rest.
 - AC-INT-2.4 Given any sync run, When the trace is inspected, Then no transition, assignment,
   comment or mention call appears.
 
-**REQ-INT-3 — Degradation.** A configured but unreachable integration makes `sync` exit 0 with
+### REQ-INT-3: Degradation
+A configured but unreachable integration makes `sync` exit 0 with
 a warning; no other command reads integrations.
 - AC-INT-3.1 Given an unreachable tracker, When sync runs, Then it exits 0 with a warning and
   writes nothing.
 
-**REQ-INT-4 — Eval with mocks.** Eval cases use `evals/mocks/` stand-ins for tracker/wiki MCP
+### REQ-INT-4: Eval with mocks
+Eval cases use `evals/mocks/` stand-ins for tracker/wiki MCP
 tools; no real server is contacted in CI.
 - AC-INT-4.1 Given the eval suite, When it runs with default mocks, Then no real MCP server starts.
+
+## History

@@ -1,6 +1,6 @@
 # Spec: configuration and project state
 
-Status: draft · Cites: K1, K5, K7 · ADRs: 0004, 0005
+Status: current · Cites: K1, K5, K7 · ADRs: 0004, 0005
 
 ## Purpose
 One schema for every key any command, hook or script reads, so nothing is implicit.
@@ -40,21 +40,27 @@ integrations: {}                   # see integrations spec; empty = files only
 
 ## Requirements
 
-**REQ-CFG-1 — Schema validation (V-CONFIG).** Unknown keys warn; wrong types or enum values error,
+### REQ-CFG-1: Schema validation
+Schema validation (V-CONFIG). Unknown keys warn; wrong types or enum values error,
 naming the key path.
 - AC-CFG-1.1 Given `testing.tdd: sometimes`, When `sdd validate` runs, Then it exits 1 with
   `V-CONFIG testing.tdd`.
 - AC-CFG-1.2 Given a key `foo: 1`, When `sdd validate` runs, Then it exits 0 with a warning.
 
-**REQ-CFG-2 — Defaults.** Missing keys take the defaults above; `sdd config --effective` prints the
+### REQ-CFG-2: Defaults
+Missing keys take the defaults above; `sdd config --effective` prints the
 merged result.
 - AC-CFG-2.1 Given a config with only `version: 1`, When `sdd config --effective` runs, Then
   `gates.enforce` is `true` and `pr.draft` is `true`.
 
-**REQ-CFG-3 — Kit requirements** live in `scripts/requirements.json` (min Node, min Claude Code,
+### REQ-CFG-3: Kit requirements
+live in `scripts/requirements.json` (min Node, min Claude Code,
 pinned OpenAPI linter version), not in `plugin.json`.
 
-**REQ-CFG-4 — Environment overrides.** `SDD_OFFLINE=1` forces offline validation modes;
+### REQ-CFG-4: Environment overrides
+`SDD_OFFLINE=1` forces offline validation modes;
 `SDD_CONFIG=<path>` points to another config (tests only).
 - AC-CFG-4.1 Given `SDD_OFFLINE=1`, When a contract is validated, Then the report says
   `mode: structural` and no network call is attempted.
+
+## History

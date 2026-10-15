@@ -1,6 +1,6 @@
 # Spec: hooks
 
-Status: draft · Cites: K3, K4, K9 · ADRs: 0003, 0007
+Status: current · Cites: K3, K4, K9 · ADRs: 0003, 0007
 
 ## Purpose
 Make irreversible actions and skipped approvals impossible by default, while leaving the human
@@ -16,9 +16,12 @@ only files (config, state, `.git` pointers, locks).
 
 "Autopilot mode" = a pass lock in `<git-common-dir>/sdd/locks/` with a fresh heartbeat.
 
-## guard (matcher `Bash`)
+## Requirements
 
-**REQ-HOOK-1 — Blocked shapes.**
+REQ-HOOK-1 to REQ-HOOK-3 apply to `guard` (matcher `Bash`); REQ-HOOK-4 to REQ-HOOK-6 to `gate`
+(matcher `Edit|Write|MultiEdit|NotebookEdit`) unless stated.
+
+### REQ-HOOK-1: Blocked shapes
 
 | Group | Blocked |
 |---|---|
@@ -34,7 +37,7 @@ only files (config, state, `.git` pointers, locks).
 - AC-HOOK-1.1 Given each blocked shape in the fixture table (≥45 cases), When guard evaluates it,
   Then it exits 2 with the reason and the hand-off line.
 
-**REQ-HOOK-2 — No false positives.**
+### REQ-HOOK-2: No false positives
 - AC-HOOK-2.1 Given `grep "git push --force" notes.md`, When guard evaluates it, Then it allows.
 - AC-HOOK-2.2 Given `bash -c 'git push --force'` or `eval "git push -f"`, When guard evaluates it,
   Then it blocks (the payload is parsed).
@@ -45,13 +48,13 @@ only files (config, state, `.git` pointers, locks).
 
 Known limit: command substitutions inside an unquoted heredoc body are not parsed.
 
-**REQ-HOOK-3 — Hand-off.** The block message repeats the exact original command prefixed with `!`.
+### REQ-HOOK-3: Hand off
+Hand-off. The block message repeats the exact original command prefixed with `!`.
 - AC-HOOK-3.1 Given `git push --force-with-lease origin feat`, When blocked, Then stderr contains
   `! git push --force-with-lease origin feat`.
 
-## gate (matcher `Edit|Write|MultiEdit|NotebookEdit`)
-
-**REQ-HOOK-4 — Approval gate.** With `gates.enforce: true` (default) in an initialised repo, a write
+### REQ-HOOK-4: Approval gate
+With `gates.enforce: true` (default) in an initialised repo, a write
 outside `docs/`, `.sdd/` and `gates.exempt` is allowed only when the active change (per-worktree
 pointer) has every approval its route requires (lifecycle spec).
 - AC-HOOK-4.1 Given no active change, When the model edits `src/a.ts`, Then it is blocked with
@@ -65,12 +68,15 @@ pointer) has every approval its route requires (lifecycle spec).
 - AC-HOOK-4.5 Given an autopilot worktree whose pointer names an approved change, When the
   implementer edits a file, Then it is allowed.
 
-**REQ-HOOK-5 — Approvals and kit config are human-owned.** Blocked: an Edit/Write to
+### REQ-HOOK-5: Approvals and kit config are human owned
+Approvals and kit config are human-owned. Blocked: an Edit/Write to
 `docs/changes/*/state.yaml` that adds or changes an entry under `approvals`; in autopilot mode, any
 write to `.sdd/config.yaml`, `.sdd/rules.md` or `.sdd/constitution.md`.
 - AC-HOOK-5.1 Given `/sdd:new` writing `approvals: {}`, When gate evaluates it, Then it allows.
 - AC-HOOK-5.2 Given an Edit adding `tasks:` under `approvals`, When gate evaluates it, Then it blocks.
 
-**REQ-HOOK-6 — Performance.**
+### REQ-HOOK-6: Performance
 - AC-HOOK-6.1 Given a fixture repo with 1,000 change folders, When either hook runs 100 times, Then
   the p95 is under 200 ms.
+
+## History

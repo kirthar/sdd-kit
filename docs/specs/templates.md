@@ -1,13 +1,14 @@
 # Spec: templates
 
-Status: draft · Cites: K2 · ADRs: 0001, 0002
+Status: current · Cites: K2 · ADRs: 0001, 0002
 
 ## Purpose
 Short, consistent artifacts. Defaults ship in the plugin; projects override per template.
 
 ## Requirements
 
-**REQ-TPL-1 — Catalogue and budgets.** Each template declares `max_lines` in frontmatter (code blocks,
+### REQ-TPL-1: Catalogue and budgets
+Each template declares `max_lines` in frontmatter (code blocks,
 contracts and HTML comments excluded). Validation warns above the budget and fails above 1.5×.
 
 | Template | Route | Budget | Required sections |
@@ -32,20 +33,26 @@ contracts and HTML comments excluded). Validation warns above the budget and fai
 - AC-TPL-1.1 Given a `brief.md` with 20 counted lines, When `sdd validate` runs, Then it warns
   V-SIZE; given 23 lines, Then it fails.
 
-**REQ-TPL-2 — Override resolution.** `.sdd/templates/<name>` wins over the plugin default and must
+### REQ-TPL-2: Override resolution
+`.sdd/templates/<name>` wins over the plugin default and must
 keep the required headings; extra sections are allowed.
 - AC-TPL-2.1 Given an override of `functional.md` without "Out of scope", When `sdd validate` runs,
   Then it fails with V-SECTIONS naming the override.
 
-**REQ-TPL-3 — Writing rules** embedded as HTML comments in every template: link to code instead of
+### REQ-TPL-3: Writing rules
+embedded as HTML comments in every template: link to code instead of
 copying it; one fact in one place; omit empty optional sections; never "N/A"; Migration and
 Observability always present and may say "None".
 - AC-TPL-3.1 Given any default template, When `sdd validate --templates` runs, Then it contains the
   writing-rules comment and its required headings.
 
-**REQ-TPL-4 — Stable headings.** `## T<n>: <imperative>` and `### REQ-<CAP>-<n>: <title>` with no
+### REQ-TPL-4: Stable headings
+`## T<n>: <imperative>` and `### REQ-<CAP>-<n>: <title>` with no
 punctuation besides the colon.
 - AC-TPL-4.1 Given a heading `## T2: Add /cancel endpoint`, When `sdd validate` runs, Then it fails
   V-HEADING.
 
-**REQ-TPL-5 — Language.** Templates are English; generated content follows `language` in config.
+### REQ-TPL-5: Language
+Templates are English; generated content follows `language` in config.
+
+## History
