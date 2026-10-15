@@ -52,8 +52,8 @@ All 19 criteria (AC-1 to AC-19) are covered by a named test. The mapping is in `
   - [ ] Archive must merge the REQ changes into `docs/specs/` (lifecycle, init, hooks, validation).
 
 ## Beyond the task
-No refactor or deviation from the plan. `docs/specs/config.md` (pointer row) and `README.md`
+No refactor beyond the plan. `docs/specs/config.md` (pointer row) and `README.md`
 (`tdd log`) are updated as the delta's task reminder asked.
+- `sdd tdd log` now rejects ids that are not change ids (found by the reviewer subagent; fixed test-first).
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
-- `sdd tdd log` now rejects ids that are not change ids (found by the reviewer subagent; fixed test-first).
