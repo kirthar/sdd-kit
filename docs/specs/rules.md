@@ -8,7 +8,9 @@ Turn each agent mistake into a durable, generic rule that every command reads.
 ## Requirements
 
 ### REQ-RULE-1: Rules file format
-Format of `.sdd/rules.md`. ```markdown
+Format of `.sdd/rules.md`.
+
+```markdown
 ## R<n>: <imperative rule, one line>
 - Why: <the failure it prevents, generic>
 - How to apply: <when it triggers and what to do>
