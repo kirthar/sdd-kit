@@ -16,7 +16,7 @@
 - Outermost test: a stale pointer with one open change makes `sdd status` report that change active and `sdd tdd red` log under it, and with two open changes status reports none and the gate blocks a source edit, at CLI and hook level
 - Depends on: T1
 - Package: .
-- Status: todo
+- Status: done
 
 ## T3: Print recorded runs with sdd tdd log
 - Covers: AC-9, AC-10
