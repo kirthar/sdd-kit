@@ -1,11 +1,10 @@
-# Brief: <title>
-<!-- Writing rules: link to code instead of copying it; one fact in one place; omit empty optional sections; never write "N/A". -->
+# Brief: load the plugin from another checkout when changing the kit
 
 ## Problem
-<!-- One or two sentences: what is wrong today, with a link to the code. -->
+Claude Code treats the files of the loaded plugin as sensitive, so a session started with `--plugin-dir ./plugins/sdd` cannot edit the kit it is running; `CONTRIBUTING.md` suggests exactly that.
 
 ## Expected behaviour
-<!-- The observable behaviour after the fix. -->
+`CONTRIBUTING.md` says to work in a worktree and load the plugin from the main checkout (`--plugin-dir <main checkout>/plugins/sdd`).
 
 ## Proving test
-<!-- The one test that fails today and passes after the fix: behaviour and layer. -->
+A docs test asserts `CONTRIBUTING.md` no longer suggests `--plugin-dir ./plugins/sdd` and names the main-checkout form.
