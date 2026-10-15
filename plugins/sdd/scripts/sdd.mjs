@@ -82,7 +82,7 @@ const commands = {
   },
   tdd() {
     const sep = rest.indexOf('--');
-    const res = tdd(root(), rest[0], sep >= 0 ? rest.slice(sep + 1) : []);
+    const res = tdd(root(), rest[0], rest[0] === 'log' ? rest.slice(1) : sep >= 0 ? rest.slice(sep + 1) : []);
     emit(res, res.message, res.exitCode);
   },
   scan() {

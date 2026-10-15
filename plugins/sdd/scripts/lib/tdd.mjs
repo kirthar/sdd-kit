@@ -1,4 +1,4 @@
-// `sdd tdd red|green -- <cmd>`: run a test command, assert the expected outcome, log it (REQ-VAL-4).
+// `sdd tdd red|green -- <cmd>` and `sdd tdd log <id>`: run a test command, assert the expected outcome, log it (REQ-VAL-4).
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -6,7 +6,8 @@ import { sddCommonDir } from './git.mjs';
 import { resolveActive } from './changes.mjs';
 
 export function tdd(root, phase, cmd) {
-  if (!['red', 'green'].includes(phase) || !cmd.length) return { exitCode: 2, message: 'usage: sdd tdd red|green -- <command>' };
+  if (phase === 'log') return tddLog(root, cmd[0]);
+  if (!['red', 'green'].includes(phase) || !cmd.length) return { exitCode: 2, message: 'usage: sdd tdd red|green -- <command> | sdd tdd log <id>' };
   const r = spawnSync(cmd[0], cmd.slice(1), { cwd: root, stdio: 'inherit', shell: process.platform === 'win32' });
   const code = r.status ?? 1;
   const change = resolveActive(root) ?? 'none';
@@ -22,4 +23,10 @@ export function readTddLog(root, change) {
   const file = path.join(sddCommonDir(root), 'tdd', `${change}.log`);
   if (!fs.existsSync(file)) return [];
   return fs.readFileSync(file, 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l));
+}
+
+function tddLog(root, id) {
+  const runs = readTddLog(root, id ?? resolveActive(root) ?? 'none');
+  if (!runs.length) return { exitCode: 0, message: 'no runs recorded', runs };
+  return { exitCode: 0, message: runs.map((e) => `${e.time} ${e.phase} exit ${e.exit} ${e.cmd}`).join('\n'), runs };
 }

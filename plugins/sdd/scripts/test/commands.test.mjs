@@ -173,6 +173,28 @@ test('tdd logs under the single open change when the pointer is stale (AC-18)', 
   assert.deepEqual(readTddLog(root, 'a'), []);
 });
 
+test('tdd log prints recorded runs in order with exit codes (AC-9)', () => {
+  const root = standard();
+  writeActive(root, 'c1');
+  tdd(root, 'red', ['node', '-e', 'process.exit(3)']);
+  tdd(root, 'green', ['node', '-e', 'process.exit(0)']);
+  const r = run(root, 'tdd', 'log', 'c1');
+  assert.equal(r.status, 0);
+  const lines = r.stdout.trim().split('\n');
+  assert.equal(lines.length, 2);
+  assert.match(lines[0], /red.*exit 3/);
+  assert.match(lines[1], /green.*exit 0/);
+});
+
+test('tdd log says no runs recorded for an empty or unknown id (AC-10)', () => {
+  const root = standard();
+  for (const args of [['tdd', 'log', 'c1'], ['tdd', 'log', 'nope'], ['tdd', 'log']]) {
+    const r = run(root, ...args);
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /no runs recorded/);
+  }
+});
+
 // ---- scan (REQ-VAL-3) ----
 
 test('scan reports each family by rule and location, never the value (AC-VAL-3.1)', () => {
