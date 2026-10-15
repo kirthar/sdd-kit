@@ -24,7 +24,7 @@
 - Outermost test: `sdd tdd log <id>` prints red then green with exit codes, and "no runs recorded" with exit 0 for an empty or unknown id, at CLI level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T4: Create and switch to sdd branch when starting from the base branch
 - Covers: AC-1, AC-2, AC-3, AC-13
