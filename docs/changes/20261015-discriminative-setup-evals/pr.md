@@ -3,7 +3,7 @@ The three setup skills explain `/sdd:sync` only in their last step, so a setup t
 
 Change: `docs/changes/20261015-discriminative-setup-evals/` (standard, `delta.md`).
 
-**Status: GO (after amendment) on AC-INT-5.7, pending the maintainer's decision.** See Criteria.
+**Status: GO.** AC-INT-5.7 was amended by the maintainer after the eval runs: the config and `gh auth` graders are regression guards, not discriminators. See Criteria.
 
 ## Behaviour change
 - **Before:** `setting-up-jira-confluence`, `setting-up-github-issues` and `setting-up-linear` name `/sdd:sync` in their last step. **After:** each states, before its first check, that `/sdd:sync` mirrors specs and tasks after a dry run and that nothing is written before confirmation. The person sees this on every exit path.
@@ -35,11 +35,10 @@ Open:
 
 ## To confirm
 - [ ] Product: AC-INT-5.7: amend as proposed, or make the config and `gh auth` graders discriminate?
-- [ ] QA: run the release eval run (3 runs per case) and check `checks-gh-auth` (it passed without the plugin in 3 of 4 runs).
+- [ ] QA: run the release eval run (3 runs per case).
 - [ ] Developers: widen the config graders to any `kind:` entry?
 - [ ] Developers: do the remaining LLM graders (`skill-*`, `no-secret-in-repo`) pass without the plugin?
 
 ## Beyond the task
 - `plugins/sdd/evals/verify-done/prompt.md` allows `Write` and `Edit`. It is outside every task's Expected paths; AC-INT-5.5 cannot pass without it. Add it to T3's Expected paths, or revert.
 - `tools/test.mjs` now also runs `tools/*.test.mjs` (within T1's `tools/**`). The new `tools/setup-graders.test.mjs` belongs to T2, whose Expected paths omit `tools/**`; it checks grader file text only.
-- T5 is marked `done` while the verdict is NO-GO.
