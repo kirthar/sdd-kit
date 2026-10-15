@@ -195,6 +195,27 @@ test('tdd log says no runs recorded for an empty or unknown id (AC-10)', () => {
   }
 });
 
+test('tdd log shows red before green for a proven quick change and no red otherwise (AC-11, AC-12)', () => {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'docs/changes/q1/state.yaml': state('q1', 'quick'), 'docs/changes/q2/state.yaml': state('q2', 'quick') });
+  writeActive(root, 'q1');
+  tdd(root, 'red', ['node', '-e', 'process.exit(1)']);
+  tdd(root, 'green', ['node', '-e', 'process.exit(0)']);
+  const proven = run(root, 'tdd', 'log', 'q1').stdout.trim().split('\n').map((l) => l.split(/\s+/).find((w) => /^(red|green)$/.test(w)));
+  assert.deepEqual(proven, ['red', 'green']);
+  writeActive(root, 'q2');
+  tdd(root, 'green', ['node', '-e', 'process.exit(0)']);
+  assert.ok(!/\bred\b/.test(run(root, 'tdd', 'log', 'q2').stdout));
+});
+
+test('verify skill reads the tdd log and reports proven or NO-GO naming the missing red run (AC-11, AC-12)', () => {
+  const skill = fs.readFileSync(path.resolve(path.dirname(SDD), '..', 'skills', 'verify', 'SKILL.md'), 'utf8');
+  const quick = skill.match(/^\d+\. \*\*Quick:\*\*[\s\S]*?(?=^\d+\. )/m)[0];
+  assert.match(quick, /tdd log <id>/);
+  assert.match(quick, /proven/);
+  assert.match(quick, /NO-GO/);
+  assert.match(quick, /missing red/);
+});
+
 // ---- scan (REQ-VAL-3) ----
 
 test('scan reports each family by rule and location, never the value (AC-VAL-3.1)', () => {
