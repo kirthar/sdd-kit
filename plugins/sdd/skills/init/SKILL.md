@@ -35,6 +35,12 @@ Write nothing.
    the permissions list, add `Bash(<command>)` entries for each detected command plus
    `Bash(git add:*)`, `Bash(git commit:*)` and `Bash(gh pr create:*)` to `.claude/settings.json`.
 6. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" validate --all` and fix any error.
+7. Offer to commit exactly the files init wrote: the `Wrote:` paths from step 5 plus
+   `.sdd/constitution.md` and `.claude/settings.json` if you wrote them. Show the list and ask yes/no.
+   - Accepted: run `git add -- <paths>` then `git commit -m "chore: adopt sdd" -- <paths>`, listing
+     each path explicitly (never `git add .` or `-A`). Files the person had already staged stay out
+     of the commit. Then run `git status` and confirm the tree is clean apart from their files.
+   - Declined: run no git command. The written files stay uncommitted and no commit is made.
 
 ## Stop
 Summarise what was written and suggest the first change: `/sdd:new "<description>"`.
