@@ -1,0 +1,5 @@
+id: 20261015-branch-per-change
+route: standard
+capabilities: [lifecycle, init, hooks, validation]
+approvals: {}
+prs: []
