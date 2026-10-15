@@ -4,7 +4,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import yaml from '../vendor/js-yaml.mjs';
-import { loadConfig, validateConfig } from './config.mjs';
+import { loadConfig, validateConfig, isProjectRelative } from './config.mjs';
 import { ROUTES, ID_PATTERN, changesDir, listChanges, loadChange, requiredApprovals } from './changes.mjs';
 import {
   splitFrontmatter, countLines, headings, section, criteria, tasks, openQuestions,
@@ -42,8 +42,12 @@ export function validate(root, opts = {}) {
   const everything = opts.all || (!opts.id && !opts.specs && !opts.templates);
 
   if (everything) {
-    const { raw, exists } = loadConfig(root);
+    const { raw, exists, config } = loadConfig(root);
     if (exists) for (const x of validateConfig(raw)) add(x.rule, x.level, '.sdd/config.yaml', null, x.message);
+    const constitution = config.paths.constitution;
+    if (exists && isProjectRelative(constitution) && !fs.existsSync(path.join(root, constitution))) {
+      add('V-CONFIG', 'warn', '.sdd/config.yaml', null, `paths.constitution: ${constitution} does not exist`);
+    }
     validateRules(root, add);
     validateLeaks(root, add, rel);
   }

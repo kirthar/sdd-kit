@@ -24,6 +24,7 @@ const TASKS = '# Tasks\n\n## T1: Add cancel\n- Covers: AC-1\n- Expected paths: s
 function standard(approvals = ['route', 'spec', 'tasks'], delta = DELTA()) {
   return tmpRepo({
     '.sdd/config.yaml': CONFIG,
+    '.sdd/constitution.md': '# Constitution\n',
     'docs/specs/bookings.md': LIVING,
     'docs/changes/c1/state.yaml': state('c1', 'standard', approvals),
     'docs/changes/c1/delta.md': delta,
@@ -196,6 +197,18 @@ test('validate --all rejects absolute, parent and empty constitution paths (AC-C
     assert.equal(r.status, 1, bad);
     assert.match(r.stdout + r.stderr, /V-CONFIG[\s\S]*paths\.constitution/, bad);
   }
+});
+
+test('validate --all warns when the configured constitution is missing (AC-CFG-5.2, 5.6, 5.7)', () => {
+  const cfg = 'version: 1\npaths: { constitution: docs/constitution.md }\n';
+  const missing = run(tmpRepo({ '.sdd/config.yaml': cfg }), 'validate', '--all');
+  assert.equal(missing.status, 0);
+  assert.match(missing.stdout + missing.stderr, /V-CONFIG[\s\S]*paths\.constitution[\s\S]*docs\/constitution\.md/);
+  const present = run(tmpRepo({ '.sdd/config.yaml': cfg, 'docs/constitution.md': '# C\n' }), 'validate', '--all');
+  assert.equal(present.status, 0);
+  assert.doesNotMatch(present.stdout + present.stderr, /paths\.constitution/);
+  const noConfig = run(tmpRepo(), 'validate', '--all');
+  assert.doesNotMatch(noConfig.stdout + noConfig.stderr, /paths\.constitution/);
 });
 
 test('context without .sdd prints an init hint (AC-RULE-3.2)', () => {

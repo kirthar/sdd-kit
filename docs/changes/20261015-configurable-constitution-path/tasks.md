@@ -19,7 +19,7 @@ required: []
 - Outermost test: `sdd validate --all` exits 0 with a V-CONFIG paths.constitution warning only when the config exists and the file does not, at CLI level
 - Depends on: T1
 - Package: .
-- Status: todo
+- Status: done
 
 ## T3: Read the constitution from the configured path in sdd context
 - Covers: AC-RULE-3.1, AC-RULE-3.2, AC-RULE-3.3, AC-RULE-3.4, AC-RULE-3.5

@@ -64,6 +64,7 @@ Text.
 function repo(extra = {}) {
   return tmpRepo({
     '.sdd/config.yaml': CONFIG,
+    '.sdd/constitution.md': '# Constitution\n',
     'docs/specs/bookings.md': LIVING,
     'docs/changes/c1/state.yaml': state('c1', 'standard', ['route', 'spec']),
     'docs/changes/c1/delta.md': DELTA,
