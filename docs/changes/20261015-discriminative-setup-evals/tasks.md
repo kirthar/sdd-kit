@@ -22,7 +22,7 @@
 - Outermost test: the verify-done case finds `verification.md` naming AC-1 and AC-2, at eval level (`npm run eval:quick`)
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T4: Remove the LLM graders that pass without the plugin
 - Covers: AC-1
