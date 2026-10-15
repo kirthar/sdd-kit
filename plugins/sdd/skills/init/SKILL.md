@@ -2,13 +2,13 @@
 name: init
 description: Bootstraps spec-driven development in the current repository - checks prerequisites, detects the stack and its test, lint, format and build commands, and proposes .sdd/config.yaml, a project constitution and AGENTS.md for confirmation.
 disable-model-invocation: true
-allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" doctor), Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" init)
+allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" doctor --report), Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" init)
 ---
 
 # Initialise sdd in this repository
 
 ## Prerequisites
-!`node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" doctor`
+!`node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" doctor --report`
 
 If any line above starts with FAIL, explain what to install (with the required version) and stop.
 Write nothing.

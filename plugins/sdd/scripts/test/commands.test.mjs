@@ -250,3 +250,13 @@ test('archive applies full-route living spec deltas and creates a new capability
   assert.match(spec, /### REQ-REV-1: Review a booking\nOne review per booking\./);
   assert.match(spec, /### REQ-REV-2: Reject invalid reviews/);
 });
+
+// ---- doctor --report (init skill must not abort on a missing prerequisite) ----
+
+test('doctor --report prints the failing checks and exits 0; plain doctor still exits 3', () => {
+  const root = tmpRepo({}, { git: false });
+  const report = run(root, 'doctor', '--report');
+  assert.equal(report.status, 0);
+  assert.match(report.stdout, /FAIL worktree/);
+  assert.equal(run(root, 'doctor').status, 3);
+});
