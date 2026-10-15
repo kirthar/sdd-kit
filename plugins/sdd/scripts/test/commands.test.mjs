@@ -372,3 +372,10 @@ test('sdd new stops with nothing created when the switch fails on a dirty tree (
   assert.equal(fs.existsSync(path.join(root, 'docs/changes')), false);
   assert.equal(readActive(root), null);
 });
+
+test('tdd log rejects an id that is not a change id', () => {
+  const root = standard();
+  const r = tdd(root, 'log', ['../../secrets']);
+  assert.equal(r.exitCode, 2);
+  assert.match(r.message, /invalid change id/);
+});

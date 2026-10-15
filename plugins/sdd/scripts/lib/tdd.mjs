@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { sddCommonDir } from './git.mjs';
-import { resolveActive } from './changes.mjs';
+import { resolveActive, ID_PATTERN } from './changes.mjs';
 
 export function tdd(root, phase, cmd) {
   if (phase === 'log') return tddLog(root, cmd[0]);
@@ -26,6 +26,7 @@ export function readTddLog(root, change) {
 }
 
 function tddLog(root, id) {
+  if (id !== undefined && !ID_PATTERN.test(id)) return { exitCode: 2, message: `invalid change id: ${JSON.stringify(id)}`, runs: [] };
   const runs = readTddLog(root, id ?? resolveActive(root) ?? 'none');
   if (!runs.length) return { exitCode: 0, message: 'no runs recorded', runs };
   return { exitCode: 0, message: runs.map((e) => `${e.time} ${e.phase} exit ${e.exit} ${e.cmd}`).join('\n'), runs };
