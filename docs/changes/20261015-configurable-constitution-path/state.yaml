@@ -1,0 +1,5 @@
+id: 20261015-configurable-constitution-path
+route: standard
+capabilities: [config, rules]
+approvals: {}
+prs: []
