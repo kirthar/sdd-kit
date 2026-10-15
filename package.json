@@ -1,0 +1,12 @@
+{
+  "name": "sdd-kit",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node tools/test.mjs",
+    "validate": "claude plugin validate . && claude plugin validate plugins/sdd",
+    "eval": "cd plugins/sdd && claude plugin eval . --scaffold --trust-plugin --allow-tools Bash Write Edit Agent --no-publish",
+    "eval:quick": "npm run eval -- --runs 1 --model sonnet -j 4 --threshold 0"
+  }
+}

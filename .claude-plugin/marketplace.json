@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "sdd-kit",
+  "description": "Spec-driven development for Claude Code: size-based routes, living specs, tool-enforced rules.",
+  "owner": { "name": "kirthar" },
+  "plugins": [
+    {
+      "name": "sdd",
+      "source": "./plugins/sdd",
+      "description": "Spec-driven development with quick, standard and full routes, living specs and guardrail hooks.",
+      "category": "development"
+    }
+  ]
+}
