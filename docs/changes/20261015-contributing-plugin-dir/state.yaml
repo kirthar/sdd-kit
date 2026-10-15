@@ -1,0 +1,6 @@
+id: 20261015-contributing-plugin-dir
+route: quick
+capabilities: [init]
+approvals:
+  route: { by: kirthar, at: 2026-10-15T20:34:01.344Z }
+prs: []
