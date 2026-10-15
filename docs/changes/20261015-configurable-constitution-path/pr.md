@@ -31,20 +31,19 @@ automated test. Details: `docs/changes/20261015-configurable-constitution-path/v
 **Notes:**
 - AC-INIT-5.2: covered by a script test (`init.test.mjs`, checked by mutation); the eval cannot run in the
   macOS eval sandbox, where git is unavailable.
-- AC-INIT-5.1: `validate.mjs` has no constitution size or denylist check. This gap predates this change and was
-  reported, not fixed.
+- AC-INIT-5.1: the missing constitution check (size, IDs, evidence files, generic wording) is implemented as
+  `V-CONSTITUTION` (T7, added by the maintainer's decision); this repository and the example now carry Evidence columns.
 
 ## Evidence
 - `node plugins/sdd/scripts/sdd.mjs validate 20261015-configurable-constitution-path` → ok
 - `node plugins/sdd/scripts/sdd.mjs validate --all` → ok, no constitution warning
-- `npm test` → 320 tests, 320 pass, 0 fail
+- `npm test` → 327 tests, 327 pass, 0 fail
 - Secret scan, `sdd scan --diff main` → no secrets found
 - Not run locally: `npm run eval` (model-driven), `npm run validate` (`claude plugin validate`), CI-only checks.
   No format or build step is configured.
-- Verification verdict is **NO-GO** on AC-INIT-5.1 only, until the maintainer decides it.
+- Verification verdict is **GO**.
 
 ## To confirm
-- [ ] Maintainer: waive AC-INIT-5.1, or move the missing size and denylist check to its own change.
 - [ ] Maintainer: accept that `docs/constitution.md` has no autopilot write protection until the hooks follow-up.
 - [ ] Reviewers: check that `paths.constitution` values like `C:\x` and `a/../b.md` are rejected.
 
@@ -52,6 +51,8 @@ automated test. Details: `docs/changes/20261015-configurable-constitution-path/v
 - **Living specs.** The requirement deltas are folded into `docs/specs/` by `/sdd:archive` after the merge,
   not by T6; T6 only updated the schema block of `docs/specs/config.md`.
 - A stray formatting fix in `docs/specs/rules.md` (REQ-RULE-1 code fence on its own block).
+- T7 also lists `V-CONSTITUTION` in the rule table of `docs/specs/validation.md` directly, since the table is
+  not a requirement block that `/sdd:archive` can merge.
 - Follow-ups, out of scope: hook write protection for a moved constitution; V-LEAK scans only `docs/` and `.sdd/`.
 
 Base: `main`. Open as draft.

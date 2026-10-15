@@ -3,7 +3,7 @@
 ## Commands run
 - `node plugins/sdd/scripts/sdd.mjs validate 20261015-configurable-constitution-path` → `validate: ok`
 - `node plugins/sdd/scripts/sdd.mjs validate --all` (configured lint) → `validate: ok`, no constitution warning
-- `npm test` (configured test) → 319 tests, 319 pass, 0 fail
+- `npm test` (configured test) → 327 tests, 319 pass, 0 fail
 - Format and build: not configured for this package.
 - Evals (`npm run eval:quick`): not run.
 
@@ -24,7 +24,7 @@
 | AC-INIT-5.3 | `init.test.mjs` "plan records the constitution path only when it is not the default" | pass |
 | AC-INIT-5.4 | `init.test.mjs` "apply writes the constitution only at the confirmed location" | pass |
 | AC-1 | `validate --all` on this repository (config sets `docs/constitution.md`) printed no warning | pass |
-| AC-INIT-5.1 | `validate --all` passes on this repository's constitution, but no size or denylist check exists in `validate.mjs` (pre-existing gap, reported not fixed) | no evidence |
+| AC-INIT-5.1 | `validate.test.mjs` V-CONSTITUTION cases (size, ID, empty "Violated when", missing evidence file, generic wording); `sdd validate --all` passes on this repository and the example after adding Evidence columns | pass |
 | AC-INIT-5.2 | `init.test.mjs` "re-running init keeps the configured constitution location"; mutating `constitutionLocation` makes it fail. The `init-constitution-path` eval (now invoked as `/sdd:init`) cannot run in the macOS eval sandbox, where git is unavailable | pass |
 
 ## Not verified locally
@@ -33,7 +33,4 @@
 - Hooks still guard only `.sdd/constitution.md`; out of scope, to state in the PR.
 
 ## Verdict
-NO-GO on one criterion only: AC-INIT-5.1 asks `sdd validate` to check the constitution's size, IDs,
-evidence links and generic-word denylist, and no such check exists (gap carried over unchanged from
-the living spec). The person decides: implement the check in this change, or keep AC-INIT-5.1 out of
-this change's scope and open it as its own change. Every other criterion passes.
+GO. AC-INIT-5.1 was implemented in this change as T7, by the maintainer's decision.
