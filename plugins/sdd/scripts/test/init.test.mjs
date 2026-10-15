@@ -96,3 +96,12 @@ for (const [stack, fixture, testCmd] of [
     assert.deepEqual(validate(root, { all: true }).filter((f) => f.level === 'error'), []);
   });
 }
+
+test('re-running init keeps the configured constitution location (AC-INIT-5.2)', async () => {
+  const { constitutionLocation } = await import('../lib/init.mjs');
+  const root = tmpRepo({ '.sdd/config.yaml': 'version: 1\npaths: { constitution: docs/constitution.md }\n' });
+  assert.equal(constitutionLocation(root), 'docs/constitution.md');
+  initApply(root, { constitutionText: '# Constitution\n' });
+  assert.ok(fs.existsSync(path.join(root, 'docs/constitution.md')));
+  assert.ok(!fs.existsSync(path.join(root, '.sdd/constitution.md')));
+});
