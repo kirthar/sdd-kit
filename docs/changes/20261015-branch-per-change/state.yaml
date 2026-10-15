@@ -4,4 +4,5 @@ capabilities: [lifecycle, init, hooks, validation]
 approvals:
   route: { by: kirthar, at: 2026-10-15T17:45:45.340Z }
   spec: { by: kirthar, at: 2026-10-15T18:20:41.523Z }
+  tasks: { by: kirthar, at: 2026-10-15T18:49:28.063Z }
 prs: []
