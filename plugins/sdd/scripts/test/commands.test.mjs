@@ -184,6 +184,20 @@ test('context prints active change, constitution and rules (AC-RULE-3.1)', () =>
   }
 });
 
+test('config prints the default constitution path (AC-CFG-5.1)', () => {
+  const r = run(tmpRepo({ '.sdd/config.yaml': 'version: 1\n' }), 'config');
+  assert.equal(r.status, 0);
+  assert.equal(JSON.parse(r.stdout).paths.constitution, '.sdd/constitution.md');
+});
+
+test('validate --all rejects absolute, parent and empty constitution paths (AC-CFG-5.3-5.5)', () => {
+  for (const bad of ['/etc/constitution.md', '../c.md', '""']) {
+    const r = run(tmpRepo({ '.sdd/config.yaml': `version: 1\npaths: { constitution: ${bad} }\n` }), 'validate', '--all');
+    assert.equal(r.status, 1, bad);
+    assert.match(r.stdout + r.stderr, /V-CONFIG[\s\S]*paths\.constitution/, bad);
+  }
+});
+
 test('context without .sdd prints an init hint (AC-RULE-3.2)', () => {
   const root = tmpRepo();
   const r = run(root, 'context');

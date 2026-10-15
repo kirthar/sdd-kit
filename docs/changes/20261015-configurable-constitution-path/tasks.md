@@ -11,7 +11,7 @@ required: []
 - Outermost test: `sdd config` prints the default and `sdd validate --all` exits 1 with V-CONFIG paths.constitution for absolute, `..` and empty values at CLI level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T2: Warn when the configured constitution file is missing
 - Covers: AC-CFG-5.2, AC-CFG-5.6, AC-CFG-5.7
