@@ -61,7 +61,7 @@ Notes for T6: edit `AGENTS.md` and `templates/agents-section.md` together (re-in
 - Outermost test: sdd validate on a constitution that breaks each rule at module level
 - Depends on: T2
 - Package: .
-- Status: todo
+- Status: done
 
 Added 2026-10-15 by maintainer decision (AC-INIT-5.1 was carried over with no implementation). Rule
 `V-CONSTITUTION` on the file at `paths.constitution`: more than 40 counted lines is an error; each

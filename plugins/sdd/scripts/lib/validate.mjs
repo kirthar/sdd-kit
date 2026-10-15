@@ -47,6 +47,8 @@ export function validate(root, opts = {}) {
     const constitution = config.paths.constitution;
     if (exists && isProjectRelative(constitution) && !fs.existsSync(path.join(root, constitution))) {
       add('V-CONFIG', 'warn', '.sdd/config.yaml', null, `paths.constitution: ${constitution} does not exist`);
+    } else if (isProjectRelative(constitution)) {
+      validateConstitution(root, constitution, add);
     }
     validateRules(root, add);
     validateLeaks(root, add, rel);
@@ -288,6 +290,35 @@ export function validateRulesText(text, file, add) {
       if (!new RegExp(`^\\s*-\\s+${label}:`, 'm').test(block)) add('V-RULES', 'error', file, i + 1, `${m[1]} is missing "${label}"`);
     }
   });
+}
+
+const CONSTITUTION_MAX_LINES = 40;
+const GENERIC_VALUES = ['quality', 'simplicity', 'best practices', 'clean code', 'excellence'];
+const cells = (line) => line.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+const isFile = (p) => fs.existsSync(p) && fs.statSync(p).isFile();
+
+function validateConstitution(root, file, add) {
+  const text = fs.readFileSync(path.join(root, file), 'utf8');
+  const n = countLines(text);
+  if (n > CONSTITUTION_MAX_LINES) add('V-CONSTITUTION', 'error', file, null, `${n} lines, limit ${CONSTITUTION_MAX_LINES}`);
+  const lines = text.split('\n');
+  const at = lines.findIndex((l) => l.trim().startsWith('|') && /violated when/i.test(l));
+  if (at < 0) return;
+  const head = cells(lines[at]).map((c) => c.toLowerCase());
+  const violated = head.indexOf('violated when');
+  const evidence = head.indexOf('evidence');
+  for (let i = at + 2; i < lines.length && lines[i].trim().startsWith('|'); i++) {
+    const row = cells(lines[i]);
+    const id = row[0] ?? '';
+    const err = (message) => add('V-CONSTITUTION', 'error', file, i + 1, `${id || 'row'}: ${message}`);
+    if (!/^[A-Z]+[0-9]+$/.test(id)) err('ID must match [A-Z]+[0-9]+');
+    if (!row[violated]) err('"Violated when" is empty');
+    const named = (evidence < 0 ? '' : row[evidence] ?? '').split(/[\s,;]+/).map((t) => t.replace(/^[`'"(]+|[`'")\].:]+$/g, '')).filter(Boolean);
+    if (!named.some((t) => isFile(path.join(root, t)))) err('Evidence must name at least one existing repository file');
+    for (const word of GENERIC_VALUES) {
+      if (new RegExp(`\\b${word}\\b`, 'i').test(lines[i])) err(`generic value "${word}" is not an invariant`);
+    }
+  }
 }
 
 function validateRules(root, add) {

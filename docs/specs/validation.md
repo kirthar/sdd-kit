@@ -27,6 +27,7 @@ Deterministic checks that run identically on a laptop, in a skill, and in CI.
 | V-OPEN-Q | A phase approval exists while that phase's artifact has a BLOCKING open question | error |
 | V-UNVERIFIED | Living spec with `status: unverified` | warn |
 | V-RULES | `.sdd/rules.md` format; unique titles and IDs | error |
+| V-CONSTITUTION | The file at `paths.constitution`: ≤40 counted lines; each invariant row has an ID matching `[A-Z]+[0-9]+`, a "Violated when" cell and an Evidence cell naming an existing repository file; no generic-value words ("quality", "simplicity", "best practices", "clean code", "excellence") | error |
 | V-LEAK | Absolute home paths, emails or token patterns in `docs/` and `.sdd/` | error |
 
 - AC-VAL-1.1 Given a task without Covers, When validate runs, Then it exits 1 with

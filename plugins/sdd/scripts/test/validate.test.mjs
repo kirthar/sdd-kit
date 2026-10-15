@@ -228,3 +228,64 @@ test('markdown helpers parse criteria, tasks and questions', () => {
   assert.deepEqual(t.fields.covers, ['AC-1', 'AC-2']);
   assert.deepEqual(openQuestions('## Open questions\n- BLOCKING: a\n- NON-BLOCKING: b\n').map((q) => q.blocking), [true, false]);
 });
+
+// ---------- constitution (AC-INIT-5.1) ----------
+
+const HEAD = '# Constitution\n\n## Invariants\n| ID | Invariant | Violated when | Evidence |\n|---|---|---|---|\n';
+const ROW = '| K1 | Files first | A command needs a service | `src/bookings.js` |\n';
+const constitution = (body, extra = {}) => repo({
+  '.sdd/constitution.md': HEAD + body,
+  'src/bookings.js': 'export {};\n',
+  ...extra,
+});
+const found = (root) => validate(root, { all: true }).filter((x) => x.rule === 'V-CONSTITUTION');
+
+test('a sound constitution passes V-CONSTITUTION', () => {
+  assert.deepEqual(found(constitution(ROW)), []);
+});
+
+test('constitution over 40 counted lines is an error', () => {
+  const rows = Array.from({ length: 40 }, (_, i) => `| K${i + 1} | Rule | Broken when x | \`src/bookings.js\` |\n`).join('');
+  const f = found(constitution(rows));
+  assert.equal(f.length, 1);
+  assert.equal(f[0].level, 'error');
+  assert.equal(f[0].file, '.sdd/constitution.md');
+  assert.match(f[0].message, /lines/);
+});
+
+test('invariant ID not matching [A-Z]+[0-9]+ is an error', () => {
+  const f = found(constitution(ROW.replace('K1', 'one')));
+  assert.equal(f.length, 1);
+  assert.match(f[0].message, /ID/);
+});
+
+test('empty Violated when cell is an error', () => {
+  const f = found(constitution('| K1 | Files first |  | `src/bookings.js` |\n'));
+  assert.equal(f.length, 1);
+  assert.match(f[0].message, /Violated when/);
+});
+
+test('evidence naming no existing file is an error', () => {
+  const f = found(constitution(ROW.replace('src/bookings.js', 'src/missing.js')));
+  assert.equal(f.length, 1);
+  assert.match(f[0].message, /Evidence/);
+  assert.equal(found(constitution(ROW.replace('`src/bookings.js`', ''))).length, 1);
+});
+
+test('generic-value words are an error', () => {
+  for (const word of ['quality', 'simplicity', 'best practices', 'clean code', 'excellence']) {
+    const f = found(constitution(ROW.replace('Files first', `High ${word}`)));
+    assert.equal(f.length, 1, word);
+    assert.match(f[0].message, new RegExp(word));
+  }
+});
+
+test('constitution is read from the configured path', () => {
+  const root = tmpRepo({
+    '.sdd/config.yaml': `${CONFIG}paths: { constitution: docs/constitution.md }\n`,
+    'docs/constitution.md': HEAD + ROW.replace('K1', 'one'),
+    'src/bookings.js': 'export {};\n',
+  });
+  assert.equal(found(root).length, 1);
+  assert.equal(found(root)[0].file, 'docs/constitution.md');
+});
