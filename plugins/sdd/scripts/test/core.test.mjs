@@ -100,3 +100,28 @@ test('stale pointer with exactly one open change resolves to it and leaves the p
   assert.equal(resolveActive(dir), 'b');
   assert.equal(readActive(dir), 'a');
 });
+
+test('stale pointer with several open changes resolves to none', () => {
+  const dir = tmpRepo({ ...open('b'), ...open('c') });
+  writeActive(dir, 'a');
+  assert.equal(resolveActive(dir), null);
+});
+
+test('archived change is not open (AC-14)', () => {
+  const dir = tmpRepo({ 'docs/changes/archive/a/state.yaml': state('a', 'quick') });
+  writeActive(dir, 'a');
+  assert.equal(resolveActive(dir), null);
+});
+
+test('no pointer and no open change resolves to none (AC-15)', () => {
+  assert.equal(resolveActive(tmpRepo()), null);
+});
+
+test('detached HEAD resolves like any other checkout (AC-16)', () => {
+  const dir = tmpRepo(open('b'));
+  const git = (...a) => execFileSync('git', ['-C', dir, '-c', 'user.name=t', '-c', 'user.email=t@e.invalid', ...a]);
+  git('add', '-A');
+  git('commit', '-qm', 'i');
+  git('checkout', '-q', '--detach');
+  assert.equal(resolveActive(dir), 'b');
+});
