@@ -17,3 +17,4 @@ routes: { quick_max_files: 5 }
 release: { branch: main }
 autopilot: { enabled: false }
 integrations: {}
+paths: { constitution: docs/constitution.md }

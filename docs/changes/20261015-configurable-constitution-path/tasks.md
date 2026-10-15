@@ -51,6 +51,6 @@ required: []
 - Outermost test: `sdd validate --all` on this repository prints no constitution warning, at CLI level
 - Depends on: T1, T2, T3, T4
 - Package: .
-- Status: todo
+- Status: done
 
 Notes for T6: edit `AGENTS.md` and `templates/agents-section.md` together (re-init rewrites the section from the template). Merge the delta into the living specs `config.md`, `rules.md` and `init.md`. Leave `docs/specs/hooks.md` and the hooks as they are: they stay on the default path (out of scope), so this repository's constitution loses autopilot write protection until the follow-up change; the PR description says so. A search found no literal in `CONTRIBUTING.md` or `docs/specs/autopilot.md`. The person adds `init` to `capabilities` in `state.yaml` before approval.
