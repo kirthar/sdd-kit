@@ -35,7 +35,7 @@ required: []
 - Outermost test: `init --plan` records the constitution path only when non-default and `init --apply` writes the constitution only at the confirmed location, at script level (`lib/init.mjs`)
 - Depends on: T1
 - Package: .
-- Status: todo
+- Status: done
 
 ## T5: Make the init skill follow the configured constitution path
 - Covers: AC-INIT-5.1, AC-INIT-5.2

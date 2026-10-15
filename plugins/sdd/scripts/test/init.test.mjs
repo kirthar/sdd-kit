@@ -50,6 +50,22 @@ test('agents section stays within 40 lines', () => {
   assert.ok(section.split('\n').length <= 41);
 });
 
+test('plan records the constitution path only when it is not the default (AC-INIT-5.3)', () => {
+  const root = node();
+  assert.match(initPlan(root, { constitution: 'docs/constitution.md' }).config, /^paths: \{ constitution: docs\/constitution\.md \}$/m);
+  assert.doesNotMatch(initPlan(root, { constitution: '.sdd/constitution.md' }).config, /paths/);
+  assert.doesNotMatch(initPlan(root).config, /paths/);
+});
+
+test('apply writes the constitution only at the confirmed location (AC-INIT-5.4)', () => {
+  const root = node();
+  initApply(root, { constitution: 'docs/constitution.md', constitutionText: '# Constitution\n' });
+  assert.equal(fs.readFileSync(path.join(root, 'docs/constitution.md'), 'utf8'), '# Constitution\n');
+  assert.ok(!fs.existsSync(path.join(root, '.sdd/constitution.md')));
+  assert.match(fs.readFileSync(path.join(root, '.sdd/config.yaml'), 'utf8'), /constitution: docs\/constitution\.md/);
+  assert.deepEqual(validate(root, { all: true }).filter((f) => f.level === 'error'), []);
+});
+
 test('team activation writes exactly the marketplace and plugin entries (AC-INIT-7.1)', () => {
   const root = node();
   initApply(root, { team: 'owner/sdd-kit' });
