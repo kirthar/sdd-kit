@@ -1,5 +1,6 @@
 id: 20261015-detect-node-test-single
 route: quick
 capabilities: [init]
-approvals: {}
+approvals:
+  route: { by: kirthar, at: 2026-10-15T16:21:45.926Z }
 prs: []
