@@ -27,7 +27,7 @@ required: []
 - Outermost test: `sdd context` prints the constitution from the configured or default path and ignores an out-of-root value, exiting 0, at CLI level
 - Depends on: T1
 - Package: .
-- Status: todo
+- Status: done
 
 ## T4: Plan and apply the constitution location in init
 - Covers: AC-INIT-5.3, AC-INIT-5.4

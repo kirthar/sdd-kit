@@ -211,6 +211,28 @@ test('validate --all warns when the configured constitution is missing (AC-CFG-5
   assert.doesNotMatch(noConfig.stdout + noConfig.stderr, /paths\.constitution/);
 });
 
+const ctxRun = (files) => run(tmpRepo({ '.sdd/config.yaml': 'version: 1\n' + (files.cfg ?? ''), ...files.files }), 'context');
+
+test('context prints the constitution from the configured path (AC-RULE-3.3)', () => {
+  const r = ctxRun({ cfg: 'paths: { constitution: docs/constitution.md }\n', files: { 'docs/constitution.md': '# C\nCONFIGURED-TEXT\n' } });
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /CONFIGURED-TEXT/);
+});
+
+test('context prints the constitution from the default path (AC-RULE-3.4)', () => {
+  const r = ctxRun({ files: { '.sdd/constitution.md': '# C\nDEFAULT-TEXT\n' } });
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /DEFAULT-TEXT/);
+});
+
+test('context ignores a constitution path outside the project (AC-RULE-3.5)', () => {
+  const root = tmpRepo({ '.sdd/config.yaml': 'version: 1\npaths: { constitution: ../c.md }\n' });
+  fs.writeFileSync(path.join(root, '..', 'c.md'), '# C\nOUTSIDE-TEXT\n');
+  const r = run(root, 'context');
+  assert.equal(r.status, 0);
+  assert.doesNotMatch(r.stdout, /OUTSIDE-TEXT/);
+});
+
 test('context without .sdd prints an init hint (AC-RULE-3.2)', () => {
   const root = tmpRepo();
   const r = run(root, 'context');
