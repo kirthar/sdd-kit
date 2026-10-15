@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420" role="img" aria-label="Terminal demo: install, init, a quick fix with a failing test first, a blocked force push, and a draft pull request">
+<style>
+.l{font:14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;opacity:0;animation-duration:14.8s;animation-iteration-count:infinite;animation-timing-function:steps(1)}
+.l0{animation-name:k0}@keyframes k0{0%,0.00%{opacity:0}0.01%,96%{opacity:1}100%{opacity:0}}
+.l1{animation-name:k1}@keyframes k1{0%,6.08%{opacity:0}6.09%,96%{opacity:1}100%{opacity:0}}
+.l2{animation-name:k2}@keyframes k2{0%,12.16%{opacity:0}12.17%,96%{opacity:1}100%{opacity:0}}
+.l3{animation-name:k3}@keyframes k3{0%,18.24%{opacity:0}18.25%,96%{opacity:1}100%{opacity:0}}
+.l4{animation-name:k4}@keyframes k4{0%,24.32%{opacity:0}24.33%,96%{opacity:1}100%{opacity:0}}
+.l5{animation-name:k5}@keyframes k5{0%,30.41%{opacity:0}30.42%,96%{opacity:1}100%{opacity:0}}
+.l6{animation-name:k6}@keyframes k6{0%,36.49%{opacity:0}36.50%,96%{opacity:1}100%{opacity:0}}
+.l7{animation-name:k7}@keyframes k7{0%,42.57%{opacity:0}42.58%,96%{opacity:1}100%{opacity:0}}
+.l8{animation-name:k8}@keyframes k8{0%,48.65%{opacity:0}48.66%,96%{opacity:1}100%{opacity:0}}
+.l9{animation-name:k9}@keyframes k9{0%,54.73%{opacity:0}54.74%,96%{opacity:1}100%{opacity:0}}
+.l10{animation-name:k10}@keyframes k10{0%,60.81%{opacity:0}60.82%,96%{opacity:1}100%{opacity:0}}
+.l11{animation-name:k11}@keyframes k11{0%,66.89%{opacity:0}66.90%,96%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion: reduce){.l{animation:none;opacity:1}}
+</style>
+<rect width="900" height="420" rx="10" fill="#0d1117"/>
+<circle cx="22" cy="22" r="6" fill="#ff5f57"/><circle cx="42" cy="22" r="6" fill="#febc2e"/><circle cx="62" cy="22" r="6" fill="#28c840"/>
+<text x="24" y="70" class="l l0" fill="#9ecbff"><tspan fill="#8b949e">$ </tspan>claude plugin marketplace add &lt;owner&gt;/sdd-kit &amp;&amp; claude plugin install sdd@sdd-kit</text>
+<text x="24" y="100" class="l l1" fill="#ffffff"><tspan fill="#8b949e">&gt; </tspan>/sdd:init</text>
+<text x="24" y="130" class="l l2" fill="#b0b8c4">✓ node 20 · git · claude   ✓ stack: node (npm test, npm run lint)   wrote .sdd/config.yaml</text>
+<text x="24" y="160" class="l l3" fill="#ffffff"><tspan fill="#8b949e">&gt; </tspan>The confirmation email says &quot;bookng&quot;. Fix it.</text>
+<text x="24" y="190" class="l l4" fill="#b0b8c4">sdd:new → route quick (no contract, 1 file). Confirm: /sdd:approve 20261015-fix-typo route</text>
+<text x="24" y="220" class="l l5" fill="#ffffff"><tspan fill="#8b949e">&gt; </tspan>/sdd:approve 20261015-fix-typo route</text>
+<text x="24" y="250" class="l l6" fill="#ff9492">sdd tdd red   ✗ confirmation message is spelled correctly   (fails as expected)</text>
+<text x="24" y="280" class="l l7" fill="#7ee787">sdd tdd green ✓ 1 passed · commit: fix: spell booking in the confirmation</text>
+<text x="24" y="310" class="l l8" fill="#ffffff"><tspan fill="#8b949e">&gt; </tspan>git push --force</text>
+<text x="24" y="340" class="l l9" fill="#ff9492">sdd-guard: force push is blocked. Run it yourself if intended: ! git push --force</text>
+<text x="24" y="370" class="l l10" fill="#ffffff"><tspan fill="#8b949e">&gt; </tspan>/sdd:pr</text>
+<text x="24" y="400" class="l l11" fill="#7ee787">✓ secret scan clean · draft PR opened · no reviewers requested · no spec written</text>
+</svg>

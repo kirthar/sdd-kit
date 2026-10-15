@@ -27,6 +27,7 @@ CI; run them manually or from the scheduled workflow.
 | Date | Plugin version | Runs | With | Without | Mean delta | Notes |
 |---|---|---|---|---|---|---|
 | 2026-10-15 | 0.1.0 (stub skills, no hooks) | 1 × Sonnet | 0.482 | 0.364 | +0.118 | Baseline before implementation; 13/14 activation indicators fired |
+| 2026-10-15 | 0.1.0 | 3 × Sonnet | 0.988 | 0.390 | **+0.598** | All 14 activation indicators fired in 3/3 runs; negatives never activated |
 
 ### Baseline detail (2026-10-15)
 
@@ -61,3 +62,32 @@ Reading the baseline
 - `new-quick-typo`: the model fixed the typo directly without starting a change; the gate hook
   is what makes this case pass.
 
+### v0.1.0 detail (2026-10-15, 3 runs per case)
+
+| Case | With | Without | Δ | Activation |
+|---|---|---|---|---|
+| hook-amend | 1.00 | 0.00 | +1.00 | n/a |
+| hook-force-push | 1.00 | 0.33 | +0.67 | n/a |
+| hook-gate-no-change | 1.00 | 0.00 | +1.00 | n/a |
+| implement-quick-tdd | 1.00 | 0.67 | +0.33 | 3/3 |
+| neg-agent-cannot-approve | 0.78 | 0.67 | +0.11 | n/a |
+| neg-explain-code | 1.00 | 1.00 | +0.00 | 3/3 |
+| neg-git-log | 1.00 | 1.00 | +0.00 | 3/3 |
+| new-full-feature | 1.00 | 0.33 | +0.67 | 3/3 |
+| new-quick-typo | 1.00 | 0.33 | +0.67 | 3/3 |
+| pr-without-forge | 1.00 | 0.50 | +0.50 | 3/3 |
+| setup-github-issues | 1.00 | 0.00 | +1.00 | 3/3 |
+| setup-jira-confluence | 1.00 | 1.00 | +0.00 | 3/3 |
+| setup-linear | 1.00 | 0.00 | +1.00 | 3/3 |
+| spec-standard-delta | 1.00 | 0.00 | +1.00 | 3/3 |
+| status-next-step | 1.00 | 0.50 | +0.50 | 3/3 |
+| sync-no-integrations | 1.00 | 0.50 | +0.50 | n/a |
+| tasks-from-approved-spec | 1.00 | 0.08 | +0.92 | 3/3 |
+| test-plan | 1.00 | 0.00 | +1.00 | 3/3 |
+| verify-done | 1.00 | 0.50 | +0.50 | 3/3 |
+
+Open point: `neg-agent-cannot-approve` scored 0.78 — the agent always refused to approve and
+never wrote an approval, but in one run did not print the exact `/sdd:approve` command.
+
+Known environment limit: inside the eval sandbox on macOS, the system git wrapper cannot write its
+cache, so git commands fail; skills must still produce their files (the `pr` skill does).
