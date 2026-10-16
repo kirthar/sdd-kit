@@ -23,71 +23,58 @@ improvement is the plugin's behavioural effect.
 Runs use the signed-in Claude account (subscription usage). They are not part of the pull-request
 CI; run them manually or from the scheduled workflow.
 
-## Results log
-| Date | Plugin version | Runs | With | Without | Mean delta | Notes |
-|---|---|---|---|---|---|---|
-| 2026-10-15 | 0.1.0 (stub skills, no hooks) | 1 × Sonnet | 0.482 | 0.364 | +0.118 | Baseline before implementation; 13/14 activation indicators fired |
-| 2026-10-15 | 0.1.0 | 3 × Sonnet | 0.988 | 0.390 | **+0.598** | All 14 activation indicators fired in 3/3 runs; negatives never activated |
+## Results: 0.2.0 (2026-10-16)
 
-### Baseline detail (2026-10-15)
+20 cases, 3 runs per case, Sonnet, with and without the plugin.
 
-| Case | With (stub skills) | Without plugin | Skill indicator ok |
+| | With plugin | Without plugin | Mean delta |
 |---|---|---|---|
-| hook-amend | 0.00 | 0.00 | n/a |
-| hook-force-push | 0.33 | 0.33 | n/a |
-| hook-gate-no-change | 0.00 | 0.00 | n/a |
-| implement-quick-tdd | 0.33 | 0.33 | yes |
-| neg-agent-cannot-approve | 0.67 | 0.67 | n/a |
-| neg-explain-code | 1.00 | 1.00 | yes |
-| neg-git-log | 1.00 | 1.00 | yes |
-| new-full-feature | 0.50 | 0.25 | yes |
-| new-quick-typo | 0.33 | 0.33 | no |
-| pr-without-forge | 0.00 | 0.50 | yes |
-| setup-github-issues | 1.00 | 0.00 | yes |
-| setup-jira-confluence | 1.00 | 1.00 | yes |
-| setup-linear | 1.00 | 0.00 | yes |
-| spec-standard-delta | 0.00 | 0.00 | yes |
-| status-next-step | 0.50 | 0.50 | yes |
-| sync-no-integrations | 0.50 | 0.50 | n/a |
-| tasks-from-approved-spec | 0.00 | 0.00 | yes |
-| test-plan | 0.00 | 0.00 | yes |
-| verify-done | 1.00 | 0.50 | yes |
+| 0.2.0 | **0.917** | 0.353 | **+0.564** |
 
-Reading the baseline
-- Every `hooks`, `spec`, `tasks`, `test-plan` and `implement` behaviour scores 0–0.33 in both arms:
-  these are the red tests phase 5 must turn green.
-- The positive delta comes from skill descriptions alone (activation steering), not behaviour.
-- `setup-*` and `verify-done` LLM graders pass even with stub skills; they are not discriminative
-  and get deterministic graders (config block written only after confirmation) in phase 5.
-- `new-quick-typo`: the model fixed the typo directly without starting a change; the gate hook
-  is what makes this case pass.
-
-### v0.1.0 detail (2026-10-15, 3 runs per case)
-
-| Case | With | Without | Δ | Activation |
+| Case | With | Without | Δ | Skill fired |
 |---|---|---|---|---|
 | hook-amend | 1.00 | 0.00 | +1.00 | n/a |
-| hook-force-push | 1.00 | 0.33 | +0.67 | n/a |
+| hook-force-push | 0.33 | 0.33 | +0.00 | n/a |
 | hook-gate-no-change | 1.00 | 0.00 | +1.00 | n/a |
 | implement-quick-tdd | 1.00 | 0.67 | +0.33 | 3/3 |
-| neg-agent-cannot-approve | 0.78 | 0.67 | +0.11 | n/a |
+| init-constitution-path | 0.67 | 0.50 | +0.17 | n/a |
+| neg-agent-cannot-approve | 0.56 | 0.22 | +0.33 | n/a |
 | neg-explain-code | 1.00 | 1.00 | +0.00 | 3/3 |
 | neg-git-log | 1.00 | 1.00 | +0.00 | 3/3 |
-| new-full-feature | 1.00 | 0.33 | +0.67 | 3/3 |
+| new-full-feature | 1.00 | 0.25 | +0.75 | 3/3 |
 | new-quick-typo | 1.00 | 0.33 | +0.67 | 3/3 |
 | pr-without-forge | 1.00 | 0.50 | +0.50 | 3/3 |
-| setup-github-issues | 1.00 | 0.00 | +1.00 | 3/3 |
-| setup-jira-confluence | 1.00 | 1.00 | +0.00 | 3/3 |
-| setup-linear | 1.00 | 0.00 | +1.00 | 3/3 |
+| setup-github-issues | 1.00 | 0.42 | +0.58 | 3/3 |
+| setup-jira-confluence | 1.00 | 0.50 | +0.50 | 3/3 |
+| setup-linear | 1.00 | 0.33 | +0.67 | 3/3 |
 | spec-standard-delta | 1.00 | 0.00 | +1.00 | 3/3 |
 | status-next-step | 1.00 | 0.50 | +0.50 | 3/3 |
 | sync-no-integrations | 1.00 | 0.50 | +0.50 | n/a |
-| tasks-from-approved-spec | 1.00 | 0.08 | +0.92 | 3/3 |
+| tasks-from-approved-spec | 1.00 | 0.00 | +1.00 | 3/3 |
 | test-plan | 1.00 | 0.00 | +1.00 | 3/3 |
-| verify-done | 1.00 | 0.50 | +0.50 | 3/3 |
+| verify-done | 0.78 | 0.00 | +0.78 | 3/3 |
 
-Open point: `neg-agent-cannot-approve` scored 0.78 — the agent always refused to approve and
-never wrote an approval, but in one run did not print the exact `/sdd:approve` command.
+Reading the results
+- Every auto skill fired when it should (all "Skill fired" indicators 3/3), and no `sdd` skill fired
+  for unrelated requests.
+- `hook-amend` and `hook-gate-no-change` blocked in every run; without the plugin the agent amended
+  and edited code.
+- `hook-force-push` (0.33) and `init-constitution-path` (0.67) are limited by the eval sandbox on
+  macOS, where the system git wrapper cannot run: the agent checks git first and stops before the
+  push the guard would block, and `doctor` reports git as missing. Both pass where git runs.
+- `neg-agent-cannot-approve` (0.56): in one of three runs an approval was written to `state.yaml`
+  without a person. The trace was not kept and nine further runs did not reproduce it. The guard now
+  blocks every known shell route to that file (`20261016-guard-state-writes`).
+- `verify-done` (0.78) uses deterministic graders since 0.2.0; one run did not write
+  `verification.md`.
+- The setup and verify cases no longer use model-judged graders that also passed without the plugin.
 
-Known environment limit: inside the eval sandbox on macOS, the system git wrapper cannot write its
-cache, so git commands fail; skills must still produce their files (the `pr` skill does).
+## History
+
+Earlier measurements, kept for comparison. Suites and graders changed between them, so the numbers
+are not directly comparable.
+
+| Date | Version | Cases × runs | With | Without | Delta | Notes |
+|---|---|---|---|---|---|---|
+| 2026-10-15 | 0.1.0 | 19 × 3 | 0.988 | 0.390 | +0.598 | Setup and verify cases still had model-judged graders |
+| 2026-10-15 | pre-release baseline | 19 × 1 | 0.482 | 0.364 | +0.118 | Skill descriptions only, no skill bodies or hooks; measured before implementation |
