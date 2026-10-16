@@ -48,7 +48,7 @@
 - Outermost test: skill texts name their next command and no stop-and-offer at unit level
 - Depends on: T1, T2, T5
 - Package: .
-- Status: todo
+- Status: done
 
 ## T7: Document the two interaction points
 - Covers: AC-15

@@ -12,6 +12,11 @@ Routes, chosen per change and confirmed by a person:
 - **standard** — change to existing behaviour: `delta.md` → `tasks.md` → implementation.
 - **full** — new capability: `functional.md` → `technical.md` + OpenAPI contracts + ADRs → `tasks.md`.
 
+The person is asked twice: to confirm the route (`/sdd:approve <id> route`) and, for standard and
+full, to approve the whole plan once (`/sdd:approve <id> plan`). Every clarification question is
+asked before the plan is written. Between and after those approvals the agent continues on its
+own: it implements every task, verifies and leaves the pull request ready for review.
+
 Rules every agent follows:
 1. No code edits without an active change whose route (and, for standard/full, spec and tasks)
    a person approved. Approvals are recorded only by the person.
@@ -19,7 +24,10 @@ Rules every agent follows:
 3. Format and lint before tests; report exact commands; leave a clean tree.
 4. Never force push, amend published commits, delete branches, merge, approve or request reviewers.
    When one of these is needed, give the exact command to the person.
-5. Pull requests open as drafts with an explicit base and a behaviour-first description.
-6. Read the constitution (`paths.constitution` in `.sdd/config.yaml`) and `.sdd/rules.md` before planning or coding.
+5. Pull requests open as drafts with an explicit base and a behaviour-first description, and are
+   marked ready for review once verification is GO (`pr.auto_ready`).
+6. Commits and pull requests never name an AI assistant as co-author nor carry a "Generated with"
+   line; the author may sign them.
+7. Read the constitution (`paths.constitution` in `.sdd/config.yaml`) and `.sdd/rules.md` before planning or coding.
 
 Validate anytime: `sdd validate --all` (the `sdd` CLI ships with the plugin).

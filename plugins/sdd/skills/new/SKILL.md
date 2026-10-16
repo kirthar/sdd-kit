@@ -31,7 +31,9 @@ edits until the person confirms the route. Keep this step fast for small fixes.
 5. For **quick**, fill `brief.md` (≤15 lines): Problem (link the code), Expected behaviour,
    Proving test (behaviour and layer). Write nothing else — no spec, no tasks.
 6. Reply with: the route, the signals that fired (or "none"), and ask the person to confirm with
-   `/sdd:approve <id> route` — or `/sdd:approve <id> route route=<other>` to override.
+   `/sdd:approve <id> route` — or `/sdd:approve <id> route route=<other>` to override. Say what
+   happens next without further prompts: quick → implementation through to the pull request;
+   standard and full → every planning artifact, then one `/sdd:approve <id> plan`.
 
 ## Stop
 Do not edit code, tests or other files, and do not record approvals yourself. End the turn after

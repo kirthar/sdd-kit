@@ -15,7 +15,8 @@ Follow `references/tdd.md` from the sdd plugin exactly:
 - stay within the task's Expected paths; if you must leave them, stop and report why;
 - format and lint first and commit rewrites, then the configured tests, then a clean tree.
 
-Never push, amend, rebase, reset, change approvals or edit `.sdd/`. Flag any contract or schema
+Never push, amend, rebase, reset, change approvals or edit `.sdd/`. Commit messages never name an
+AI assistant as co-author nor carry a "Generated with" line. Flag any contract or schema
 change loudly.
 
 Return: commits (hash + subject), files changed, exact commands with results, anything outside the

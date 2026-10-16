@@ -14,7 +14,8 @@ Refuse for quick and standard changes: name `/sdd:implement` (quick) or `/sdd:sp
 ## Steps
 - [ ] Read the request, related living specs in `docs/specs/`, and the relevant code.
 - [ ] Run the clarification sweep in `${CLAUDE_PLUGIN_ROOT}/references/clarification-angles.md`.
-      Ask at most 4 questions per batch, each with options and a recommendation; wait for answers.
+      Ask every clarification question up front, before writing anything, in consecutive batches of
+      at most 4, each with options and a recommendation; wait for the answers. Ask nothing later.
 - [ ] Write `docs/changes/<id>/functional.md` from the template
       (`.sdd/templates/functional.md` if present, else `${CLAUDE_PLUGIN_ROOT}/templates/functional.md`).
       Keep it ≤120 lines. Criteria follow `${CLAUDE_PLUGIN_ROOT}/references/requirements-principles.md`;
@@ -24,5 +25,6 @@ Refuse for quick and standard changes: name `/sdd:implement` (quick) or `/sdd:sp
 - [ ] Self-check: every criterion is testable, atomic and has one outcome; out of scope is explicit.
 
 ## Stop
-If a BLOCKING question is open, say so and stop. Otherwise ask the person to review and run
-`/sdd:approve <id> functional`. Never record the approval yourself.
+If a BLOCKING question is open, say so and stop. Otherwise continue without asking with
+`/sdd:spec` and then `/sdd:tasks`; the person reviews everything at once with
+`/sdd:approve <id> plan`. Never record an approval yourself.
