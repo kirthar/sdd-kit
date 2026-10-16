@@ -2,8 +2,9 @@
 
 Every change to this repository starts with `/sdd:new`; the change folder is part of the PR.
 The kit's own configuration lives in `.sdd/`; its constitution is `docs/constitution.md` and its
-living specs are `docs/specs/`. Run Claude Code with the plugin from this checkout:
-`claude --plugin-dir ./plugins/sdd`.
+living specs are `docs/specs/`. Claude Code treats the files of the loaded plugin as sensitive, so
+a session cannot edit the kit it is running. Work in a git worktree and load the plugin from the
+main checkout: `claude --plugin-dir <main checkout>/plugins/sdd`.
 
 ## Development
 ```bash
