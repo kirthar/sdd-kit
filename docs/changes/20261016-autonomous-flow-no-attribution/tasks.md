@@ -8,7 +8,7 @@
 - Outermost test: `sdd approve <id> plan` records every planning phase at CLI level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T2: Derive the plan approval as the next step
 - Covers: AC-5, AC-6
