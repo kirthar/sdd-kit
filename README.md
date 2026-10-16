@@ -61,6 +61,8 @@ Then, in your repository: `/sdd:init`. Requirements: Claude Code, git, Node.js �
 `/sdd:init` · `/sdd:approve` · `/sdd:archive` · `/sdd:adopt` · `/sdd:learn` · `/sdd:sync` ·
 `/sdd:autopilot` · `/sdd:release-check` — only you can run these.
 
+To see the red and green runs recorded for a change: `sdd tdd log <id>`.
+
 ## How this was built
 
 The kit was built with its own method: a constitution and ADRs first, component specs with

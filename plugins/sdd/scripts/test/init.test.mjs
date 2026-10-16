@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { tmpRepo, writeFiles } from './helpers.mjs';
 import { initPlan, initApply, upsertAgentsSection, seedGroups } from '../lib/init.mjs';
 import { validate } from '../lib/validate.mjs';
@@ -104,4 +105,34 @@ test('re-running init keeps the configured constitution location (AC-INIT-5.2)',
   initApply(root, { constitutionText: '# Constitution\n' });
   assert.ok(fs.existsSync(path.join(root, 'docs/constitution.md')));
   assert.ok(!fs.existsSync(path.join(root, '.sdd/constitution.md')));
+});
+
+const git = (root, ...args) => execFileSync('git', ['-C', root, '-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { encoding: 'utf8' });
+const initSkill = () => fs.readFileSync(path.resolve(import.meta.dirname, '..', '..', 'skills', 'init', 'SKILL.md'), 'utf8');
+
+test('init skill offers a commit of exactly the written paths and the sequence leaves a clean tree (AC-7, AC-19)', () => {
+  const skill = initSkill();
+  assert.match(skill, /git add -- <paths>/);
+  assert.match(skill, /git commit -m "chore: adopt sdd" -- <paths>/);
+
+  const root = node();
+  writeFiles(root, { 'seed.txt': 'x\n', 'staged.txt': 'already staged\n' });
+  git(root, 'add', '--', 'seed.txt', 'package.json');
+  git(root, 'commit', '-q', '-m', 'seed');
+  git(root, 'add', '--', 'staged.txt');
+  const { written } = initApply(root, {});
+  git(root, 'add', '--', ...written);
+  git(root, 'commit', '-q', '-m', 'chore: adopt sdd', '--', ...written);
+  assert.equal(git(root, 'log', '--format=%s').trim().split('\n')[0], 'chore: adopt sdd');
+  assert.deepEqual(git(root, 'show', '--name-only', '--format=', 'HEAD').trim().split('\n').sort(), [...written].sort());
+  assert.equal(git(root, 'status', '--porcelain').trim(), 'A  staged.txt');
+});
+
+test('init skill says declining the offer leaves files uncommitted with no commit (AC-8)', () => {
+  assert.match(initSkill(), /declin\w+[^\n]*uncommitted[^\n]*no commit/i);
+  const root = node();
+  git(root, 'commit', '-q', '--allow-empty', '-m', 'seed');
+  const { written } = initApply(root, {});
+  assert.equal(git(root, 'rev-list', '--count', 'HEAD').trim(), '1');
+  assert.ok(written.every((f) => git(root, 'status', '--porcelain', '--', f).startsWith('??')));
 });

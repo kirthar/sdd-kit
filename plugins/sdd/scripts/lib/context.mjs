@@ -1,9 +1,8 @@
 // `sdd context`: what every skill sees first (REQ-RULE-3).
 import fs from 'node:fs';
 import path from 'node:path';
-import { readActive } from './git.mjs';
 import { loadConfig, isProjectRelative } from './config.mjs';
-import { loadChange, derivePhase, missingApprovals, nextCommand } from './changes.mjs';
+import { loadChange, resolveActive, derivePhase, missingApprovals, nextCommand } from './changes.mjs';
 import { splitFrontmatter } from './markdown.mjs';
 
 const MAX_RULE_LINES = 80;
@@ -11,7 +10,7 @@ const MAX_RULE_LINES = 80;
 export function context(root) {
   if (!root || !loadConfig(root).exists) return 'sdd is not initialised in this repository. Ask the person to run /sdd:init.';
   const out = [];
-  const id = readActive(root);
+  const id = resolveActive(root);
   const change = id && loadChange(root, id);
   if (change) {
     const missing = missingApprovals(change.state);

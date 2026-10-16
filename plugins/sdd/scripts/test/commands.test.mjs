@@ -92,6 +92,24 @@ test('status names the next command for each open change (AC-LIFE-11.1)', () => 
   assert.equal(s.changes[0].next, '/sdd:tasks');
 });
 
+test('status reports the single open change active when the pointer is stale (AC-4, AC-5)', () => {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'docs/changes/b/state.yaml': state('b', 'quick') });
+  writeActive(root, 'a');
+  const s = status(root);
+  assert.equal(s.active, 'b');
+  assert.equal(s.changes[0].active, true);
+  writeFiles(root, { 'docs/changes/c/state.yaml': state('c', 'quick') });
+  const two = status(root);
+  assert.equal(two.active, null);
+  assert.ok(two.changes.every((c) => !c.active));
+});
+
+test('context names the single open change when the pointer is stale', () => {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'docs/changes/b/state.yaml': state('b', 'quick') });
+  writeActive(root, 'a');
+  assert.match(context(root), /Active change: b \(quick\)/);
+});
+
 // ---- archive (REQ-VAL-2) ----
 
 test('archive applies deltas deterministically and moves the folder (AC-VAL-2.2)', () => {
@@ -146,6 +164,57 @@ test('tdd records red then green in the shared log', () => {
   const log = readTddLog(root, 'c1');
   assert.deepEqual(log.map((e) => e.phase), ['red', 'green']);
   assert.ok(fs.existsSync(path.join(sddCommonDir(root), 'tdd', 'c1.log')));
+});
+
+test('tdd logs under the single open change when the pointer is stale (AC-18)', () => {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'docs/changes/b/state.yaml': state('b', 'quick') });
+  writeActive(root, 'a');
+  assert.equal(tdd(root, 'red', ['node', '-e', 'process.exit(3)']).exitCode, 0);
+  assert.deepEqual(readTddLog(root, 'b').map((e) => e.phase), ['red']);
+  assert.deepEqual(readTddLog(root, 'a'), []);
+});
+
+test('tdd log prints recorded runs in order with exit codes (AC-9)', () => {
+  const root = standard();
+  writeActive(root, 'c1');
+  tdd(root, 'red', ['node', '-e', 'process.exit(3)']);
+  tdd(root, 'green', ['node', '-e', 'process.exit(0)']);
+  const r = run(root, 'tdd', 'log', 'c1');
+  assert.equal(r.status, 0);
+  const lines = r.stdout.trim().split('\n');
+  assert.equal(lines.length, 2);
+  assert.match(lines[0], /red.*exit 3/);
+  assert.match(lines[1], /green.*exit 0/);
+});
+
+test('tdd log says no runs recorded for an empty or unknown id (AC-10)', () => {
+  const root = standard();
+  for (const args of [['tdd', 'log', 'c1'], ['tdd', 'log', 'nope'], ['tdd', 'log']]) {
+    const r = run(root, ...args);
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /no runs recorded/);
+  }
+});
+
+test('tdd log shows red before green for a proven quick change and no red otherwise (AC-11, AC-12)', () => {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'docs/changes/q1/state.yaml': state('q1', 'quick'), 'docs/changes/q2/state.yaml': state('q2', 'quick') });
+  writeActive(root, 'q1');
+  tdd(root, 'red', ['node', '-e', 'process.exit(1)']);
+  tdd(root, 'green', ['node', '-e', 'process.exit(0)']);
+  const proven = run(root, 'tdd', 'log', 'q1').stdout.trim().split('\n').map((l) => l.split(/\s+/).find((w) => /^(red|green)$/.test(w)));
+  assert.deepEqual(proven, ['red', 'green']);
+  writeActive(root, 'q2');
+  tdd(root, 'green', ['node', '-e', 'process.exit(0)']);
+  assert.ok(!/\bred\b/.test(run(root, 'tdd', 'log', 'q2').stdout));
+});
+
+test('verify skill reads the tdd log and reports proven or NO-GO naming the missing red run (AC-11, AC-12)', () => {
+  const skill = fs.readFileSync(path.resolve(path.dirname(SDD), '..', 'skills', 'verify', 'SKILL.md'), 'utf8');
+  const quick = skill.match(/^\d+\. \*\*Quick:\*\*[\s\S]*?(?=^\d+\. )/m)[0];
+  assert.match(quick, /tdd log <id>/);
+  assert.match(quick, /proven/);
+  assert.match(quick, /NO-GO/);
+  assert.match(quick, /missing red/);
 });
 
 // ---- scan (REQ-VAL-3) ----
@@ -298,4 +367,64 @@ test('archive applies full-route living spec deltas and creates a new capability
   const spec = fs.readFileSync(path.join(root, 'docs/specs/reviews.md'), 'utf8');
   assert.match(spec, /### REQ-REV-1: Review a booking\nOne review per booking\./);
   assert.match(spec, /### REQ-REV-2: Reject invalid reviews/);
+});
+
+// ---- new: branch per change (REQ-LIFE-1; AC-1, AC-2, AC-3, AC-13) ----
+
+const git = (cwd, ...args) => spawnSync('git', ['-c', 'user.name=T', '-c', 'user.email=t@example.com', ...args], { cwd, encoding: 'utf8' });
+const branchOf = (cwd) => git(cwd, 'branch', '--show-current').stdout.trim();
+function committedRepo() {
+  const root = tmpRepo({ '.sdd/config.yaml': CONFIG, 'src.txt': 'one\n' });
+  git(root, 'add', '--', '.sdd/config.yaml', 'src.txt');
+  git(root, 'commit', '-q', '-m', 'init');
+  return root;
+}
+
+test('sdd new on the base branch lands on sdd/<id> with folder and pointer (AC-1)', () => {
+  const root = committedRepo();
+  const r = run(root, 'new', 'fix-typo', '--route', 'quick');
+  assert.equal(r.status, 0, r.stderr);
+  const id = readActive(root);
+  assert.match(id, /-fix-typo$/);
+  assert.equal(branchOf(root), `sdd/${id}`);
+  assert.ok(fs.existsSync(path.join(root, 'docs/changes', id, 'state.yaml')));
+});
+
+test('sdd new stays on a feature branch (AC-2)', () => {
+  const root = committedRepo();
+  git(root, 'switch', '-q', '-c', 'feature/x');
+  const r = run(root, 'new', 'fix-typo', '--route', 'quick');
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(branchOf(root), 'feature/x');
+  assert.ok(readActive(root));
+});
+
+test('sdd new stops with nothing created when sdd/<id> exists (AC-3)', () => {
+  const root = committedRepo();
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  git(root, 'branch', `sdd/${today}-fix-typo`);
+  const r = run(root, 'new', 'fix-typo', '--route', 'quick');
+  assert.equal(r.status, 1);
+  assert.match(r.stdout + r.stderr, new RegExp(`sdd/${today}-fix-typo`));
+  assert.equal(branchOf(root), 'main');
+  assert.equal(fs.existsSync(path.join(root, 'docs/changes')), false);
+  assert.equal(readActive(root), null);
+});
+
+test('sdd new stops with nothing created when the switch fails on a dirty tree (AC-13)', () => {
+  const root = committedRepo();
+  fs.writeFileSync(path.join(root, 'src.txt'), 'dirty\n');
+  const r = run(root, 'new', 'fix-typo', '--route', 'quick');
+  assert.equal(r.status, 1);
+  assert.match(r.stdout + r.stderr, /dirty|uncommitted/i);
+  assert.equal(branchOf(root), 'main');
+  assert.equal(fs.existsSync(path.join(root, 'docs/changes')), false);
+  assert.equal(readActive(root), null);
+});
+
+test('tdd log rejects an id that is not a change id', () => {
+  const root = standard();
+  const r = tdd(root, 'log', ['../../secrets']);
+  assert.equal(r.exitCode, 2);
+  assert.match(r.message, /invalid change id/);
 });

@@ -12,9 +12,10 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context)
 ## Steps
 1. `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" validate <id>`.
 2. Run the configured lint and test commands; record the exact commands and results.
-3. **Quick:** confirm the proving test from `brief.md` exists and that the tdd log
-   (`node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" status --json` / commit history) shows it failing before it passed. Report in the
-   terminal only — write no file.
+3. **Quick:** confirm the proving test from `brief.md` exists, then read the recorded runs with
+   `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" tdd log <id>`. A red run followed by a green run
+   means the proving test is **proven**. No red run (or no runs) is **NO-GO**: name the missing red
+   run. Report in the terminal only — write no file.
 4. **Standard / full:** for every criterion find exercised evidence — a test that asserts it and
    passed, or an observation you made by running the software. Reading the code is not evidence.
    Write `docs/changes/<id>/verification.md` (template `verification`): commands, criterion →

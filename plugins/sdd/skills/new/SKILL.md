@@ -25,6 +25,9 @@ edits until the person confirms the route. Keep this step fast for small fixes.
    | none of the above (bug, typo, small internal change) | quick |
 4. Create the change (slug = 2–5 words, kebab-case; capabilities = affected living specs):
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" new <slug> --route <route> --capabilities <cap,...> --signals <signal,...>`
+   On `base_branch` this first creates and switches to `sdd/<id>`; on any other branch it stays
+   there. If `sdd/<id>` exists or the switch fails (for example a dirty tree) it creates nothing:
+   report why and stop.
 5. For **quick**, fill `brief.md` (≤15 lines): Problem (link the code), Expected behaviour,
    Proving test (behaviour and layer). Write nothing else — no spec, no tasks.
 6. Reply with: the route, the signals that fired (or "none"), and ask the person to confirm with

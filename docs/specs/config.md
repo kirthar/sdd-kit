@@ -34,7 +34,7 @@ paths: { constitution: .sdd/constitution.md }   # relative to the project root
 
 | Path | Content | Scope |
 |---|---|---|
-| `<git-dir>/sdd/active` | Active change id | Per worktree (read without spawning git: `.git` dir or `gitdir:` file) |
+| `<git-dir>/sdd/active` | Active change id; a hint only: readers resolve it per REQ-LIFE-13, so a stale pointer falls back to the single open change and is never rewritten | Per worktree (read without spawning git: `.git` dir or `gitdir:` file) |
 | `<git-common-dir>/sdd/locks/` | Autopilot locks + heartbeat | Shared by all worktrees |
 | `<git-common-dir>/sdd/tdd/<id>.log` | Red/green runs recorded by `sdd tdd` | Shared |
 | `.sdd/local/` (gitignored) | `pause` kill switch, autopilot reports | Main checkout |

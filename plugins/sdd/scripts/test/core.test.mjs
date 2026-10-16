@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { tmpRepo, CONFIG, state } from './helpers.mjs';
 import { findRepoRoot, gitDir, commonDir, readActive, writeActive } from '../lib/git.mjs';
 import { loadConfig, validateConfig } from '../lib/config.mjs';
-import { requiredApprovals, missingApprovals, loadChange, derivePhase, nextCommand } from '../lib/changes.mjs';
+import { requiredApprovals, missingApprovals, loadChange, derivePhase, nextCommand, resolveActive } from '../lib/changes.mjs';
 
 test('finds repo root from a nested directory', () => {
   const dir = tmpRepo({ 'src/a.js': '' });
@@ -94,4 +94,44 @@ test('project root is the nearest folder with .sdd/config.yaml inside the reposi
   const dir = tmpRepo({ 'examples/app/.sdd/config.yaml': CONFIG, 'examples/app/src/a.js': '' });
   assert.equal(findProjectRoot(path.join(dir, 'examples/app/src')), fs.realpathSync(path.join(dir, 'examples/app')));
   assert.equal(findProjectRoot(dir), fs.realpathSync(dir));
+});
+
+const open = (id) => ({ [`docs/changes/${id}/state.yaml`]: state(id, 'quick') });
+
+test('pointer naming a change present in the checkout wins over other open changes (AC-6)', () => {
+  const dir = tmpRepo({ ...open('a'), ...open('b') });
+  writeActive(dir, 'a');
+  assert.equal(resolveActive(dir), 'a');
+});
+
+test('stale pointer with exactly one open change resolves to it and leaves the pointer alone (AC-4, AC-17)', () => {
+  const dir = tmpRepo(open('b'));
+  writeActive(dir, 'a');
+  assert.equal(resolveActive(dir), 'b');
+  assert.equal(readActive(dir), 'a');
+});
+
+test('stale pointer with several open changes resolves to none', () => {
+  const dir = tmpRepo({ ...open('b'), ...open('c') });
+  writeActive(dir, 'a');
+  assert.equal(resolveActive(dir), null);
+});
+
+test('archived change is not open (AC-14)', () => {
+  const dir = tmpRepo({ 'docs/changes/archive/a/state.yaml': state('a', 'quick') });
+  writeActive(dir, 'a');
+  assert.equal(resolveActive(dir), null);
+});
+
+test('no pointer and no open change resolves to none (AC-15)', () => {
+  assert.equal(resolveActive(tmpRepo()), null);
+});
+
+test('detached HEAD resolves like any other checkout (AC-16)', () => {
+  const dir = tmpRepo(open('b'));
+  const git = (...a) => execFileSync('git', ['-C', dir, '-c', 'user.name=t', '-c', 'user.email=t@e.invalid', ...a]);
+  git('add', '-A');
+  git('commit', '-qm', 'i');
+  git('checkout', '-q', '--detach');
+  assert.equal(resolveActive(dir), 'b');
 });
