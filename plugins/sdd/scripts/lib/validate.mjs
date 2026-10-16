@@ -16,14 +16,14 @@ export const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.u
 const REQUIREMENTS = JSON.parse(readOr(path.join(PLUGIN_ROOT, 'scripts', 'requirements.json'), '{}'));
 
 const ARTIFACTS = {
-  quick: { 'brief.md': 'brief', 'pr.md': 'pr-quick' },
-  standard: { 'delta.md': 'delta', 'tasks.md': 'tasks', 'test-plan.md': 'test-plan', 'verification.md': 'verification', 'pr.md': 'pr' },
+  quick: { 'brief.md': 'brief', 'pr.md': 'pr-quick', 'changelog.md': 'changelog' },
+  standard: { 'delta.md': 'delta', 'tasks.md': 'tasks', 'test-plan.md': 'test-plan', 'verification.md': 'verification', 'pr.md': 'pr', 'changelog.md': 'changelog' },
   full: {
     'functional.md': 'functional', 'technical.md': 'technical', 'tasks.md': 'tasks',
-    'test-plan.md': 'test-plan', 'verification.md': 'verification', 'pr.md': 'pr',
+    'test-plan.md': 'test-plan', 'verification.md': 'verification', 'pr.md': 'pr', 'changelog.md': 'changelog',
   },
 };
-const QUICK_ALLOWED = new Set(['state.yaml', 'brief.md', 'pr.md']);
+const QUICK_ALLOWED = new Set(['state.yaml', 'brief.md', 'pr.md', 'changelog.md']);
 const CRITERIA_SOURCE = { standard: 'delta.md', full: 'functional.md' };
 const APPROVAL_ARTIFACT = { functional: { full: 'functional.md' }, spec: { standard: 'delta.md', full: 'technical.md' } };
 const PROSE_TEMPLATES = new Set(['brief', 'functional', 'delta', 'technical']);

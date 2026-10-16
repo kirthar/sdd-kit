@@ -24,7 +24,7 @@
 - Outermost test: `sdd archive` with a changelog entry at CLI level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T4: Use restack the conflict check and changelog entries in the skills
 - Covers: AC-10
