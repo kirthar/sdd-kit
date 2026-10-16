@@ -24,7 +24,7 @@
 - Outermost test: guard decision for attributed commits and PR bodies at hook level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T4: Reject AI attribution in open pull request bodies
 - Covers: AC-11, AC-12, AC-VAL-6.1, AC-VAL-6.2

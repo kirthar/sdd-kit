@@ -183,7 +183,7 @@ function checkCommand(cmd, ctx) {
   checkStateNamed(argv, cmd.heredocs);
   const name = basename(argv[0]);
   if (name === 'git') return checkGit(cmd, ctx);
-  if (name === 'gh') return checkGh(argv, ctx);
+  if (name === 'gh') return checkGh(argv, ctx, cmd.heredocs);
   checkApprove(argv);
 }
 
@@ -349,6 +349,7 @@ function checkGit(cmd, ctx) {
     case 'commit':
       if (hasLong(args, '--amend')) throw new Block('git commit --amend rewrites history; make a new commit instead');
       if (hasLong(args, '--no-verify') || hasShort(args, 'n', 'mFCctuS')) throw new Block('git commit --no-verify skips the hooks');
+      checkAttribution([...args, ...heredocBodies(cmd.heredocs), ...fileContents(args, ['-F', '--file'], ctx)]);
       break;
     case 'rebase':
       if (ctx.config.git?.integration !== 'rebase') throw new Block('git rebase is disabled (git.integration: merge); merge the base branch instead');
@@ -508,7 +509,7 @@ function ghVerb(argv) {
   return { group: pos[0], verb: pos[1], args: argv.slice(k) };
 }
 
-function checkGh(argv, ctx) {
+function checkGh(argv, ctx, heredocs = []) {
   const { group, verb, args } = ghVerb(argv);
   const all = argv.slice(1);
   if (group === 'api') return checkGhApi(argv.slice(argv.indexOf('api') + 1));
@@ -526,6 +527,9 @@ function checkGh(argv, ctx) {
       throw new Block('gh pr create without --draft (pr.draft: true); add --draft');
     }
     if (['create', 'comment', 'edit'].includes(verb)) checkMentions(args, ctx);
+    if (group === 'pr' && (verb === 'create' || verb === 'edit')) {
+      checkAttribution([...args, ...heredocBodies(heredocs), ...fileContents(args, ['--body-file', '-F'], ctx)]);
+    }
   }
 }
 
@@ -563,6 +567,48 @@ function checkGhApi(args) {
   if (m !== 'GET' && endpoint && /\/(merge|merges|reviews|requested_reviewers)(\/|$|\?)/.test(endpoint)) {
     throw new Block(`gh api ${m} ${endpoint} merges or reviews`);
   }
+}
+
+// --- AI attribution ----------------------------------------------------------------------------
+
+// An AI assistant credited as co-author, or a "Generated with" footer naming one. The author's own
+// signature (`-S`, `-s`, `Signed-off-by:`) and human co-authors are fine.
+const ATTRIBUTION = [
+  /^[ \t>]*co-authored-by:[^\n]*\b(claude|anthropic)\b[^\n]*/im,
+  /^[^\w\n]*generated (with|by)\b[^\n]*\b(claude|anthropic)\b[^\n]*/im,
+];
+
+export function findAttribution(text) {
+  for (const re of ATTRIBUTION) {
+    const m = re.exec(text);
+    if (m) return m[0].trim();
+  }
+  return null;
+}
+
+function checkAttribution(texts) {
+  for (const text of texts) {
+    const line = findAttribution(text);
+    if (line) throw new Block(`"${line}" credits an AI assistant; commits and pull requests carry no AI attribution`);
+  }
+}
+
+function heredocBodies(heredocs = []) {
+  return heredocs.map((h) => h.body);
+}
+
+// Contents of the files named by `flags` (`-F f`, `--file f`, `--file=f`); `-` (stdin) is skipped.
+function fileContents(args, flags, ctx) {
+  const out = [];
+  for (let k = 0; k < args.length; k++) {
+    const a = args[k];
+    const eq = flags.find((f) => f.startsWith('--') && a.startsWith(`${f}=`));
+    const file = eq ? a.slice(eq.length + 1) : flags.includes(a) ? args[++k] : null;
+    if (!file || file === '-') continue;
+    const text = safe(() => fs.readFileSync(path.resolve(ctx.cwd, file), 'utf8'));
+    if (text !== null) out.push(text);
+  }
+  return out;
 }
 
 // --- mentions ----------------------------------------------------------------------------------

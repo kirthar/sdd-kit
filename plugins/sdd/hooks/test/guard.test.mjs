@@ -400,3 +400,54 @@ describe('end to end (stdin protocol)', () => {
     assert.match(r.stderr, /sdd-guard/);
   });
 });
+
+describe('AI attribution (REQ-HOOK-1 Attribution)', () => {
+  const CO = 'Co-Authored-By: Claude Opus <noreply@anthropic.com>';
+  const GEN = '🤖 Generated with [Claude Code](https://claude.com/claude-code)';
+  const blocked = [
+    ['commit -m with an AI co-author (AC-7)', `git commit -m "feat: x\n\n${CO}"`],
+    ['commit with two -m, the second an AI co-author', `git commit -m "feat: x" -m "${CO}"`],
+    ['commit --message= with an AI co-author', `git commit --message="feat: x\n\nco-authored-by: claude <x@y.z>"`],
+    ['commit --trailer naming Claude', 'git commit -m "feat: x" --trailer "Co-authored-by: Claude <noreply@anthropic.com>"'],
+    ['commit heredoc with an AI co-author', `git commit -m "$(cat <<'EOF'\nfeat: x\n\n${CO}\nEOF\n)"`],
+    ['commit -F - heredoc with Generated with', `git commit -F - <<'EOF'\nfeat: x\n\n${GEN}\nEOF`],
+    ['gh pr create --body Generated with (AC-9)', `gh pr create --draft --base main --title t --body "Summary\n\n${GEN}"`],
+    ['gh pr edit --body Generated with', `gh pr edit 12 --body "x\n\n${GEN}"`],
+    ['gh pr create heredoc body with AI co-author', `gh pr create --draft --title t --body "$(cat <<'EOF'\nx\n\n${CO}\nEOF\n)"`],
+  ];
+  for (const [name, command] of blocked) {
+    test(name, () => {
+      const r = evaluate(bash(command, DEFAULT_REPO));
+      assert.equal(r.decision, 'block', `expected block: ${command}`);
+      assert.match(r.reason, /AI assistant|attribution/i);
+      assert.equal(r.handoff, `Run it yourself if intended: ! ${command}`);
+    });
+  }
+
+  test('gh pr create --body-file with Generated with (AC-9)', () => {
+    const dir = repo({ 'docs/changes/c1/pr.md': `Summary\n\n${GEN}\n` });
+    const r = evaluate(bash('gh pr create --draft --base main --title t --body-file docs/changes/c1/pr.md', dir));
+    assert.equal(r.decision, 'block');
+  });
+
+  test('commit -F file with an AI co-author', () => {
+    const dir = repo({ 'msg.txt': `feat: x\n\n${CO}\n` });
+    assert.equal(evaluate(bash('git commit -F msg.txt', dir)).decision, 'block');
+  });
+
+  const allowed = [
+    'git commit -S -s -m "feat: x"', // AC-8: the author's own signature and sign-off
+    'git commit --gpg-sign --signoff -m "feat: x"',
+    'git commit -m "feat: x\n\nSigned-off-by: Some Person <p@example.invalid>"',
+    'git commit -m "feat: x\n\nCo-authored-by: Some Person <p@example.invalid>"', // AC-10
+    'git commit -m "feat(guard): block AI co-author trailers"',
+    'gh pr create --draft --base main --title t --body "Generated with care by the team"',
+    'grep -n "Co-Authored-By: Claude" docs/changes/archive/x/pr.md',
+  ];
+  for (const command of allowed) {
+    test(`allows ${JSON.stringify(command)}`, () => {
+      const r = evaluate(bash(command, DEFAULT_REPO));
+      assert.equal(r.decision, 'allow', `expected allow: ${command} (${r.reason})`);
+    });
+  }
+});
