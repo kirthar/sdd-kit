@@ -32,12 +32,18 @@ Write nothing.
    - seed rule groups (list them) · CI validation workflow · team activation in
      `.claude/settings.json` (ask for the marketplace repository `owner/repo`) ·
      a `permissions.allow` list for the detected commands (needed only for unattended autopilot).
+   - forge merge settings, when `pr.forge` is `github`: the output of
+     `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" forge-settings` — only the `pr.merge` method,
+     the merge commit taken from the pull request title and body (not "Merge pull request #n"),
+     and branches deleted on merge so stacked pull requests retarget.
 4. **Wait for confirmation.** If the person declines, write nothing.
 5. On confirmation run
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" init --apply [--seed <groups>] [--ci] [--team <owner/repo>]`,
    then write your edited `.sdd/config.yaml` values and the constitution at the location from step 2. If the person wanted
    the permissions list, add `Bash(<command>)` entries for each detected command plus
    `Bash(git add:*)`, `Bash(git commit:*)` and `Bash(gh pr create:*)` to `.claude/settings.json`.
+   If the person accepted the forge merge settings and `gh auth status` succeeds, run the `gh api`
+   command that `forge-settings` printed; otherwise hand it to the person as `! <command>`.
 6. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" validate --all` and fix any error. It warns
    when the constitution is missing at the configured location.
 7. Offer to commit exactly the files init wrote: the `Wrote:` paths from step 5 plus
