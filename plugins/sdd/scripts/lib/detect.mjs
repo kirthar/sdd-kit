@@ -61,6 +61,8 @@ function scriptCommand(pm, script) {
 const NPM_PLACEHOLDER_TEST = /no test specified/;
 // Runners whose first positional argument filters tests by name/path.
 const FILTERING_RUNNERS = /\b(vitest|jest)\b/;
+// Node's built-in runner filters by test name with --test-name-pattern.
+const NODE_TEST_RUNNER = /\bnode\s+(?:[^|&;]*\s)?--test\b/;
 
 function nodeStack(dir, pm) {
   const pkg = readJson(dir, 'package.json');
@@ -72,6 +74,8 @@ function nodeStack(dir, pm) {
     commands.test = scriptCommand(pm, 'test');
     if (FILTERING_RUNNERS.test(scripts.test)) {
       commands.test_single = pm === 'npm' ? 'npm test -- <Name>' : `${scriptCommand(pm, 'test')} <Name>`;
+    } else if (NODE_TEST_RUNNER.test(scripts.test)) {
+      commands.test_single = 'node --test --test-name-pattern <Name>';
     }
   }
   if (has('lint')) commands.lint = scriptCommand(pm, 'lint');

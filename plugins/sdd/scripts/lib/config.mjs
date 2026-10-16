@@ -7,6 +7,7 @@ export const DEFAULTS = Object.freeze({
   version: 1,
   language: 'en',
   base_branch: 'main',
+  paths: { constitution: '.sdd/constitution.md' },
   packages: [{ path: '.', commands: { test: '', test_single: '', lint: '', format: '', build: '' } }],
   testing: { tdd: 'strict', doubles: 'explicit' },
   git: { integration: 'merge' },
@@ -54,6 +55,10 @@ export function merge(base, over) {
   return out;
 }
 
+export function isProjectRelative(p) {
+  return typeof p === 'string' && p.trim() !== '' && !path.isAbsolute(p) && !/^[a-zA-Z]:/.test(p) && !p.split(/[\\/]/).includes('..');
+}
+
 export function validateConfig(raw, file = '.sdd/config.yaml') {
   const findings = [];
   const add = (level, key, message) => findings.push({ rule: 'V-CONFIG', level, file, message: `${key}: ${message}` });
@@ -82,6 +87,8 @@ export function validateConfig(raw, file = '.sdd/config.yaml') {
         else walk(d, v, key);
       } else if (typeof d !== typeof v) {
         add('error', key, `must be a ${typeof d}`);
+      } else if (key === 'paths.constitution' && !isProjectRelative(v)) {
+        add('error', key, 'must be a non-empty path inside the project (no absolute path, no "..")');
       }
     }
   }

@@ -4,13 +4,22 @@ import path from 'node:path';
 import { detect } from './detect.mjs';
 import { templateFor, PLUGIN_ROOT } from './validate.mjs';
 import { splitFrontmatter } from './markdown.mjs';
+import { DEFAULTS, loadConfig, isProjectRelative } from './config.mjs';
 
 const BEGIN = '<!-- sdd:begin -->';
 const END = '<!-- sdd:end -->';
 
 const q = (s) => (s === '' || /[:#{}[\],&*?|<>=!%@`'"]/.test(s) || /^\s|\s$/.test(s) ? JSON.stringify(s) : s);
 
-export function proposedConfig(root) {
+// The existing config's value wins; an invalid proposal falls back to the default.
+export function constitutionLocation(root, proposed) {
+  const { exists, config } = loadConfig(root);
+  const own = config.paths.constitution;
+  if (exists && own !== DEFAULTS.paths.constitution && isProjectRelative(own)) return own;
+  return isProjectRelative(proposed) ? proposed : DEFAULTS.paths.constitution;
+}
+
+export function proposedConfig(root, constitution) {
   const d = detect(root);
   const pkgs = d.packages.length ? d.packages : [{ path: '.', commands: {} }];
   const lines = ['version: 1', `base_branch: ${q(d.base_branch ?? 'main')}`, 'packages:'];
@@ -27,13 +36,15 @@ export function proposedConfig(root) {
     'routes: { quick_max_files: 5 }',
     `release: { branch: ${q(d.base_branch ?? 'main')} }`,
     'autopilot: { enabled: false }',
-    'integrations: {}',
   );
+  const where = constitutionLocation(root, constitution);
+  if (where !== DEFAULTS.paths.constitution) lines.push(`paths: { constitution: ${q(where)} }`);
+  lines.push('integrations: {}');
   return { text: `${lines.join('\n')}\n`, unresolved: d.unresolved ?? [] };
 }
 
-export function initPlan(root) {
-  const { text, unresolved } = proposedConfig(root);
+export function initPlan(root, { constitution } = {}) {
+  const { text, unresolved } = proposedConfig(root, constitution);
   const exists = (f) => fs.existsSync(path.join(root, f));
   const files = ['.sdd/config.yaml', '.sdd/rules.md', 'AGENTS.md', 'CLAUDE.md', '.gitignore'].filter((f) => f !== '.sdd/config.yaml' || !exists(f));
   return { config: text, unresolved, files, configExists: exists('.sdd/config.yaml'), agentsSection: agentsSection(root), seedGroups: seedGroups(root).map((g) => ({ name: g.name, rules: g.rules.map((r) => r.title) })) };
@@ -79,13 +90,19 @@ export function seedGroups(root = process.cwd()) {
   return groups;
 }
 
-export function initApply(root, { seed = [], team, ci = false, today = new Date().toISOString().slice(0, 10) } = {}) {
+export function initApply(root, { seed = [], team, ci = false, constitution, constitutionText, today = new Date().toISOString().slice(0, 10) } = {}) {
   const written = [];
   const cfg = path.join(root, '.sdd', 'config.yaml');
   fs.mkdirSync(path.dirname(cfg), { recursive: true });
   if (!fs.existsSync(cfg)) {
-    fs.writeFileSync(cfg, proposedConfig(root).text);
+    fs.writeFileSync(cfg, proposedConfig(root, constitution).text);
     written.push('.sdd/config.yaml');
+  }
+  if (constitutionText !== undefined) {
+    const where = constitutionLocation(root, constitution);
+    fs.mkdirSync(path.dirname(path.join(root, where)), { recursive: true });
+    fs.writeFileSync(path.join(root, where), constitutionText);
+    written.push(where);
   }
   const rules = path.join(root, '.sdd', 'rules.md');
   if (!fs.existsSync(rules)) {

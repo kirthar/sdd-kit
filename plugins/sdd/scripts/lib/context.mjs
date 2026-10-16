@@ -1,9 +1,8 @@
 // `sdd context`: what every skill sees first (REQ-RULE-3).
 import fs from 'node:fs';
 import path from 'node:path';
-import { readActive } from './git.mjs';
-import { loadConfig } from './config.mjs';
-import { loadChange, derivePhase, missingApprovals, nextCommand } from './changes.mjs';
+import { loadConfig, isProjectRelative } from './config.mjs';
+import { loadChange, resolveActive, derivePhase, missingApprovals, nextCommand } from './changes.mjs';
 import { splitFrontmatter } from './markdown.mjs';
 
 const MAX_RULE_LINES = 80;
@@ -11,7 +10,7 @@ const MAX_RULE_LINES = 80;
 export function context(root) {
   if (!root || !loadConfig(root).exists) return 'sdd is not initialised in this repository. Ask the person to run /sdd:init.';
   const out = [];
-  const id = readActive(root);
+  const id = resolveActive(root);
   const change = id && loadChange(root, id);
   if (change) {
     const missing = missingApprovals(change.state);
@@ -19,7 +18,8 @@ export function context(root) {
     out.push(`Next: ${nextCommand(change)}`);
   } else out.push('Active change: none. Code edits are gated until the person starts and confirms one.');
 
-  const constitution = read(path.join(root, '.sdd', 'constitution.md'));
+  const configured = loadConfig(root).config.paths.constitution;
+  const constitution = isProjectRelative(configured) ? read(path.join(root, configured)) : null;
   if (constitution) out.push('', '## Constitution', splitFrontmatter(constitution).body.trim());
 
   const rules = parseRules(read(path.join(root, '.sdd', 'rules.md')) ?? '');

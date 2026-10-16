@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { tmpRepo, writeFiles } from './helpers.mjs';
 import { initPlan, initApply, upsertAgentsSection, seedGroups } from '../lib/init.mjs';
 import { validate } from '../lib/validate.mjs';
@@ -50,6 +51,22 @@ test('agents section stays within 40 lines', () => {
   assert.ok(section.split('\n').length <= 41);
 });
 
+test('plan records the constitution path only when it is not the default (AC-INIT-5.3)', () => {
+  const root = node();
+  assert.match(initPlan(root, { constitution: 'docs/constitution.md' }).config, /^paths: \{ constitution: docs\/constitution\.md \}$/m);
+  assert.doesNotMatch(initPlan(root, { constitution: '.sdd/constitution.md' }).config, /paths/);
+  assert.doesNotMatch(initPlan(root).config, /paths/);
+});
+
+test('apply writes the constitution only at the confirmed location (AC-INIT-5.4)', () => {
+  const root = node();
+  initApply(root, { constitution: 'docs/constitution.md', constitutionText: '# Constitution\n' });
+  assert.equal(fs.readFileSync(path.join(root, 'docs/constitution.md'), 'utf8'), '# Constitution\n');
+  assert.ok(!fs.existsSync(path.join(root, '.sdd/constitution.md')));
+  assert.match(fs.readFileSync(path.join(root, '.sdd/config.yaml'), 'utf8'), /constitution: docs\/constitution\.md/);
+  assert.deepEqual(validate(root, { all: true }).filter((f) => f.level === 'error'), []);
+});
+
 test('team activation writes exactly the marketplace and plugin entries (AC-INIT-7.1)', () => {
   const root = node();
   initApply(root, { team: 'owner/sdd-kit' });
@@ -80,3 +97,42 @@ for (const [stack, fixture, testCmd] of [
     assert.deepEqual(validate(root, { all: true }).filter((f) => f.level === 'error'), []);
   });
 }
+
+test('re-running init keeps the configured constitution location (AC-INIT-5.2)', async () => {
+  const { constitutionLocation } = await import('../lib/init.mjs');
+  const root = tmpRepo({ '.sdd/config.yaml': 'version: 1\npaths: { constitution: docs/constitution.md }\n' });
+  assert.equal(constitutionLocation(root), 'docs/constitution.md');
+  initApply(root, { constitutionText: '# Constitution\n' });
+  assert.ok(fs.existsSync(path.join(root, 'docs/constitution.md')));
+  assert.ok(!fs.existsSync(path.join(root, '.sdd/constitution.md')));
+});
+
+const git = (root, ...args) => execFileSync('git', ['-C', root, '-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { encoding: 'utf8' });
+const initSkill = () => fs.readFileSync(path.resolve(import.meta.dirname, '..', '..', 'skills', 'init', 'SKILL.md'), 'utf8');
+
+test('init skill offers a commit of exactly the written paths and the sequence leaves a clean tree (AC-7, AC-19)', () => {
+  const skill = initSkill();
+  assert.match(skill, /git add -- <paths>/);
+  assert.match(skill, /git commit -m "chore: adopt sdd" -- <paths>/);
+
+  const root = node();
+  writeFiles(root, { 'seed.txt': 'x\n', 'staged.txt': 'already staged\n' });
+  git(root, 'add', '--', 'seed.txt', 'package.json');
+  git(root, 'commit', '-q', '-m', 'seed');
+  git(root, 'add', '--', 'staged.txt');
+  const { written } = initApply(root, {});
+  git(root, 'add', '--', ...written);
+  git(root, 'commit', '-q', '-m', 'chore: adopt sdd', '--', ...written);
+  assert.equal(git(root, 'log', '--format=%s').trim().split('\n')[0], 'chore: adopt sdd');
+  assert.deepEqual(git(root, 'show', '--name-only', '--format=', 'HEAD').trim().split('\n').sort(), [...written].sort());
+  assert.equal(git(root, 'status', '--porcelain').trim(), 'A  staged.txt');
+});
+
+test('init skill says declining the offer leaves files uncommitted with no commit (AC-8)', () => {
+  assert.match(initSkill(), /declin\w+[^\n]*uncommitted[^\n]*no commit/i);
+  const root = node();
+  git(root, 'commit', '-q', '--allow-empty', '-m', 'seed');
+  const { written } = initApply(root, {});
+  assert.equal(git(root, 'rev-list', '--count', 'HEAD').trim(), '1');
+  assert.ok(written.every((f) => git(root, 'status', '--porcelain', '--', f).startsWith('??')));
+});

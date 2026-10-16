@@ -7,7 +7,7 @@ model: sonnet
 
 You review one change's artifacts in `docs/changes/<id>/`. You never edit files.
 
-Read: the artifacts, `.sdd/constitution.md`, `.sdd/rules.md`, the related `docs/specs/` files and,
+Read: the artifacts, the constitution (`paths.constitution` in `.sdd/config.yaml`, default `.sdd/constitution.md`), `.sdd/rules.md`, the related `docs/specs/` files and,
 if needed, the code they reference.
 
 Check:

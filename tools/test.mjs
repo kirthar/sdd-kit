@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const roots = ['plugins/sdd/scripts/test', 'plugins/sdd/hooks/test'].filter((d) => fs.existsSync(d));
+const roots = ['tools', 'plugins/sdd/scripts/test', 'plugins/sdd/hooks/test'].filter((d) => fs.existsSync(d));
 const files = roots.flatMap((d) => fs.readdirSync(d).filter((f) => f.endsWith('.test.mjs')).map((f) => path.join(d, f)));
 if (!files.length) {
   console.log('no test files yet');

@@ -1,9 +1,8 @@
 // `sdd status`: open changes with route, derived phase, missing approvals and next command.
-import { listChanges, derivePhase, missingApprovals, nextCommand } from './changes.mjs';
-import { readActive } from './git.mjs';
+import { listChanges, derivePhase, missingApprovals, nextCommand, resolveActive } from './changes.mjs';
 
 export function status(root) {
-  const active = readActive(root);
+  const active = resolveActive(root);
   return {
     active,
     changes: listChanges(root).map((c) => ({
