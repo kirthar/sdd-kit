@@ -1,0 +1,8 @@
+id: 20261016-semantic-merge-small-prs
+route: standard
+capabilities: [lifecycle, config, validation, hooks, init]
+approvals:
+  route: { by: kirthar, at: 2026-10-16T15:36:16.931Z }
+  spec: { by: kirthar, at: 2026-10-16T15:36:17.038Z }
+  tasks: { by: kirthar, at: 2026-10-16T15:36:17.038Z }
+prs: [https://github.com/kirthar/sdd-kit/pull/12]

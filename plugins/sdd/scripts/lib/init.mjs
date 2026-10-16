@@ -31,7 +31,7 @@ export function proposedConfig(root, constitution) {
     'testing: { tdd: strict, doubles: explicit }',
     'git: { integration: merge }',
     `commit: { format: ${d.commit_format ?? 'conventional'} }`,
-    'pr: { draft: true, auto_ready: true, forge: github }',
+    'pr: { draft: true, auto_ready: true, forge: github, merge: squash, max_lines: 400 }',
     'gates: { enforce: true, exempt: [] }',
     'routes: { quick_max_files: 5 }',
     `release: { branch: ${q(d.base_branch ?? 'main')} }`,
