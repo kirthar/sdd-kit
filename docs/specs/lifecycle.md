@@ -184,6 +184,31 @@ names the reason and the exact next command.
 - AC-LIFE-14.2 Given a change with every required approval, When the person's approval returns,
   Then the agent implements all tasks and opens the pull request without asking to continue.
 
+### REQ-LIFE-15: Slices
+A task may carry `- Slice: S<n>`. V-SLICE (error): either no task has a slice or every task has
+one; slices start at S1 and are contiguous; the tasks of a slice are contiguous in `tasks.md`; a
+task depends only on tasks of its own or an earlier slice. `/sdd:tasks` groups tasks into slices
+when their predicted diff exceeds `pr.max_lines`; each slice is releasable on its own.
+
+### REQ-LIFE-16: One stacked pull request per slice
+Slice S1 is built on `sdd/<id>` with base `base_branch`; slice S<k> on `sdd/<id>-s<k>`, branched
+from the slice below, with that branch as its pull request base. After the plan approval the agent
+implements, verifies and opens the pull request of each slice in order, marking each ready after a
+GO verification, without asking. Each body states "Slice k of n" and links its neighbours. When
+`sdd size` reports `over`, the body explains in `## Size` why the slice could not be smaller.
+When a lower slice is merged, `/sdd:pr` merges `base_branch` into the next slice branch and sets
+its base to `base_branch` before pushing.
+
+### REQ-LIFE-17: Restack without conflicts
+`sdd restack --squash <sha> --slice-head <sha> [--base <ref>]` integrates the current slice branch
+after the slice below was squash-merged as `<squash>` from `<slice-head>`. It refuses, changing
+nothing, on a dirty tree or when `<slice-head>` is not an ancestor of HEAD. Otherwise it merges
+`<squash>^`, records `<squash>` with `git merge -s ours` (its content is already in the branch
+through `<slice-head>`), then merges `<base>` (default `origin/<base_branch>`). No history is
+rewritten and nothing is force pushed. A conflict can only come from other work on the base: the
+command stops with the merge in progress, lists the files and exits 1. `/sdd:pr` restacks with it
+and then sets the pull request base to `base_branch`.
+
 ## Subagents
 
 | Agent | Tools | Contract |

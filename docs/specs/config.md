@@ -88,4 +88,16 @@ path and exits 0 if nothing else fails.
 - AC-CFG-5.7 Given no `.sdd/config.yaml` and no constitution, When `sdd validate --all` runs, Then no constitution
   warning is printed.
 
+### REQ-CFG-6: Merge method and size budget
+`pr.merge` (`squash` | `merge` | `rebase`, default `squash`) is how pull requests are integrated.
+`pr.max_lines` (integer ≥ 1, default 400) is the review budget of one pull request.
+`pr.size_exclude` (list of globs) names files that do not count; default: `docs/**`, `**/test/**`,
+`**/tests/**`, `**/__tests__/**`, `**/*.test.*`, `**/*.spec.*`, `**/*_test.*`, lockfiles
+(`**/package-lock.json`, `**/pnpm-lock.yaml`, `**/yarn.lock`, `**/*.lock`) and `**/vendor/**`.
+Wrong types or values are V-CONFIG errors naming the key.
+
+### REQ-CFG-7: Changelog path
+`paths.changelog` (string, project-relative, default `CHANGELOG.md`). Same checks as
+`paths.constitution` under V-CONFIG.
+
 ## History

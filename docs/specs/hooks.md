@@ -82,4 +82,11 @@ write to `.sdd/config.yaml`, `.sdd/rules.md` or `.sdd/constitution.md`.
 - AC-HOOK-6.1 Given a fixture repo with 1,000 change folders, When either hook runs 100 times, Then
   the p95 is under 200 ms.
 
+### REQ-HOOK-7: Pull request titles follow the commit format
+With `commit.format: conventional`, guard blocks `gh pr create` and `gh pr edit --title` whose title
+is not `<type>[(<scope>)][!]: <subject>` (types `feat`, `fix`, `docs`, `refactor`, `perf`, `test`,
+`build`, `ci`, `chore`, `revert`, `style`), or is longer than 72 characters. With `ticket-prefix`
+the title must start with `<KEY>-<n> `. With `free` any title passes. The title becomes the
+squash commit subject on the base branch.
+
 ## History

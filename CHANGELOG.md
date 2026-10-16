@@ -16,6 +16,9 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
   "Generated with" line naming one; `V-ATTRIBUTION` flags the same lines in open `pr.md` files. The
   author's own signature is allowed.
 - ADR-0008: two interaction points, then an autonomous run to a ready pull request.
+- `sdd restack` integrates a stacked slice after the slice below is squash-merged, without conflicts or force push.
+- `sdd conflicts` simulates merging the base; `/sdd:pr` resolves conflicts before marking a pull request ready.
+- Per-change release notes in `docs/changes/<id>/changelog.md`, folded into `paths.changelog` (default `CHANGELOG.md`) by `sdd archive`.
 
 ### Changed
 - Skills no longer stop after each phase or task: after the route, Claude asks every question,
@@ -25,6 +28,9 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
   verification. Set `pr.auto_ready: false` to keep the person marking it ready.
 - Spec and tasks no longer require the previous phase's approval, only a valid artifact; code still
   requires every approval.
+
+### Fixed
+- Stacked pull requests no longer conflict after the slice below is squash-merged.
 
 ## [0.2.0] - 2026-10-16
 ### Added
