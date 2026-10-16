@@ -13,11 +13,16 @@
    ```
    /sdd:approve <id> route
    ```
-4. Claude implements test-first (`/sdd:implement`): a failing test, the minimum code, a commit.
-5. `/sdd:pr` writes the description and opens a **draft** pull request. You review and merge.
+4. Claude continues on its own: implements test-first (a failing test, the minimum code, a commit),
+   verifies, writes the description and opens the pull request, marked ready for review once
+   verification is GO. You review and merge.
 6. After merging: `/sdd:archive <id>` updates the living specs.
 
-Larger change? The same flow adds `/sdd:spec` → `/sdd:approve <id> spec` → `/sdd:tasks` →
-`/sdd:approve <id> tasks` before implementation, and `/sdd:refine` first for a new capability.
+Larger change? After the route, Claude asks all its questions, writes the spec and the tasks
+(and the functional spec first for a new capability), then asks once:
+```
+/sdd:approve <id> plan
+```
+Everything after that runs without prompts.
 
 At any time: `/sdd:status` shows what is open and the next command.

@@ -9,5 +9,6 @@
 | [0005](0005-files-first-optional-integrations.md) | Files first; trackers and wikis are optional integrations |
 | [0006](0006-distribution-as-marketplace.md) | Repo is a marketplace with one plugin, `sdd` |
 | [0007](0007-node-single-runtime.md) | Node.js is the single runtime for scripts and hooks |
+| [0008](0008-two-interaction-points.md) | Two interaction points, then an autonomous run to a ready pull request |
 
 Format: Status · constitution IDs cited · Context · Decision · Consequences · Rejected alternatives.

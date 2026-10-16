@@ -56,4 +56,4 @@
 - Outermost test: `sdd validate --all` passes at CLI level
 - Depends on: T6
 - Package: .
-- Status: todo
+- Status: done

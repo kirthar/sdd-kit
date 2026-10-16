@@ -19,18 +19,21 @@ Coding agents are fast, and a team needs more than speed to trust them. Without 
 scales with the size of a change, small fixes drown in ceremony while large ones skip design.
 Without automatic guardrails, one force push or self-approved step undoes that trust; without
 measurement, nobody knows whether the agent actually follows the process. This kit encodes how a
-team works with agents: the size of the change sets the process, a person approves each phase,
-critical rules are enforced by tools, and the effect is measured with evals.
+team works with agents: the size of the change sets the process, a person approves the route and
+the plan and the agent does the rest, critical rules are enforced by tools, and the effect is
+measured with evals.
 
 ## Three routes
 
 | Route | For | You get | You approve |
 |---|---|---|---|
-| `quick` | bugs, small changes | a 15-line brief, a failing test first, a short draft PR — **no spec** | the route |
-| `standard` | changes to existing behaviour | a spec delta against living specs, tasks | route · spec · tasks |
-| `full` | new capabilities | functional spec, technical spec, OpenAPI contracts, ADRs, tasks | route · functional · spec · tasks |
+| `quick` | bugs, small changes | a 15-line brief, a failing test first, a short PR — **no spec** | the route |
+| `standard` | changes to existing behaviour | a spec delta against living specs, tasks | route · plan |
+| `full` | new capabilities | functional spec, technical spec, OpenAPI contracts, ADRs, tasks | route · plan |
 
-`/sdd:new` proposes the route; a person confirms it. Living specs in `docs/specs/` always describe
+`/sdd:new` proposes the route; a person confirms it. Claude then asks every question it has, writes
+the whole plan and asks once for `/sdd:approve <id> plan`. After that it implements every task,
+verifies and leaves the pull request ready for review — no prompts in between. Living specs in `docs/specs/` always describe
 current behaviour: each merged change folds its ADDED / MODIFIED / REMOVED deltas in with
 `/sdd:archive`.
 
@@ -46,7 +49,8 @@ Then, in your repository: `/sdd:init`. Requirements: Claude Code, git, Node.js �
 ## What is enforced, not just suggested
 
 - **guard hook** — blocks force push, history rewrites, branch deletion, merge, approve, reviewer
-  requests and @mentions. Every block prints the exact command so *you* can run it.
+  requests, @mentions and AI co-author or "Generated with" lines. Every block prints the exact
+  command so *you* can run it.
 - **gate hook** — no code edits until the change's route (and spec and tasks, when required) are
   approved; approvals are recorded only by `/sdd:approve`, which only a person can run.
 - **validators** — template sections and size budgets, Given/When/Then criteria, every task covers a
