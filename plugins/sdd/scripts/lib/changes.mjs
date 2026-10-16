@@ -52,16 +52,20 @@ function artifactFor(phase, route) {
   return typeof a === 'string' ? a : a?.[route];
 }
 
-// Returns one of: route-approval | functional | functional-approval | spec | spec-approval |
-// tasks | tasks-approval | implement
+// Returns one of: route-approval | functional | spec | tasks | <phase>-approval | plan-approval |
+// implement. Planning artifacts are written before any of them is approved (REQ-LIFE-14): the
+// first missing artifact names its producer; when all exist, one `plan` approval covers them.
 export function derivePhase(change) {
   const { state, dir } = change;
-  for (const p of missingApprovals(state)) {
-    if (p === 'route') return 'route-approval';
+  const missing = missingApprovals(state);
+  if (!missing.length) return 'implement';
+  if (missing[0] === 'route') return 'route-approval';
+  const unwritten = missing.find((p) => {
     const artifact = artifactFor(p, state.route);
-    return artifact && fs.existsSync(path.join(dir, artifact)) ? `${p}-approval` : p;
-  }
-  return 'implement';
+    return artifact && !fs.existsSync(path.join(dir, artifact));
+  });
+  if (unwritten) return unwritten;
+  return missing.length === 1 ? `${missing[0]}-approval` : 'plan-approval';
 }
 
 export function nextCommand(change) {

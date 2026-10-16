@@ -101,3 +101,30 @@ test('plan with every planning phase already approved records nothing', () => {
   assert.match(r.stdout, /already approved/);
   assert.equal(stateOf(root, 'c1'), before);
 });
+
+// ---- status names the plan approval (REQ-LIFE-11, REQ-LIFE-14) ----
+
+test('status asks for the plan approval once delta and tasks are written (AC-5)', () => {
+  const root = standard();
+  const r = run(root, 'status');
+  assert.match(r.stdout, /next: \/sdd:approve c1 plan/);
+});
+
+test('status sends an unapproved delta on to tasks (AC-6)', () => {
+  const root = standard();
+  fs.rmSync(path.join(root, 'docs/changes/c1/tasks.md'));
+  const r = run(root, 'status');
+  assert.match(r.stdout, /next: \/sdd:tasks/);
+});
+
+test('status asks for the plan approval on full once every planning artifact exists', () => {
+  const root = tmpRepo({
+    '.sdd/config.yaml': CONFIG,
+    'docs/changes/f1/state.yaml': state('f1', 'full', ['route']),
+    'docs/changes/f1/functional.md': FUNCTIONAL,
+  });
+  assert.match(run(root, 'status').stdout, /next: \/sdd:spec/);
+  fs.writeFileSync(path.join(root, 'docs/changes/f1/technical.md'), TECHNICAL);
+  fs.writeFileSync(path.join(root, 'docs/changes/f1/tasks.md'), TASKS);
+  assert.match(run(root, 'status').stdout, /next: \/sdd:approve f1 plan/);
+});

@@ -16,7 +16,7 @@
 - Outermost test: `sdd status` names `/sdd:approve <id> plan` at CLI level
 - Depends on: T1
 - Package: .
-- Status: todo
+- Status: done
 
 ## T3: Block AI attribution and signatures in the guard
 - Covers: AC-7, AC-8, AC-9, AC-10

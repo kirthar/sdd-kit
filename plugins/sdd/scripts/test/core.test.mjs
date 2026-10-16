@@ -78,8 +78,13 @@ test('phase is derived from artifacts and approvals', () => {
   assert.equal(derivePhase(c), 'spec');
   assert.equal(nextCommand(c), '/sdd:spec');
   fs.writeFileSync(path.join(c.dir, 'delta.md'), '# d\n');
-  assert.equal(derivePhase(loadChange(dir, 'c1')), 'spec-approval');
-  assert.equal(nextCommand(loadChange(dir, 'c1')), '/sdd:approve c1 spec');
+  assert.equal(derivePhase(loadChange(dir, 'c1')), 'tasks');
+  assert.equal(nextCommand(loadChange(dir, 'c1')), '/sdd:tasks');
+  fs.writeFileSync(path.join(c.dir, 'tasks.md'), '# t\n');
+  assert.equal(derivePhase(loadChange(dir, 'c1')), 'plan-approval');
+  assert.equal(nextCommand(loadChange(dir, 'c1')), '/sdd:approve c1 plan');
+  fs.writeFileSync(c.file, state('c1', 'standard', ['route', 'spec']));
+  assert.equal(nextCommand(loadChange(dir, 'c1')), '/sdd:approve c1 tasks');
 });
 
 test('quick change waiting for route confirmation (AC-LIFE-1.3 precondition)', () => {
