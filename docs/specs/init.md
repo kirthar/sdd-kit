@@ -43,17 +43,29 @@ last 50 subjects.
 ### REQ-INIT-4: Proposal then confirmation
 Proposal, then confirmation. Shows the full proposal — config, constitution, empty
 rules, `AGENTS.md` section, `CLAUDE.md` import line, `.gitignore` entry for `.sdd/local/` — and
-writes only the confirmed plan (`sdd init --plan` / `sdd init --apply <plan.json>`).
+writes only the confirmed plan (`sdd init --plan` / `sdd init --apply <plan.json>`). After writing,
+it offers, as a separate yes/no, to commit exactly the written paths as `chore: adopt sdd`. The
+commit is made by the skill, not by `sdd init --apply`; declining leaves the files uncommitted.
 - AC-INIT-4.1 Given the person declines, When init ends, Then `git status` is clean.
 - AC-INIT-4.2 Given an existing config, When init re-runs, Then it shows a diff and keeps values the
   person set unless they confirm changes.
 
 ### REQ-INIT-5: Constitution from the project
-≤40 lines, 3–10 invariants; each has "violated when"
-and cites at least one repository file as evidence; words from a generic-values denylist
-("quality", "simplicity", "best practices"…) are rejected.
+The init skill writes the constitution to `paths.constitution`: the existing value when the config has one,
+otherwise a proposed location shown in the proposal (default `.sdd/constitution.md`), recorded in the proposed config
+only when it differs from the default. The constitution is ≤40 lines, 3–10 invariants; each has "violated when" and
+cites at least one repository file as evidence; words from a generic-values denylist ("quality", "simplicity",
+"best practices"…) are rejected.
 - AC-INIT-5.1 Given a generated constitution, When `sdd validate` runs, Then size, ID format,
   evidence links and the denylist pass.
+- AC-INIT-5.2 Given a config with `paths.constitution: docs/constitution.md`, When init re-runs, Then it proposes
+  that location and does not create `.sdd/constitution.md`.
+- AC-INIT-5.3 Given a proposed location other than the default, When `sdd init --plan` runs, Then the proposed config
+  contains `paths.constitution` with it; given the default, Then the key is absent.
+- AC-INIT-5.4 Given a confirmed plan with a custom location, When `sdd init --apply` runs, Then the constitution is
+  written there and nowhere else.
+
+AC-INIT-5.2 to 5.4 are covered by script tests of `lib/init.mjs`; the skill's prose is covered by its eval.
 
 ### REQ-INIT-6: Agent instructions
 `AGENTS.md` gets a marked section (`<!-- sdd:begin -->` …

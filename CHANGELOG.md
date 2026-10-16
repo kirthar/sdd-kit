@@ -31,6 +31,9 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - `/sdd:init` no longer aborts with a raw shell error when a prerequisite is missing
   (`20261015-doctor-never-aborts-init`).
 - `sdd tdd log` rejects ids that are not change ids.
+- `sdd archive` writes only the living specs that receive a delta and keeps fenced code and inline
+  comments intact; `sdd validate` rejects a MODIFIED requirement that drops existing criteria
+  (`20261016-archive-preserves-specs`).
 - The guard hook blocks any shell command that names a change's `state.yaml` unless it only reads or stages it,
   including inline interpreter code, heredocs and write options, so an agent cannot record its own approval
   (`20261016-guard-state-writes`).

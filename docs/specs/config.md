@@ -64,4 +64,26 @@ pinned OpenAPI linter version), not in `plugin.json`.
 - AC-CFG-4.1 Given `SDD_OFFLINE=1`, When a contract is validated, Then the report says
   `mode: structural` and no network call is attempted.
 
+### REQ-CFG-5: Constitution path
+`paths.constitution` (string, default `.sdd/constitution.md`) is the location of the project constitution, relative to
+the project root. The schema block of this spec gains `paths: { constitution: .sdd/constitution.md }`. A wrong type
+is an error under REQ-CFG-1; an empty, absolute or `..`-containing value is an error on
+`V-CONFIG paths.constitution`. `sdd context` and the init skill treat such a value as unset (default path) and never
+read or write outside the project root. Commands and skills that read or write the constitution use this key and not
+the literal default; the autopilot hooks are excluded (see Open questions). When the configured file does not exist
+and `.sdd/config.yaml` exists, `sdd validate` warns (`V-CONFIG paths.constitution`, level warn) with the resolved
+path and exits 0 if nothing else fails.
+- AC-CFG-5.1 Given a config with only `version: 1`, When `sdd config` runs, Then `paths.constitution` is `.sdd/constitution.md`.
+- AC-CFG-5.2 Given `paths.constitution: docs/constitution.md` and no such file, When `sdd validate --all` runs, Then it
+  exits 0 with a `V-CONFIG paths.constitution` warning naming `docs/constitution.md`.
+- AC-CFG-5.3 Given `paths.constitution: /etc/constitution.md`, When `sdd validate --all` runs, Then it exits 1 with
+  `V-CONFIG paths.constitution`.
+- AC-CFG-5.4 Given `paths.constitution: ../c.md`, When `sdd validate --all` runs, Then it exits 1 with
+  `V-CONFIG paths.constitution`.
+- AC-CFG-5.5 Given `paths.constitution: ""`, When `sdd validate --all` runs, Then it exits 1 with
+  `V-CONFIG paths.constitution`.
+- AC-CFG-5.6 Given the configured file exists, When `sdd validate --all` runs, Then no constitution warning is printed.
+- AC-CFG-5.7 Given no `.sdd/config.yaml` and no constitution, When `sdd validate --all` runs, Then no constitution
+  warning is printed.
+
 ## History
