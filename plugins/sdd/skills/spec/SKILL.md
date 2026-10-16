@@ -18,7 +18,9 @@ and name `/sdd:approve <id> functional` if it is missing.
 2. **Standard** → write `docs/changes/<id>/delta.md` (template `delta`, ≤120 lines):
    - `## Reuse`: what exists, with file links.
    - `## ADDED` / `## MODIFIED` / `## REMOVED` against `docs/specs/<capability>.md`:
-     `### REQ-<CAP>-<n>: <title>` + full text. New IDs for ADDED; existing IDs for MODIFIED;
+     `### REQ-<CAP>-<n>: <title>` + full text. New IDs for ADDED; existing IDs for MODIFIED, whose
+     block replaces the old one entirely — copy every sentence and criterion that stays (never write
+     "unchanged" or "same as before"; `sdd validate` rejects dropped criteria);
      `- REQ-…: <reason>` for REMOVED.
    - `## Acceptance criteria`: `- AC-<n> Given …, When …, Then ….`
      (`${CLAUDE_PLUGIN_ROOT}/references/requirements-principles.md`).

@@ -8,7 +8,7 @@ import { loadConfig, validateConfig, isProjectRelative } from './config.mjs';
 import { ROUTES, ID_PATTERN, changesDir, listChanges, loadChange, requiredApprovals } from './changes.mjs';
 import {
   splitFrontmatter, countLines, headings, section, criteria, tasks, openQuestions,
-  requirementIds, TASK_REQUIRED, fieldLabel, deltaParts,
+  requirementIds, requirementBlocks, TASK_REQUIRED, fieldLabel, deltaParts,
 } from './markdown.mjs';
 
 export const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -103,7 +103,13 @@ function validateChange(root, change, add, rel) {
       }
     }
   }
-  if (taskList) checkTasks(taskList, crit, path.join(dir, 'tasks.md'), add, rel);
+  if (taskList) {
+    // Criteria copied unchanged from the living specs describe existing behaviour: no task needed.
+    const livingCriteria = new Map();
+    for (const text of livingRequirementBlocks(root).values()) for (const c of criteria(text)) livingCriteria.set(c.id, c.text);
+    const changed = crit.filter((c) => livingCriteria.get(c.id) !== c.text);
+    checkTasks(taskList, changed, path.join(dir, 'tasks.md'), add, rel, new Set(crit.map((c) => c.id)));
+  }
 
   const contracts = path.join(dir, 'contracts');
   if (fs.existsSync(contracts)) {
@@ -158,8 +164,8 @@ function checkArtifact(root, p, tplName, add, rel) {
   }
 }
 
-function checkTasks(list, crit, file, add, rel) {
-  const known = new Set(crit.map((c) => c.id));
+function checkTasks(list, crit, file, add, rel, allIds = new Set(crit.map((c) => c.id))) {
+  const known = allIds;
   const covered = new Set();
   for (const t of list) {
     const missing = TASK_REQUIRED.filter((k) => t.fields[k] === undefined);
@@ -186,12 +192,30 @@ function checkDelta(root, change, add, rel) {
   for (const r of requirementIds(d.added)) {
     if (existing.has(r.id)) add('V-DELTA', 'error', rel(p), null, `ADDED ${r.id} already exists in docs/specs`);
   }
-  for (const r of requirementIds(d.modified)) {
-    if (!existing.has(r.id)) add('V-DELTA', 'error', rel(p), null, `MODIFIED ${r.id} does not exist in docs/specs`);
+  const living = livingRequirementBlocks(root);
+  for (const r of requirementBlocks(d.modified)) {
+    if (!existing.has(r.id)) {
+      add('V-DELTA', 'error', rel(p), null, `MODIFIED ${r.id} does not exist in docs/specs`);
+      continue;
+    }
+    // MODIFIED carries the full new text: dropping a criterion must be explicit, never implied.
+    const kept = new Set(criteria(r.text).map((c) => c.id));
+    const dropped = criteria(living.get(r.id) ?? '').map((c) => c.id).filter((id) => !kept.has(id));
+    if (dropped.length) add('V-DELTA', 'error', rel(p), null, `MODIFIED ${r.id} drops ${dropped.join(', ')}; copy the full requirement text, including criteria that stay`);
   }
   for (const m of d.removed.matchAll(/^\s*[-*]\s+(REQ-[A-Z0-9]+-\d+)/gm)) {
     if (!existing.has(m[1])) add('V-DELTA', 'error', rel(p), null, `REMOVED ${m[1]} does not exist in docs/specs`);
   }
+}
+
+function livingRequirementBlocks(root) {
+  const dir = path.join(root, 'docs', 'specs');
+  const out = new Map();
+  if (!fs.existsSync(dir)) return out;
+  for (const n of fs.readdirSync(dir).filter((x) => x.endsWith('.md'))) {
+    for (const b of requirementBlocks(fs.readFileSync(path.join(dir, n), 'utf8'))) out.set(b.id, b.text);
+  }
+  return out;
 }
 
 export function livingRequirementIds(root) {

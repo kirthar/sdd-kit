@@ -53,18 +53,39 @@ function readDeltas({ state, dir }) {
 }
 
 // Requirement blocks: `### REQ-…` heading plus its body, trimmed.
+// Lines outside fenced code; fences keep their content verbatim.
+function fenceMask(lines) {
+  let fence = null;
+  return lines.map((line) => {
+    const m = line.match(/^\s*(```|~~~)/);
+    if (fence) {
+      if (m && m[1] === fence) fence = null;
+      return true;
+    }
+    if (m) {
+      fence = m[1];
+      return true;
+    }
+    return false;
+  });
+}
+
+const COMMENT_LINE = /^\s*<!--.*-->\s*$/;
+
 function blocks(text) {
   const out = [];
   let cur = null;
-  for (const line of text.split('\n')) {
-    const m = line.match(/^###\s+(REQ-[A-Z0-9]+-\d+)\b/);
+  const lines = text.split('\n');
+  const inFence = fenceMask(lines);
+  lines.forEach((line, i) => {
+    const m = !inFence[i] && line.match(/^###\s+(REQ-[A-Z0-9]+-\d+)\b/);
     if (m) {
       cur = { id: m[1], lines: [line] };
       out.push(cur);
-    } else if (/^#{1,3}\s/.test(line)) cur = null;
-    else if (cur) cur.lines.push(line);
-  }
-  return out.map((b) => ({ id: b.id, text: b.lines.join('\n').replace(/<!--[\s\S]*?-->/g, '').trim() }));
+    } else if (!inFence[i] && /^#{1,3}\s/.test(line)) cur = null;
+    else if (cur && (inFence[i] || !COMMENT_LINE.test(line))) cur.lines.push(line);
+  });
+  return out.map((b) => ({ id: b.id, text: b.lines.join('\n').trim() }));
 }
 
 const num = (id) => Number(id.split('-').pop());
@@ -73,13 +94,14 @@ const prefix = (id) => id.replace(/-\d+$/, '');
 function parseSpec(file) {
   const text = fs.readFileSync(file, 'utf8');
   const lines = text.split('\n');
-  const reqStart = lines.findIndex((l) => /^##\s+Requirements\s*$/.test(l));
+  const inFence = fenceMask(lines);
+  const reqStart = lines.findIndex((l, i) => !inFence[i] && /^##\s+Requirements\s*$/.test(l));
   if (reqStart < 0) return null;
-  let reqEnd = lines.findIndex((l, i) => i > reqStart && /^##\s/.test(l));
+  let reqEnd = lines.findIndex((l, i) => i > reqStart && !inFence[i] && /^##\s/.test(l));
   if (reqEnd < 0) reqEnd = lines.length;
   const body = lines.slice(reqStart + 1, reqEnd).join('\n');
   const firstReq = body.search(/^###\s+REQ-/m);
-  const preamble = (firstReq < 0 ? body : body.slice(0, firstReq)).replace(/<!--[\s\S]*?-->/g, '').trim();
+  const preamble = (firstReq < 0 ? body : body.slice(0, firstReq)).split('\n').filter((l) => !COMMENT_LINE.test(l)).join('\n').trim();
   return { file, lines, reqStart, reqEnd, preamble, reqs: blocks(body) };
 }
 
@@ -99,7 +121,7 @@ function planUpdates(root, change, d, today) {
   const caps = change.state.capabilities ?? [];
   const specs = new Map();
   const load = (file) => {
-    if (!specs.has(file)) specs.set(file, { spec: parseSpec(file), history: [] });
+    if (!specs.has(file)) specs.set(file, { spec: parseSpec(file), history: [], changed: false });
     return specs.get(file);
   };
   const files = fs.existsSync(specsDir) ? fs.readdirSync(specsDir).filter((n) => n.endsWith('.md')).map((n) => path.join(specsDir, n)) : [];
@@ -109,7 +131,10 @@ function planUpdates(root, change, d, today) {
   for (const b of blocks(d.modified)) {
     const f = owner(b.id);
     if (!f) problems.push(`MODIFIED ${b.id} does not exist in docs/specs`);
-    else load(f).spec.reqs = load(f).spec.reqs.map((r) => (r.id === b.id ? b : r));
+    else {
+      load(f).spec.reqs = load(f).spec.reqs.map((r) => (r.id === b.id ? b : r));
+      load(f).changed = true;
+    }
   }
   for (const m of d.removed.matchAll(/^\s*[-*]\s+(REQ-[A-Z0-9]+-\d+):?\s*(.*)$/gm)) {
     const f = owner(m[1]);
@@ -117,6 +142,7 @@ function planUpdates(root, change, d, today) {
     else {
       const s = load(f);
       s.spec.reqs = s.spec.reqs.filter((r) => r.id !== m[1]);
+      s.changed = true;
       s.history.push(`- ${today} ${change.id}: ${m[1]} removed — ${m[2].trim() || 'no reason given'}`);
     }
   }
@@ -130,27 +156,24 @@ function planUpdates(root, change, d, today) {
       f = path.join(specsDir, `${caps[0] ?? prefix(b.id).slice(4).toLowerCase()}.md`);
       if (!fs.existsSync(f) && !specs.has(f)) {
         const body = splitFrontmatter(templateFor(root, 'living-spec').text).body.replace('<Capability>', path.basename(f, '.md'));
-        specs.set(f, { spec: { ...parseSpecText(f, `---\nstatus: verified\n---\n${body}`) }, history: [] });
+        specs.set(f, { spec: { ...parseSpecText(f, `---\nstatus: verified\n---\n${body}`) }, history: [], changed: false });
       }
     }
     const s = load(f);
     s.spec.reqs.push(b);
+    s.changed = true;
     s.spec.reqs.sort((a, c) => (prefix(a.id) === prefix(c.id) ? num(a.id) - num(c.id) : 0));
   }
   if (problems.length) return { ok: false, message: problems.join('\n') };
   const writes = [];
-  for (const [file, { spec, history }] of specs) {
-    if (!spec) continue;
-    const text = renderSpec(spec, history);
-    const original = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null;
-    if (text !== original && (history.length || touched(spec, original))) writes.push({ file, text });
+  // Only specs that received a delta are written; everything else stays byte for byte.
+  for (const [file, { spec, history, changed }] of specs) {
+    if (!spec || !changed) continue;
+    writes.push({ file, text: renderSpec(spec, history) });
   }
   return { ok: true, writes };
 }
 
-function touched(spec, original) {
-  return original === null || renderSpec(spec, []) !== original;
-}
 
 function parseSpecText(file, text) {
   const tmp = `${file}.sdd-tmp`;

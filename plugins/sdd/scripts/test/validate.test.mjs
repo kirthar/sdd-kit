@@ -289,3 +289,18 @@ test('constitution is read from the configured path', () => {
   assert.equal(found(root).length, 1);
   assert.equal(found(root)[0].file, 'docs/constitution.md');
 });
+
+test('a MODIFIED requirement that drops existing criteria fails V-DELTA', () => {
+  const living = LIVING.replace('### REQ-BOOK-1: Create a booking\nText.\n', '### REQ-BOOK-1: Create a booking\nText.\n- AC-BOOK-1.1 Given a guest, When booking, Then it is confirmed.\n');
+  const delta = DELTA.replace('## MODIFIED\n', '## MODIFIED\n### REQ-BOOK-1: Create a booking\nNew text. Existing acceptance criteria are unchanged.\n');
+  const f = validate(repo({ 'docs/specs/bookings.md': living, 'docs/changes/c1/delta.md': delta }), { id: 'c1' });
+  assert.ok(f.some((x) => x.rule === 'V-DELTA' && x.level === 'error' && /AC-BOOK-1\.1/.test(x.message)), JSON.stringify(f));
+});
+
+test('criteria carried unchanged in a MODIFIED requirement need no task', () => {
+  const ac = '- AC-BOOK-1.1 Given a guest, When booking, Then it is confirmed.';
+  const living = LIVING.replace('### REQ-BOOK-1: Create a booking\nText.\n', `### REQ-BOOK-1: Create a booking\nText.\n${ac}\n`);
+  const delta = DELTA.replace('## MODIFIED\n', `## MODIFIED\n### REQ-BOOK-1: Create a booking\nNew text.\n${ac}\n`);
+  const f = validate(repo({ 'docs/specs/bookings.md': living, 'docs/changes/c1/delta.md': delta }), { id: 'c1' });
+  assert.deepEqual(f.filter((x) => x.level === 'error'), []);
+});

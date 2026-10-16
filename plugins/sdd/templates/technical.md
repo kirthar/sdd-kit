@@ -27,6 +27,7 @@ required: [Reuse, Contracts, Rules, Decisions, Migration, Observability, Living 
 <!-- Logs, metrics, alerts that prove it works in production. Write "None." when there is none. -->
 
 ## Living spec deltas
+<!-- MODIFIED blocks replace the old requirement entirely: copy every sentence and criterion that stays. -->
 ### ADDED
 ### MODIFIED
 ### REMOVED
