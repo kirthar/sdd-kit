@@ -180,7 +180,7 @@ function checkCommand(cmd, ctx) {
   checkWrites(cmd, ctx);
   const argv = cmd.argv;
   if (!argv.length) return;
-  checkStateNamed(argv);
+  checkStateNamed(argv, cmd.heredocs);
   const name = basename(argv[0]);
   if (name === 'git') return checkGit(cmd, ctx);
   if (name === 'gh') return checkGh(argv, ctx);
@@ -235,8 +235,13 @@ const READ_ONLY = new Set(['cat', 'head', 'tail', 'less', 'more', 'grep', 'rg', 
 const SDD_READ_VERBS = new Set(['validate', 'status', 'context']);
 const GIT_READ_VERBS = new Set(['diff', 'log', 'show', 'status', 'add', 'commit']);
 
+// Options that make an otherwise read-only program write a file.
+const WRITE_OPTIONS = { git: /^--output(=|$)/, less: /^(-o|-O|--log-file|--LOG-FILE)/ };
+
 function namesStateOnlyToRead(argv) {
   const name = basename(argv[0]);
+  const writeOption = WRITE_OPTIONS[name];
+  if (writeOption && argv.slice(1).some((a) => writeOption.test(a))) return false;
   if (READ_ONLY.has(name)) return true;
   const isSdd = (a) => basename(a) === 'sdd.mjs' || basename(a) === 'sdd';
   const sddArgs = isSdd(argv[0]) ? argv.slice(1) : name === 'node' && argv[1] && isSdd(argv[1]) ? argv.slice(2) : null;
@@ -249,8 +254,9 @@ function namesStateOnlyToRead(argv) {
   return false;
 }
 
-function checkStateNamed(argv) {
-  if (!argv.some((a) => STATE_YAML_TEXT.test(a))) return;
+function checkStateNamed(argv, heredocs = []) {
+  const named = argv.some((a) => STATE_YAML_TEXT.test(a)) || heredocs.some((h) => STATE_YAML_TEXT.test(h.body));
+  if (!named) return;
   if (namesStateOnlyToRead(argv)) return;
   throw new Block('command names a change state file: approvals are recorded by the person via /sdd:approve, not by the agent');
 }

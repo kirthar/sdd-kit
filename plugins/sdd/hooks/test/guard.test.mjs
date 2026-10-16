@@ -47,6 +47,11 @@ const DEFAULT_REPO = repo();
 
 // AC-HOOK-1.1 — one row per blocked shape.
 const BLOCKED = [
+  // Change state named in heredoc code or through a write option of a read-only program
+  ['state via python heredoc', "python3 - <<'EOF'\nopen('docs/changes/c1/state.yaml','a').write('  spec: x')\nEOF"],
+  ['state via node heredoc', "node <<EOF\nrequire('fs').appendFileSync('docs/changes/c1/state.yaml', 'x')\nEOF"],
+  ['state via git diff --output', 'git diff --output=docs/changes/c1/state.yaml'],
+  ['state via less -o', 'less -o docs/changes/c1/state.yaml README.md'],
   // Push
   ['push --force', 'git push --force'],
   ['push -f', 'git push -f origin feat'],
@@ -163,6 +168,7 @@ const BLOCKED = [
 ];
 
 const ALLOWED = [
+  ['grep -o reads a change state file', 'grep -o spec docs/changes/c1/state.yaml'],
   'git push -u origin HEAD',
   'git push origin feat',
   'git push origin feat 2>&1',
