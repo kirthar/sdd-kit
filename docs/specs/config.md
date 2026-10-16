@@ -17,7 +17,7 @@ packages:                          # ≥1; detected by init
 testing: { tdd: strict, doubles: explicit }   # tdd: strict | on-request · doubles: explicit | any
 git: { integration: merge }                   # merge | rebase
 commit: { format: conventional }              # conventional | ticket-prefix | free
-pr: { draft: true, auto_ready: false, forge: github }   # forge: github | none
+pr: { draft: true, auto_ready: true, forge: github }    # forge: github | none; auto_ready: mark ready after a GO verification
 gates: { enforce: true, exempt: [] }          # exempt: extra globs the gate never blocks
 routes: { quick_max_files: 5 }                # predicted files; above ⇒ at least standard
 release: { branch: main }

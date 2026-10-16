@@ -12,7 +12,7 @@ export const DEFAULTS = Object.freeze({
   testing: { tdd: 'strict', doubles: 'explicit' },
   git: { integration: 'merge' },
   commit: { format: 'conventional' },
-  pr: { draft: true, auto_ready: false, forge: 'github' },
+  pr: { draft: true, auto_ready: true, forge: 'github' },
   gates: { enforce: true, exempt: [] },
   routes: { quick_max_files: 5 },
   release: { branch: 'main' },

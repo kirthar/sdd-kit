@@ -40,7 +40,7 @@
 - Outermost test: `sdd config --effective` and `sdd init --apply` show `auto_ready: true` at CLI level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T6: Run the flow without stops in the skills
 - Covers: AC-15, AC-LIFE-14.1, AC-LIFE-14.2, AC-LIFE-3.3, AC-LIFE-9.1, AC-LIFE-9.3

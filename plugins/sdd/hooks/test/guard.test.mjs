@@ -114,7 +114,6 @@ const BLOCKED = [
   ['gh pr review', 'gh pr review 12 --approve'],
   ['--reviewer', 'gh pr create --draft --title t --body b --reviewer someone'],
   ['--add-reviewer', 'gh pr edit 12 --add-reviewer someone'],
-  ['gh pr ready (auto_ready false)', 'gh pr ready 12'],
   ['gh pr create without --draft', 'gh pr create --title t --body b'],
   ['gh repo delete', 'gh repo delete owner/repo --yes'],
   ['gh api -X DELETE', 'gh api -X DELETE repos/o/r/git/refs/heads/feat'],
@@ -267,6 +266,12 @@ describe('config-dependent rows', () => {
   test('rebase blocked when git.integration is merge', () => {
     const dir = repo({ '.sdd/config.yaml': 'version: 1\ngit: { integration: merge }\n' });
     assert.equal(evaluate(bash('git rebase main', dir)).decision, 'block');
+  });
+  test('gh pr ready blocked when pr.auto_ready is false', () => {
+    const dir = repo({ '.sdd/config.yaml': 'version: 1\npr: { auto_ready: false }\n' });
+    const r = evaluate(bash('gh pr ready 12', dir));
+    assert.equal(r.decision, 'block');
+    assert.equal(r.handoff, 'Run it yourself if intended: ! gh pr ready 12');
   });
   test('gh pr ready allowed when pr.auto_ready', () => {
     const dir = repo({ '.sdd/config.yaml': 'version: 1\npr: { auto_ready: true }\n' });
