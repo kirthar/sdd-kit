@@ -74,3 +74,12 @@ passes, or a green run that fails, exits 1.
 project and the kit at a pinned ref, sets up Node 20, runs `sdd validate --all`.
 - AC-VAL-5.1 Given the template, When actionlint runs in this repo's CI, Then it passes.
 
+### REQ-VAL-6: No AI attribution
+V-ATTRIBUTION (error) flags, in `pr.md` of every open change, a `Co-authored-by:` line naming an AI
+assistant (`claude`, `anthropic`) or a "Generated with/by" line naming one. `Signed-off-by:` by the author is allowed.
+Archived changes are not checked. Matching is case-insensitive.
+- AC-VAL-6.1 Given an open change whose `pr.md` ends with "Generated with [Claude Code]", When
+  `sdd validate <id>` runs, Then it exits 1 with `V-ATTRIBUTION docs/changes/<id>/pr.md:<line>`.
+- AC-VAL-6.2 Given the same line in an archived `pr.md`, When `sdd validate --all` runs, Then no
+  V-ATTRIBUTION finding is reported.
+

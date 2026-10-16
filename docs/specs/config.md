@@ -52,9 +52,9 @@ naming the key path.
 
 ### REQ-CFG-2: Defaults
 Missing keys take the defaults above; `sdd config --effective` prints the
-merged result.
+merged result. `pr.auto_ready` defaults to `true`, and `sdd init` writes `auto_ready: true`.
 - AC-CFG-2.1 Given a config with only `version: 1`, When `sdd config --effective` runs, Then
-  `gates.enforce` is `true` and `pr.draft` is `true`.
+  `gates.enforce` is `true`, `pr.draft` is `true` and `pr.auto_ready` is `true`.
 
 ### REQ-CFG-3: Kit requirements
 live in `scripts/requirements.json` (min Node, min Claude Code,

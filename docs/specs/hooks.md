@@ -31,6 +31,7 @@ REQ-HOOK-1 to REQ-HOOK-3 apply to `guard` (matcher `Bash`); REQ-HOOK-4 to REQ-HO
 | Forge | `gh pr merge`; `gh pr review`; `--reviewer` / `--add-reviewer`; `gh pr ready` unless `pr.auto_ready`; `gh pr create` without `--draft` when `pr.draft`; `gh repo delete`; `gh api` with DELETE or a merge/review endpoint |
 | Escape hatches | `git config` writes to `alias.*`, `push.*`, `receive.*`, `remote.*.push`, `url.*`, `core.hooksPath`; `commit --no-verify` |
 | Mentions | `@handle` in `gh pr\|issue create\|comment\|edit` bodies and `--body-file` contents, outside inline or fenced code |
+| Attribution | A commit message (`-m`, `-F`, `--trailer`, heredoc) or `gh pr create\|edit` title, body or `--body-file` with a `Co-authored-by:` line naming an AI assistant (`claude`, `anthropic`) or a "Generated with/by" line naming one. The author's own signature (`-S`, `-s`, `Signed-off-by:`) is allowed |
 | Approvals | `sdd.mjs approve` from the Bash tool; any simple command whose text, including quoted arguments, inline code, heredoc bodies and write options, names a `state.yaml` under `docs/changes/`, unless its program only reads or stages (`cat`, `head`, `tail`, `less`, `more`, `grep`, `rg`, `wc`, `ls`, `stat`, `file`, `diff`, `echo` without redirect, `node <sdd.mjs> validate\|status\|context`, `git diff\|log\|show\|status\|add\|commit\|restore --staged`) |
 | Autopilot mode only | Any git verb other than `fetch`, `worktree add\|list\|remove\|prune` and read-only verbs against the main checkout; writes to `.sdd/config.yaml`, `.sdd/rules.md`, `.sdd/constitution.md` |
 
