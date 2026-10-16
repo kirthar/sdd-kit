@@ -438,3 +438,24 @@ test('doctor --report prints the failing checks and exits 0; plain doctor still 
   assert.match(report.stdout, /FAIL worktree/);
   assert.equal(run(root, 'doctor').status, 3);
 });
+
+test('archive leaves specs without deltas untouched and keeps fences and inline comments', () => {
+  const rulesSpec = '# Rules\n\n## Requirements\n\n### REQ-RULE-1: Rules file format\nFormat:\n\n```markdown\n## R<n>: <rule>\n- Why: x\n```\n\n### REQ-RULE-3: Shared context\nOld text.\n\n## History\n';
+  const initSpec = '# Init\n\n## Requirements\n\n### REQ-INIT-6: Agent instructions\nA marked section (`<!-- sdd:begin -->` …\n`<!-- sdd:end -->`).\n\n## History\n';
+  const delta = DELTA().replace('### REQ-BOOK-1: Create a booking\nNew text.\n', '### REQ-RULE-3: Shared context\nNew text.\n').replace('- REQ-BOOK-2: replaced by search\n', '');
+  const root = standard(['route', 'spec', 'tasks'], delta);
+  writeFiles(root, { 'docs/specs/rules.md': rulesSpec, 'docs/specs/init.md': initSpec });
+  const r = archive(root, 'c1', { mergedConfirmed: true, today: '2026-03-01' });
+  assert.equal(r.ok, true, r.message);
+  assert.equal(fs.readFileSync(path.join(root, 'docs/specs/init.md'), 'utf8'), initSpec);
+  const rules = fs.readFileSync(path.join(root, 'docs/specs/rules.md'), 'utf8');
+  assert.equal(rules, rulesSpec.replace('Old text.', 'New text.'));
+});
+
+test('archive keeps fenced headings inside a modified requirement', () => {
+  const block = '### REQ-BOOK-1: Create a booking\nExample:\n\n```markdown\n## Not a heading\n```';
+  const delta = DELTA().replace('### REQ-BOOK-1: Create a booking\nNew text.', block);
+  const root = standard(['route', 'spec', 'tasks'], delta);
+  assert.equal(archive(root, 'c1', { mergedConfirmed: true }).ok, true);
+  assert.ok(fs.readFileSync(path.join(root, 'docs/specs/bookings.md'), 'utf8').includes(block));
+});

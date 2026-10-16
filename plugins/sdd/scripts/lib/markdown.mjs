@@ -158,7 +158,15 @@ export function requirementIds(text) {
 export function deltaParts(text) {
   const parts = { added: '', modified: '', removed: '' };
   let cur = null;
+  let fence = null;
   for (const line of text.split('\n')) {
+    const f = line.match(/^\s*(```|~~~)/);
+    if (fence || f) {
+      if (fence && f && f[1] === fence) fence = null;
+      else if (!fence && f) fence = f[1];
+      if (cur) parts[cur] += `${line}\n`;
+      continue;
+    }
     const m = line.match(/^#{2,4}\s+(ADDED|MODIFIED|REMOVED)\s*$/);
     if (m) {
       cur = m[1].toLowerCase();
