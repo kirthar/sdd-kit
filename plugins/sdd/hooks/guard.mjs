@@ -528,6 +528,7 @@ function checkGh(argv, ctx, heredocs = []) {
       throw new Block('gh pr create without --draft (pr.draft: true); add --draft');
     }
     if (['create', 'comment', 'edit'].includes(verb)) checkMentions(args, ctx);
+    if (group === 'pr' && (verb === 'create' || verb === 'edit')) checkTitle(args, ctx);
     if (group === 'pr' && (verb === 'create' || verb === 'edit')) {
       checkAttribution([...args, ...heredocBodies(heredocs), ...fileContents(args, ['--body-file', '-F'], ctx)]);
     }
@@ -567,6 +568,30 @@ function checkGhApi(args) {
   }
   if (m !== 'GET' && endpoint && /\/(merge|merges|reviews|requested_reviewers)(\/|$|\?)/.test(endpoint)) {
     throw new Block(`gh api ${m} ${endpoint} merges or reviews`);
+  }
+}
+
+// --- pull request titles ----------------------------------------------------------------------
+
+// The title becomes the squash commit subject on the base branch (REQ-HOOK-7).
+const TITLE_FORMATS = {
+  conventional: {
+    re: /^(feat|fix|docs|refactor|perf|test|build|ci|chore|revert|style)(\([\w./-]+\))?!?: \S/,
+    expected: '<type>(<scope>): <subject>, type one of feat, fix, docs, refactor, perf, test, build, ci, chore, revert, style',
+  },
+  'ticket-prefix': { re: /^[A-Z][A-Z0-9]+-\d+ \S/, expected: '<KEY>-<n> <subject>' },
+};
+
+function checkTitle(args, ctx) {
+  const format = TITLE_FORMATS[ctx.config.commit?.format];
+  if (!format) return;
+  for (let k = 0; k < args.length; k++) {
+    const a = args[k];
+    const title = a === '--title' || a === '-t' ? args[++k] : a.startsWith('--title=') ? a.slice(8) : null;
+    if (title === null || title === undefined) continue;
+    if (!format.re.test(title) || title.length > 72) {
+      throw new Block(`pull request title "${title}" must read ${format.expected} (at most 72 characters); it becomes the merge commit subject`);
+    }
   }
 }
 

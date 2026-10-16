@@ -112,9 +112,9 @@ const BLOCKED = [
   ['gh pr merge', 'gh pr merge 12'],
   ['gh pr merge --auto', 'gh pr merge --squash --auto'],
   ['gh pr review', 'gh pr review 12 --approve'],
-  ['--reviewer', 'gh pr create --draft --title t --body b --reviewer someone'],
+  ['--reviewer', 'gh pr create --draft --title "fix: t" --body b --reviewer someone'],
   ['--add-reviewer', 'gh pr edit 12 --add-reviewer someone'],
-  ['gh pr create without --draft', 'gh pr create --title t --body b'],
+  ['gh pr create without --draft', 'gh pr create --title "fix: t" --body b'],
   ['gh repo delete', 'gh repo delete owner/repo --yes'],
   ['gh api -X DELETE', 'gh api -X DELETE repos/o/r/git/refs/heads/feat'],
   ['gh api --method=DELETE', 'gh api --method=DELETE repos/o/r'],
@@ -136,13 +136,13 @@ const BLOCKED = [
   ['commit --no-verify', 'git commit --no-verify -m x'],
   ['commit -n clustered', 'git commit -nm x'],
   // Mentions
-  ['mention in pr create body', 'gh pr create --draft --title t --body "cc @someone"'],
-  ['mention in issue create body', "gh issue create --title t --body 'ping @someone please'"],
+  ['mention in pr create body', 'gh pr create --draft --title "fix: t" --body "cc @someone"'],
+  ['mention in issue create body', "gh issue create --title 'fix: t' --body 'ping @someone please'"],
   ['mention in pr comment', 'gh pr comment 12 --body "thanks @someone"'],
   ['mention in issue comment -b', 'gh issue comment 3 -b "@someone see this"'],
   ['team mention in pr edit', 'gh pr edit 12 --body "owner: @org/team"'],
   ['mention in --body=', 'gh pr comment 12 --body="hi @someone"'],
-  ['mention in heredoc body', "gh pr create --draft --title t --body \"$(cat <<'EOF'\nSummary\n\nThanks @someone\nEOF\n)\""],
+  ['mention in heredoc body', "gh pr create --draft --title 'fix: t' --body \"$(cat <<'EOF'\nSummary\n\nThanks @someone\nEOF\n)\""],
   // Approvals
   ['sdd.mjs approve', 'node plugins/sdd/scripts/sdd.mjs approve add-x route'],
   ['sdd.mjs approve executed directly', './plugins/sdd/scripts/sdd.mjs approve add-x spec'],
@@ -173,8 +173,8 @@ const ALLOWED = [
   'git push origin feat 2>&1',
   'git commit -m "x"',
   'git commit -m "use --amend later"',
-  'gh pr create --draft --base main --title t --body b',
-  'gh pr create -d --title t --body b',
+  'gh pr create --draft --base main --title "fix: t" --body b',
+  'gh pr create -d --title "fix: t" --body b',
   'git status',
   'git log --oneline',
   'git log --grep="push -f"',
@@ -199,9 +199,9 @@ const ALLOWED = [
   'gh pr view 12',
   'gh pr ready --undo 12',
   'gh api repos/o/r/pulls/1/reviews',
-  'gh pr create --draft --title t --body "use `@Override` here"',
-  'gh pr create --draft --title t --body "mail dev@example.invalid"',
-  "gh pr create --draft --title t --body \"$(cat <<'EOF'\n```java\n@Override\nvoid run() {}\n```\nEOF\n)\"",
+  'gh pr create --draft --title "fix: t" --body "use `@Override` here"',
+  'gh pr create --draft --title "fix: t" --body "mail dev@example.invalid"',
+  "gh pr create --draft --title 'fix: t' --body \"$(cat <<'EOF'\n```java\n@Override\nvoid run() {}\n```\nEOF\n)\"",
   'cat docs/changes/add-x/state.yaml',
   'grep approvals docs/changes/c1/state.yaml',
   'head -n 5 docs/changes/c1/state.yaml',
@@ -279,7 +279,7 @@ describe('config-dependent rows', () => {
   });
   test('gh pr create without --draft allowed when pr.draft is false', () => {
     const dir = repo({ '.sdd/config.yaml': 'version: 1\npr: { draft: false }\n' });
-    assert.equal(evaluate(bash('gh pr create --title t --body b', dir)).decision, 'allow');
+    assert.equal(evaluate(bash('gh pr create --title "fix: t" --body b', dir)).decision, 'allow');
   });
   test('config is read from the repo above a nested cwd', () => {
     const dir = repo({ '.sdd/config.yaml': 'version: 1\ngit: { integration: rebase }\n', 'src/a.js': '' });
@@ -290,7 +290,7 @@ describe('config-dependent rows', () => {
 describe('--body-file mentions', () => {
   test('mention in body file blocks', () => {
     const dir = repo({ 'body.md': '## Summary\n\nThanks @someone for the review.\n' });
-    const r = evaluate(bash('gh pr create --draft --title t --body-file body.md', dir));
+    const r = evaluate(bash('gh pr create --draft --title "fix: t" --body-file body.md', dir));
     assert.equal(r.decision, 'block');
     assert.match(r.reason, /@someone/);
   });
@@ -300,11 +300,11 @@ describe('--body-file mentions', () => {
   });
   test('mentions only in code are allowed', () => {
     const dir = repo({ 'body.md': 'Uses `@Override`.\n\n```java\n@Deprecated\nclass A {}\n```\n\nmail dev@example.invalid\n' });
-    assert.equal(evaluate(bash('gh pr create --draft --title t --body-file body.md', dir)).decision, 'allow');
+    assert.equal(evaluate(bash('gh pr create --draft --title "fix: t" --body-file body.md', dir)).decision, 'allow');
   });
   test('missing body file does not block', () => {
     const dir = repo();
-    assert.equal(evaluate(bash('gh pr create --draft --title t --body-file nope.md', dir)).decision, 'allow');
+    assert.equal(evaluate(bash('gh pr create --draft --title "fix: t" --body-file nope.md', dir)).decision, 'allow');
   });
 });
 
@@ -372,7 +372,7 @@ describe('performance (AC-HOOK-6.1)', () => {
       fs.writeFileSync(path.join(p, 'state.yaml'), `id: c-${i}\n`);
     }
     heartbeat(dir);
-    const commands = ['git push -u origin HEAD', 'gh pr create --title t --body "x @a"', 'git rebase main',
+    const commands = ['git push -u origin HEAD', 'gh pr create --title "fix: t" --body "x @a"', 'git rebase main',
       "bash -c 'git status && git log'", 'echo x > docs/changes/c-1/state.yaml'];
     const times = [];
     for (let i = 0; i < 100; i++) {
@@ -416,9 +416,9 @@ describe('AI attribution (REQ-HOOK-1 Attribution)', () => {
     ['commit --trailer naming Claude', 'git commit -m "feat: x" --trailer "Co-authored-by: Claude <noreply@anthropic.com>"'],
     ['commit heredoc with an AI co-author', `git commit -m "$(cat <<'EOF'\nfeat: x\n\n${CO}\nEOF\n)"`],
     ['commit -F - heredoc with Generated with', `git commit -F - <<'EOF'\nfeat: x\n\n${GEN}\nEOF`],
-    ['gh pr create --body Generated with (AC-9)', `gh pr create --draft --base main --title t --body "Summary\n\n${GEN}"`],
+    ['gh pr create --body Generated with (AC-9)', `gh pr create --draft --base main --title "fix: t" --body "Summary\n\n${GEN}"`],
     ['gh pr edit --body Generated with', `gh pr edit 12 --body "x\n\n${GEN}"`],
-    ['gh pr create heredoc body with AI co-author', `gh pr create --draft --title t --body "$(cat <<'EOF'\nx\n\n${CO}\nEOF\n)"`],
+    ['gh pr create heredoc body with AI co-author', `gh pr create --draft --title "fix: t" --body "$(cat <<'EOF'\nx\n\n${CO}\nEOF\n)"`],
   ];
   for (const [name, command] of blocked) {
     test(name, () => {
@@ -431,7 +431,7 @@ describe('AI attribution (REQ-HOOK-1 Attribution)', () => {
 
   test('gh pr create --body-file with Generated with (AC-9)', () => {
     const dir = repo({ 'docs/changes/c1/pr.md': `Summary\n\n${GEN}\n` });
-    const r = evaluate(bash('gh pr create --draft --base main --title t --body-file docs/changes/c1/pr.md', dir));
+    const r = evaluate(bash('gh pr create --draft --base main --title "fix: t" --body-file docs/changes/c1/pr.md', dir));
     assert.equal(r.decision, 'block');
   });
 
@@ -446,12 +446,50 @@ describe('AI attribution (REQ-HOOK-1 Attribution)', () => {
     'git commit -m "feat: x\n\nSigned-off-by: Some Person <p@example.invalid>"',
     'git commit -m "feat: x\n\nCo-authored-by: Some Person <p@example.invalid>"', // AC-10
     'git commit -m "feat(guard): block AI co-author trailers"',
-    'gh pr create --draft --base main --title t --body "Generated with care by the team"',
+    'gh pr create --draft --base main --title "fix: t" --body "Generated with care by the team"',
     'grep -n "Co-Authored-By: Claude" docs/changes/archive/x/pr.md',
   ];
   for (const command of allowed) {
     test(`allows ${JSON.stringify(command)}`, () => {
       const r = evaluate(bash(command, DEFAULT_REPO));
+      assert.equal(r.decision, 'allow', `expected allow: ${command} (${r.reason})`);
+    });
+  }
+});
+
+describe('pull request titles follow the commit format (REQ-HOOK-7)', () => {
+  const conventional = repo({ '.sdd/config.yaml': 'version: 1\ncommit: { format: conventional }\n' });
+  const ticket = repo({ '.sdd/config.yaml': 'version: 1\ncommit: { format: ticket-prefix }\n' });
+  const free = repo({ '.sdd/config.yaml': 'version: 1\ncommit: { format: free }\n' });
+  const long = `feat: ${'x'.repeat(70)}`;
+  const blocked = [
+    ['plain title (AC-3)', conventional, 'gh pr create --draft --base main --title "Update stuff" --body b'],
+    ['unknown type', conventional, 'gh pr create --draft --base main --title "feature: x" --body b'],
+    ['missing subject', conventional, 'gh pr create --draft --base main --title "fix: " --body b'],
+    ['over 72 characters', conventional, `gh pr create --draft --base main --title "${long}" --body b`],
+    ['-t short flag', conventional, 'gh pr create --draft --base main -t "Merge branch x" --body b'],
+    ['--title= form', conventional, 'gh pr create --draft --base main --title="wip" --body b'],
+    ['gh pr edit --title', conventional, 'gh pr edit 12 --title "Some changes"'],
+    ['ticket-prefix without key', ticket, 'gh pr create --draft --base main --title "fix the thing" --body b'],
+  ];
+  for (const [name, dir, command] of blocked) {
+    test(`blocks ${name}`, () => {
+      const r = evaluate(bash(command, dir));
+      assert.equal(r.decision, 'block', `expected block: ${command}`);
+      assert.match(r.reason, /title/);
+      assert.equal(r.handoff, `Run it yourself if intended: ! ${command}`);
+    });
+  }
+  const allowed = [
+    ['scoped conventional title (AC-4)', conventional, 'gh pr create --draft --base main --title "feat(pr): stack slices" --body b'],
+    ['breaking change marker', conventional, 'gh pr create --draft --base main --title "refactor(api)!: drop v1" --body b'],
+    ['ticket-prefix title', ticket, 'gh pr create --draft --base main --title "ABC-123 fix the thing" --body b'],
+    ['free format (AC-5)', free, 'gh pr create --draft --base main --title "Update stuff" --body b'],
+    ['edit without a title', conventional, 'gh pr edit 12 --body b'],
+  ];
+  for (const [name, dir, command] of allowed) {
+    test(`allows ${name}`, () => {
+      const r = evaluate(bash(command, dir));
       assert.equal(r.decision, 'allow', `expected allow: ${command} (${r.reason})`);
     });
   }

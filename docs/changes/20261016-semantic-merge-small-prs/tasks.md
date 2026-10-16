@@ -18,7 +18,7 @@
 - Depends on: T1
 - Package: .
 - Slice: S1
-- Status: todo
+- Status: done
 
 ## T3: Print the forge merge settings for the config
 - Covers: AC-6, AC-7, AC-8
