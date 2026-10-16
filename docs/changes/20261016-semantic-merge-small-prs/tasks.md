@@ -45,7 +45,7 @@
 - Depends on: T1
 - Package: .
 - Slice: S2
-- Status: todo
+- Status: done
 
 ## T6: Validate slices in tasks
 - Covers: AC-11, AC-12, AC-13
