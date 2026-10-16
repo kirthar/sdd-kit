@@ -32,7 +32,7 @@
 - Outermost test: skill texts at unit level
 - Depends on: T1, T2, T3
 - Package: .
-- Status: todo
+- Status: done
 
 ## T5: Document pull requests that merge without conflicts
 - Covers: AC-10

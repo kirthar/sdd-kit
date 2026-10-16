@@ -16,5 +16,6 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context)
    the change is merged. Only after an explicit yes, re-run with `--merged-confirmed`.
 3. On failure, show the findings (for example a MODIFIED requirement that does not exist) and stop;
    never edit `docs/specs/` by hand to force it through.
-4. On success, show `git diff --stat docs/specs` and suggest committing
+4. On success, show `git diff --stat docs/specs` and the changelog file (the change's
+   `changelog.md` entries were added under `## [Unreleased]`), and suggest committing
    `docs: archive <id> and update living specs`.
