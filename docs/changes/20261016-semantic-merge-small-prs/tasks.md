@@ -63,7 +63,7 @@
 - Depends on: T5, T6
 - Package: .
 - Slice: S2
-- Status: todo
+- Status: done
 
 ## T8: Document squash merges and stacked slices
 - Covers: AC-14
