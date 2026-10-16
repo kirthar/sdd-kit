@@ -32,20 +32,18 @@ sequenceDiagram
     alt quick
         Note over C,R: brief.md only. No spec, no tasks.
     else standard or full
+        C-->>P: every clarification question, in batches of at most 4
+        P-->>C: answers
         opt full
-            C->>R: functional.md (clarification sweep, AC-n criteria)
-            C-->>P: review functional spec
-            P->>S: /sdd:approve {id} functional
+            C->>R: functional.md (AC-n criteria)
         end
         C->>C: sdd-researcher finds reuse and duplicates
         C->>R: delta.md, or technical.md + contracts + ADR
-        C->>S: validate
-        C-->>P: review spec
-        P->>S: /sdd:approve {id} spec
         C->>R: tasks.md (T1..Tn, each covers criteria)
         C->>S: validate (every criterion has a task)
-        C-->>P: review tasks
-        P->>S: /sdd:approve {id} tasks
+        C-->>P: review the whole plan
+        P->>S: /sdd:approve {id} plan
+        Note over C,S: no prompts from here to the pull request
     end
 
     loop every small step of every task
@@ -63,10 +61,11 @@ sequenceDiagram
     C->>R: verification.md (criterion to evidence, GO or NO-GO)
     C->>S: scan --diff (secrets)
     C->>G: push branch, gh pr create --draft
+    C->>G: gh pr ready (verification GO, pr.auto_ready)
     C->>H: gh pr merge or git push --force
     H-->>C: blocked, with "! {command}" for the person
-    G-->>P: draft pull request
-    P->>G: review, mark ready, merge
+    G-->>P: pull request ready for review
+    P->>G: review, merge
     P->>S: /sdd:archive {id}
     S->>R: deltas into docs/specs, change folder to archive
 ```
@@ -75,10 +74,10 @@ sequenceDiagram
 
 | Step | Who acts | What enforces it |
 |---|---|---|
-| Route, functional, spec and tasks approvals | Person (`/sdd:approve`) | `gate` blocks code edits until they exist; `guard` blocks `sdd approve` from Claude |
+| Route and plan approvals (`plan` records functional, spec and tasks at once) | Person (`/sdd:approve`) | `gate` blocks code edits until they exist; `guard` blocks `sdd approve` from Claude |
 | Spec and tasks quality | Claude, then reviewer subagents | `sdd validate` (sections, size, Given/When/Then, traceability, OpenAPI) |
 | Test-first steps | Claude | `sdd tdd red/green` records each run; `/sdd:verify` checks red came before green |
-| Push, PR, merge | Claude opens a draft; the person merges | `guard` blocks merge, approve, reviewers, force push and history rewrites |
+| Push, PR, merge | Claude opens a draft and marks it ready after a GO verification; the person merges | `guard` blocks merge, approve, reviewers, force push, history rewrites and AI attribution |
 | Living specs | Person runs `/sdd:archive` after merge | Deterministic merge of ADDED / MODIFIED / REMOVED; unknown targets fail |
 
 `/sdd:status` shows where any change is in this flow and the next command. When Claude makes a

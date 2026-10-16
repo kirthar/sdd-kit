@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import yaml from '../vendor/js-yaml.mjs';
 import { loadConfig, validateConfig, isProjectRelative } from './config.mjs';
 import { ROUTES, ID_PATTERN, changesDir, listChanges, loadChange, requiredApprovals } from './changes.mjs';
+import { findAttribution } from './attribution.mjs';
 import {
   splitFrontmatter, countLines, headings, section, criteria, tasks, openQuestions,
   requirementIds, requirementBlocks, TASK_REQUIRED, fieldLabel, deltaParts,
@@ -85,6 +86,14 @@ function validateChange(root, change, add, rel) {
   for (const [name, tpl] of Object.entries(ARTIFACTS[state.route])) {
     const p = path.join(dir, name);
     if (fs.existsSync(p)) checkArtifact(root, p, tpl, add, rel);
+  }
+
+  const prBody = path.join(dir, 'pr.md');
+  if (fs.existsSync(prBody)) {
+    fs.readFileSync(prBody, 'utf8').split('\n').forEach((line, i) => {
+      const hit = findAttribution(line);
+      if (hit) add('V-ATTRIBUTION', 'error', rel(prBody), i + 1, `"${hit}" credits an AI assistant`);
+    });
   }
 
   const taskList = fs.existsSync(path.join(dir, 'tasks.md')) ? tasks(fs.readFileSync(path.join(dir, 'tasks.md'), 'utf8')) : null;

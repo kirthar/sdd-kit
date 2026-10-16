@@ -34,9 +34,9 @@ required: []
 - Why: wildcard staging sweeps in local secrets and generated files.
 - How to apply: list each path in git add; check git status before committing.
 
-## R8: Keep pull requests self-contained and draft
+## R8: Keep pull requests self-contained and draft until verified
 - Why: chains of dependent pull requests cannot be reviewed or reverted on their own.
-- How to apply: open as draft with an explicit base; never stack on unfinished work.
+- How to apply: open as draft with an explicit base; mark ready only after a GO verification; never stack on unfinished work.
 
 # Testing
 
@@ -69,3 +69,7 @@ required: []
 ## R15: Never put local paths or secrets in shared text
 - Why: they leak machine details and credentials into public records.
 - How to apply: use repository-relative paths; report a secret's rule and location, never its value.
+
+## R16: Never credit an AI assistant in commits or pull requests
+- Why: authorship belongs to the person who answers for the change.
+- How to apply: no AI co-author trailer and no "Generated with" line; the author may sign.

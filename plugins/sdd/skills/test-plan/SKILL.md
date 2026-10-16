@@ -17,5 +17,6 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context)
 3. Add non-happy cases from `${CLAUDE_PLUGIN_ROOT}/references/edge-cases.md` where a criterion implies them.
 4. Missing data or environment: write `BLOCKED — <what is missing>`; never invent values.
 
-## Stop
-Summarise counts per level and any BLOCKED cases.
+## Next
+Summarise counts per level and any BLOCKED cases. When called after a GO verification, continue
+without asking with `/sdd:pr`.

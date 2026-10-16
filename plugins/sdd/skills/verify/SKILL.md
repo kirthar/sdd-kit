@@ -23,5 +23,6 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context)
 5. Verdict: **GO** only when every criterion has evidence, validators pass and tests are green;
    otherwise **NO-GO** naming each gap.
 
-## Stop
-Report the verdict. On GO suggest `/sdd:pr`; on NO-GO list what is missing.
+## Next
+Report the verdict. On GO continue without asking: standard and full → `/sdd:test-plan`, then
+`/sdd:pr`; quick → `/sdd:pr`. On NO-GO list what is missing and stop.

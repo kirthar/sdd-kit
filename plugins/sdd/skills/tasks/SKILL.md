@@ -9,7 +9,8 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context)
 ## Context
 !`node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context`
 
-Requires the `spec` approval; if missing, name `/sdd:approve <id> spec` and stop.
+Requires the spec artifact (`delta.md`, or `technical.md` on full) to exist and validate,
+approved or not; if missing, run `/sdd:spec` first.
 
 ## Steps
 1. Read the approved spec (delta or technical + functional) and contracts.
@@ -30,5 +31,7 @@ Requires the `spec` approval; if missing, name `/sdd:approve <id> spec` and stop
 6. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" validate <id>` until clean.
 
 ## Stop
-Ask the person to run `/sdd:approve <id> tasks`. Do not write code. Headings are immutable once
-approved: later additions are appended as new tasks, never renumbered.
+Do not write code. Summarise the plan (spec, criteria, tasks and the questions already answered)
+and ask the person once to review it and run `/sdd:approve <id> plan` — the single approval of
+every planning artifact. Headings are immutable once approved: later additions are appended as
+new tasks, never renumbered.

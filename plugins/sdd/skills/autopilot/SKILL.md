@@ -37,7 +37,8 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" autopilot:*), B
    g. `git -C <worktree> push -u origin HEAD`, then `gh pr create --draft --base <base_branch>` with a
       body from the `pr` template. Record the URL in `state.yaml` `prs`.
    h. Poll CI at most `ci_polls` times; on a real failure make at most `repairs` repair attempts.
-4. Never merge, approve, request reviewers, mark ready (unless `pr.auto_ready`), comment on
+4. Never merge, approve, request reviewers, mark ready (unless `pr.auto_ready` and the task's
+   verification is GO), add AI attribution to commits or PR bodies, comment on
    trackers, or edit `.sdd/` files or approvals. The guard and gate hooks enforce this.
 5. Stop when a budget is reached; list everything not done as deferred.
 6. Always: write a JSON summary `{ outcomes, plans, blocked, deferred, budget, aborted }` to a temp

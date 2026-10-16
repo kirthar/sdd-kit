@@ -10,4 +10,6 @@ Behaviour first; never a file-by-file changelog.
 6. **To confirm** — a checklist per role (product, QA, other developers).
 7. **Beyond the task** — any refactor or deviation from the plan, and why.
 
-Rules: no absolute local paths, no secrets, no @mentions. Open as draft with an explicit base.
+Rules: no absolute local paths, no secrets, no @mentions, no AI attribution (no AI co-author, no
+"Generated with" line). Open as draft with an explicit base; mark ready after a GO verification
+when `pr.auto_ready`.

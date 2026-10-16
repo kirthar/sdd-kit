@@ -4,6 +4,22 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- `/sdd:approve <id> plan` records every planning phase (functional, spec, tasks) in one act; `sdd
+  status` names it once every planning artifact is written (`20261016-autonomous-flow-no-attribution`).
+- `guard` blocks commits and `gh pr create|edit` that credit an AI assistant as co-author or carry a
+  "Generated with" line naming one; `V-ATTRIBUTION` flags the same lines in open `pr.md` files. The
+  author's own signature is allowed.
+- ADR-0008: two interaction points, then an autonomous run to a ready pull request.
+
+### Changed
+- Skills no longer stop after each phase or task: after the route, Claude asks every question,
+  writes the whole plan and asks once for `plan`; after it, it implements every task, verifies and
+  opens the pull request without prompts.
+- `pr.auto_ready` defaults to `true`: the pull request is marked ready for review after a GO
+  verification. Set `pr.auto_ready: false` to keep the person marking it ready.
+- Spec and tasks no longer require the previous phase's approval, only a valid artifact; code still
+  requires every approval.
 
 ## [0.2.0] - 2026-10-16
 ### Added

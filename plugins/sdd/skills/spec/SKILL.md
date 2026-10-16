@@ -9,8 +9,8 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context)
 ## Context
 !`node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context`
 
-Refuse on quick changes (no spec for quick). On full, require the `functional` approval first
-and name `/sdd:approve <id> functional` if it is missing.
+Refuse on quick changes (no spec for quick). On full, `functional.md` must exist with no BLOCKING
+open question (approved or not); otherwise name `/sdd:refine` or the question and stop.
 
 ## Steps
 1. **Research first (mandatory).** Delegate to the `sdd-researcher` agent with the change id and
@@ -35,5 +35,6 @@ and name `/sdd:approve <id> functional` if it is missing.
 Templates: `.sdd/templates/<name>.md` wins over `${CLAUDE_PLUGIN_ROOT}/templates/<name>.md`.
 Link to code instead of copying it. Migration and Observability always present ("None." is fine).
 
-## Stop
-Ask the person to review and run `/sdd:approve <id> spec`. Do not write tasks or code.
+## Next
+Do not write code. Continue without asking with `/sdd:tasks`, which ends with one request for
+`/sdd:approve <id> plan`. If a BLOCKING question is open, name it and stop instead.

@@ -6,7 +6,9 @@ import { ID_PATTERN, ROUTES, loadChange, requiredApprovals, nextCommand } from '
 import { validate } from './validate.mjs';
 import { writeState } from './state.mjs';
 
-const PHASE = /^(route|functional|spec|tasks|plan:T\d+)$/;
+const PHASE = /^(route|functional|spec|tasks|plan|plan:T\d+)$/;
+// `plan` records, in one act, every planning phase the route has not approved yet.
+const PLANNING = ['functional', 'spec', 'tasks'];
 const PHASE_FILES = {
   functional: ['functional.md'],
   spec: ['delta.md', 'technical.md', 'contracts/'],
@@ -23,7 +25,7 @@ function artifactFor(phase, route) {
 export function approve(root, args, { by = gitUser(root), now = new Date().toISOString() } = {}) {
   const [id, phase, ...rest] = args;
   if (!id || !ID_PATTERN.test(id)) throw new UsageError(`invalid change id: ${JSON.stringify(id ?? '')}`);
-  if (!phase || !PHASE.test(phase)) throw new UsageError(`invalid phase: ${JSON.stringify(phase ?? '')} (route, functional, spec, tasks or plan:T<n>)`);
+  if (!phase || !PHASE.test(phase)) throw new UsageError(`invalid phase: ${JSON.stringify(phase ?? '')} (route, functional, spec, tasks, plan or plan:T<n>)`);
   const override = rest.find((r) => r.startsWith('route='))?.slice(6);
   if (override !== undefined && (phase !== 'route' || !ROUTES.includes(override))) throw new UsageError('route=<quick|standard|full> is only valid with the route phase');
 
@@ -34,20 +36,26 @@ export function approve(root, args, { by = gitUser(root), now = new Date().toISO
     s.route_override = { from: s.route, signals: s.route_override?.signals ?? [] };
     s.route = override;
   }
-  if (!phase.startsWith('plan:') && !requiredApprovals(s.route).includes(phase)) {
+  const order = requiredApprovals(s.route);
+  const planning = order.filter((p) => PLANNING.includes(p));
+  if (phase === 'plan' && !planning.length) return { ok: false, message: `route ${s.route} has no "plan" approval` };
+  if (!phase.startsWith('plan') && !order.includes(phase)) {
     return { ok: false, message: `route ${s.route} has no "${phase}" approval` };
   }
 
+  const phases = phase === 'plan' ? planning.filter((p) => !s.approvals?.[p]) : [phase];
+  if (!phases.length) return { ok: false, message: `nothing to approve: ${planning.join(', ')} already approved for ${id}` };
   if (!phase.startsWith('plan:')) {
-    const order = requiredApprovals(s.route);
-    const earlier = order.slice(0, order.indexOf(phase)).filter((p) => !s.approvals?.[p]);
+    const earlier = order.slice(0, order.indexOf(phases[0])).filter((p) => !s.approvals?.[p]);
     if (earlier.length) return { ok: false, message: `approve ${earlier.join(', ')} first: phases are approved in order` };
   }
-  const artifact = artifactFor(phase, s.route);
-  if (artifact && !fs.existsSync(path.join(change.dir, artifact))) {
-    return { ok: false, message: `nothing to approve yet: ${artifact} does not exist in docs/changes/${id}/` };
+  for (const p of phases) {
+    const artifact = artifactFor(p, s.route);
+    if (artifact && !fs.existsSync(path.join(change.dir, artifact))) {
+      return { ok: false, message: `nothing to approve yet: ${artifact} does not exist in docs/changes/${id}/` };
+    }
   }
-  const prefixes = phase.startsWith('plan:') ? [`plans/${phase.slice(5)}.md`] : PHASE_FILES[phase] ?? [];
+  const prefixes = phase.startsWith('plan:') ? [`plans/${phase.slice(5)}.md`] : phases.flatMap((p) => PHASE_FILES[p] ?? []);
   const errors = validate(root, { id }).filter(
     (f) => f.level === 'error' && (f.rule === 'V-OPEN-Q' || prefixes.some((p) => f.file?.startsWith(`docs/changes/${id}/${p}`))),
   );
@@ -58,10 +66,10 @@ export function approve(root, args, { by = gitUser(root), now = new Date().toISO
 
   const record = { by, at: now };
   if (phase.startsWith('plan:')) s.approvals.plans = { ...(s.approvals.plans ?? {}), [phase.slice(5)]: record };
-  else s.approvals[phase] = record;
+  else for (const p of phases) s.approvals[p] = record;
   writeState(change.file, s);
   const next = nextCommand(loadChange(root, id));
-  return { ok: true, message: `Approved ${phase} for ${id} as ${by}. Next: ${next}` };
+  return { ok: true, message: `Approved ${phases.join(', ')} for ${id} as ${by}. Next: ${next}` };
 }
 
 function gitUser(root) {

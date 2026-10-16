@@ -25,7 +25,7 @@ approvals:            # written only by /sdd:approve (human act)
   route: { by: <git user.name>, at: <iso8601> }
   functional: …       # full only
   spec: …             # standard (delta.md) and full (technical.md)
-  tasks: …
+  tasks: …           # `/sdd:approve <id> plan` records functional, spec and tasks in one act
   plans: { T3: … }    # autopilot lane B
 prs: [<url>]
 ```
