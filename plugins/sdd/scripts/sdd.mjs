@@ -47,7 +47,7 @@ function root() {
 const commands = {
   doctor() {
     const res = doctor(collectDoctorFacts(process.cwd()));
-    emit(res, res.checks.map((c) => `${c.ok ? 'ok ' : 'FAIL'} ${c.name}: ${c.found ?? 'missing'}${c.ok ? '' : ` — ${c.hint}`}`).join('\n'), res.ok ? EXIT.ok : EXIT.env);
+    emit(res, res.checks.map((c) => `${c.ok ? 'ok ' : 'FAIL'} ${c.name}: ${c.found ?? 'missing'}${c.ok ? '' : ` — ${c.hint}`}`).join('\n'), res.ok || flag('--report') ? EXIT.ok : EXIT.env);
   },
   detect() {
     const res = detect(root());
