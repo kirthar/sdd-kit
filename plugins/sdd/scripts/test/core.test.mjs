@@ -52,6 +52,16 @@ test('unknown key is only a warning (AC-CFG-1.2)', () => {
   assert.equal(f.length, 1);
 });
 
+test('constitution path defaults and is validated (AC-CFG-5.1, 5.3-5.5)', () => {
+  assert.equal(loadConfig(tmpRepo({ '.sdd/config.yaml': 'version: 1\n' })).config.paths.constitution, '.sdd/constitution.md');
+  for (const bad of ['/etc/c.md', '../c.md', 'a/../../c.md', '']) {
+    const f = validateConfig({ version: 1, paths: { constitution: bad } });
+    assert.ok(f.some((x) => x.level === 'error' && x.rule === 'V-CONFIG' && x.message.includes('paths.constitution')), bad);
+  }
+  assert.deepEqual(validateConfig({ version: 1, paths: { constitution: 'docs/constitution.md' } }), []);
+  assert.ok(validateConfig({ version: 1, paths: { constitution: 3 } }).some((x) => x.level === 'error'));
+});
+
 test('required approvals per route', () => {
   assert.deepEqual(requiredApprovals('quick'), ['route']);
   assert.deepEqual(requiredApprovals('standard'), ['route', 'spec', 'tasks']);
