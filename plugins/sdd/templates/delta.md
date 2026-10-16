@@ -17,7 +17,8 @@ required: [Why, Reuse, ADDED, MODIFIED, REMOVED, Acceptance criteria, Open quest
      Full text of each new requirement. IDs must be new. -->
 
 ## MODIFIED
-<!-- ### REQ-<CAP>-<n>: <title> — full new text of each changed requirement (existing IDs). -->
+<!-- ### REQ-<CAP>-<n>: <title> — full new text of each changed requirement (existing IDs), including
+     every criterion that stays: the block replaces the old one on archive. -->
 
 ## REMOVED
 <!-- - REQ-<CAP>-<n>: <reason> -->

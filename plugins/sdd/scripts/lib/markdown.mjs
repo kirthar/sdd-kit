@@ -177,3 +177,16 @@ export function deltaParts(text) {
   }
   return parts;
 }
+
+// `### REQ-…` blocks with their text, up to the next heading of level 3 or above (fence-aware).
+export function requirementBlocks(text) {
+  const lines = text.split('\n');
+  const hs = headings(text);
+  return hs
+    .map((h, i) => ({ h, m: h.level === 3 && h.title.match(/^(REQ-[A-Z0-9]+-\d+)\b/) }))
+    .filter(({ m }) => m)
+    .map(({ h, m }) => {
+      const next = hs.find((x) => x.line > h.line && x.level <= 3);
+      return { id: m[1], text: lines.slice(h.line, next ? next.line - 1 : lines.length).join('\n') };
+    });
+}

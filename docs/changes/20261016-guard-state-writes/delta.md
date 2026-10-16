@@ -16,12 +16,20 @@ an approval appeared that no person gave.
 
 ## MODIFIED
 ### REQ-HOOK-1: Blocked shapes
-Same table as before, with the Approvals row reading: `sdd.mjs approve` from the Bash tool; any simple
-command whose text, including quoted arguments and inline code, names a `state.yaml` under
-`docs/changes/`, unless its program is read-only or staging (`cat`, `head`, `tail`, `less`, `more`,
-`grep`, `rg`, `wc`, `ls`, `stat`, `file`, `diff`, `echo` without redirect, `node <sdd.mjs> validate|status|context`,
-and `git diff|log|show|status|add|commit|restore --staged`). Paths built at run time are not detected;
-this layer is a strong default, not a security boundary (ADR-0003).
+
+| Group | Blocked |
+|---|---|
+| Push | `--force`, `-f`, `--force-with-lease`, `--force-if-includes`, `+<ref>` refspecs, `--delete`/`-d`, `:<ref>` deletion, `--mirror`, `--prune`, `--no-verify`; any compound command (`;`, `&&`, `\|\|`, `\|`, `$(`, backticks) containing a push |
+| History | `commit --amend`; `rebase` when `git.integration: merge`; `filter-branch`; `filter-repo`; `reflog expire\|delete`; `update-ref -d` |
+| Local destruction | `branch -D` / `--delete --force`; `reset --hard`; `clean -f…`; `checkout -- <path>` / `restore` without `--staged`; `worktree remove --force`; `stash drop\|clear` |
+| Forge | `gh pr merge`; `gh pr review`; `--reviewer` / `--add-reviewer`; `gh pr ready` unless `pr.auto_ready`; `gh pr create` without `--draft` when `pr.draft`; `gh repo delete`; `gh api` with DELETE or a merge/review endpoint |
+| Escape hatches | `git config` writes to `alias.*`, `push.*`, `receive.*`, `remote.*.push`, `url.*`, `core.hooksPath`; `commit --no-verify` |
+| Mentions | `@handle` in `gh pr\|issue create\|comment\|edit` bodies and `--body-file` contents, outside inline or fenced code |
+| Approvals | `sdd.mjs approve` from the Bash tool; any simple command whose text, including quoted arguments, inline code, heredoc bodies and write options, names a `state.yaml` under `docs/changes/`, unless its program only reads or stages (`cat`, `head`, `tail`, `less`, `more`, `grep`, `rg`, `wc`, `ls`, `stat`, `file`, `diff`, `echo` without redirect, `node <sdd.mjs> validate\|status\|context`, `git diff\|log\|show\|status\|add\|commit\|restore --staged`) |
+| Autopilot mode only | Any git verb other than `fetch`, `worktree add\|list\|remove\|prune` and read-only verbs against the main checkout; writes to `.sdd/config.yaml`, `.sdd/rules.md`, `.sdd/constitution.md` |
+
+Paths built at run time are not detected; this layer is a strong default, not a security boundary
+(ADR-0003).
 - AC-HOOK-1.1 Given each blocked shape in the fixture table (≥45 cases), When guard evaluates it,
   Then it exits 2 with the reason and the hand-off line.
 
