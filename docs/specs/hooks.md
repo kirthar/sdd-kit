@@ -31,9 +31,11 @@ REQ-HOOK-1 to REQ-HOOK-3 apply to `guard` (matcher `Bash`); REQ-HOOK-4 to REQ-HO
 | Forge | `gh pr merge`; `gh pr review`; `--reviewer` / `--add-reviewer`; `gh pr ready` unless `pr.auto_ready`; `gh pr create` without `--draft` when `pr.draft`; `gh repo delete`; `gh api` with DELETE or a merge/review endpoint |
 | Escape hatches | `git config` writes to `alias.*`, `push.*`, `receive.*`, `remote.*.push`, `url.*`, `core.hooksPath`; `commit --no-verify` |
 | Mentions | `@handle` in `gh pr\|issue create\|comment\|edit` bodies and `--body-file` contents, outside inline or fenced code |
-| Approvals | `sdd.mjs approve` from the Bash tool; shell writes (`>`, `tee`, `sed -i`) to `docs/changes/*/state.yaml` |
+| Approvals | `sdd.mjs approve` from the Bash tool; any simple command whose text, including quoted arguments, inline code, heredoc bodies and write options, names a `state.yaml` under `docs/changes/`, unless its program only reads or stages (`cat`, `head`, `tail`, `less`, `more`, `grep`, `rg`, `wc`, `ls`, `stat`, `file`, `diff`, `echo` without redirect, `node <sdd.mjs> validate\|status\|context`, `git diff\|log\|show\|status\|add\|commit\|restore --staged`) |
 | Autopilot mode only | Any git verb other than `fetch`, `worktree add\|list\|remove\|prune` and read-only verbs against the main checkout; writes to `.sdd/config.yaml`, `.sdd/rules.md`, `.sdd/constitution.md` |
 
+Paths built at run time are not detected; this layer is a strong default, not a security boundary
+(ADR-0003).
 - AC-HOOK-1.1 Given each blocked shape in the fixture table (≥45 cases), When guard evaluates it,
   Then it exits 2 with the reason and the hand-off line.
 
@@ -55,8 +57,8 @@ Hand-off. The block message repeats the exact original command prefixed with `!`
 
 ### REQ-HOOK-4: Approval gate
 With `gates.enforce: true` (default) in an initialised repo, a write
-outside `docs/`, `.sdd/` and `gates.exempt` is allowed only when the active change (per-worktree
-pointer) has every approval its route requires (lifecycle spec).
+outside `docs/`, `.sdd/` and `gates.exempt` is allowed only when the active change (resolved per
+REQ-LIFE-13) has every approval its route requires (lifecycle spec).
 - AC-HOOK-4.1 Given no active change, When the model edits `src/a.ts`, Then it is blocked with
   "ask the person to run `/sdd:new` and `/sdd:approve <id> route`".
 - AC-HOOK-4.2 Given a quick change with `route` approved, When the model edits `src/a.ts`, Then it

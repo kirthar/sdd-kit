@@ -31,12 +31,19 @@ could enforce it (validator rule, hook shape, template change). Writes after con
 
 ### REQ-RULE-3: Shared context
 Shared context (`sdd context`). Every `/sdd:*` skill injects it before running. It
-prints the active change (id, route, derived phase, missing approvals), the constitution, and the
-rules: full text up to 80 lines in total, then titles only; quick changes get titles only.
+prints the active change (id, route, derived phase, missing approvals), the constitution read from
+`paths.constitution` (config spec), and the rules: full text up to 80 lines in total, then titles only; quick changes
+get titles only. A missing constitution file is skipped without error.
 - AC-RULE-3.1 Given three rules and a standard change, When `sdd context` runs, Then each rule's
   title and "How to apply" line are printed.
 - AC-RULE-3.2 Given no `.sdd/`, When `sdd context` runs, Then it prints a one-line hint to run
   `/sdd:init` and exits 0.
+- AC-RULE-3.3 Given `paths.constitution: docs/constitution.md` and that file, When `sdd context` runs, Then its text
+  is printed.
+- AC-RULE-3.4 Given the default path and a constitution at `.sdd/constitution.md`, When `sdd context` runs, Then its
+  text is printed.
+- AC-RULE-3.5 Given `paths.constitution: ../c.md` and a file at that location, When `sdd context` runs, Then that
+  file's text is not printed and the command exits 0.
 
 ### REQ-RULE-4: Seed rules
 `templates/seed-rules.md` ships the kit's generic learned rules in

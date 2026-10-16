@@ -40,7 +40,9 @@ Required approvals before code may be written: quick → `route`; standard → `
 `/sdd:new <description>` (auto). Classifies with the ADR-0001 signals, prints the
 route and fired signals, creates the folder and `state.yaml` without approvals, writes `brief.md`
 for quick, sets the active pointer, and asks the person to confirm with `/sdd:approve <id> route`
-(optionally `route=<other>` to override).
+(optionally `route=<other>` to override). When the current branch is `base_branch`, it first
+creates and switches to `sdd/<id>`; on any other branch it stays there. If `sdd/<id>` already
+exists or the switch fails (for example a dirty tree), it stops, reports why and creates nothing.
 - AC-LIFE-1.1 Given "fix a typo in the confirmation email", When `/sdd:new` runs, Then the route is
   quick and only `state.yaml` and `brief.md` exist in the change folder.
 - AC-LIFE-1.2 Given a description adding a public endpoint, When `/sdd:new` runs, Then the route is
@@ -103,9 +105,9 @@ and immediately if the diff leaves the task's Expected paths or touches a tripwi
 
 ### REQ-LIFE-7: Verify
 `/sdd:verify` (auto). Runs `sdd validate`, the configured lint and tests, and builds
-a criterion → evidence matrix in `verification.md` (standard and full). For quick, it checks that
-the proving test from `brief.md` ran red and then green, and reports to the terminal only. Lists the
-exact commands and what only CI confirms.
+a criterion → evidence matrix in `verification.md` (standard and full). For quick, it reads
+`sdd tdd log <id>` and checks that the proving test from `brief.md` ran red and then green, and
+reports to the terminal only. Lists the exact commands and what only CI confirms.
 - AC-LIFE-7.1 Given a criterion with no evidence, When verify runs, Then `verification.md` says
   NO-GO and names the criterion.
 - AC-LIFE-7.2 Given a quick change, When verify runs, Then no file is written.
@@ -140,6 +142,15 @@ missing approvals and next command.
 `docs/specs/<cap>.md` with `status: unverified` and a source-file link per requirement.
 - AC-LIFE-12.1 Given adopt on a fixture repo, When it ends, Then every drafted requirement has at
   least one file link and V-UNVERIFIED warns.
+
+### REQ-LIFE-13: Active change follows the branch
+The active change is resolved, never assumed from the pointer alone. If the pointer names a change
+whose folder exists (not archived) in the current checkout, that is the active change. Otherwise,
+if exactly one open change exists in the checkout, that is the active change. With none or several,
+there is no active change. An archived change is not open. Resolution only reads and never
+rewrites the pointer file, and every reader (`status`, `context`, `tdd`, the approval gate) uses it.
+- A detached HEAD or an unborn branch resolves like any other checkout.
+- No active change keeps the approval gate closed (REQ-HOOK-4).
 
 ## Subagents
 

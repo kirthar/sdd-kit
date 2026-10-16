@@ -3,4 +3,4 @@ route: quick
 capabilities: []
 approvals:
   route: { by: kirthar, at: 2026-10-16T07:27:59.058Z }
-prs: []
+prs: [https://github.com/kirthar/sdd-kit/pull/8]

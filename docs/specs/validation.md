@@ -62,8 +62,10 @@ with high entropy. Output names the rule and location, never the value; exit 1 o
 
 ### REQ-VAL-4: Test first log
 `sdd tdd red|green -- <cmd>`. Runs the command, asserts it failed (red) or passed
-(green), and appends `{time, change, phase, cmd, exit}` to the tdd log. A red run that passes, or a
-green run that fails, exits 1.
+(green), and appends `{time, change, phase, cmd, exit}` to the tdd log under the resolved active
+change (REQ-LIFE-13). `sdd tdd log <id>` prints that change's recorded runs in order, one per
+line (time, phase, exit, command), and says "no runs recorded" when there are none. A red run that
+passes, or a green run that fails, exits 1.
 - AC-VAL-4.1 Given `sdd tdd red -- node -e "process.exit(0)"`, When it runs, Then it exits 1 with
   "expected failure, got success".
 
@@ -71,3 +73,4 @@ green run that fails, exits 1.
 `templates/ci/sdd-validate.yml` (GitHub Actions): checks out the
 project and the kit at a pinned ref, sets up Node 20, runs `sdd validate --all`.
 - AC-VAL-5.1 Given the template, When actionlint runs in this repo's CI, Then it passes.
+
