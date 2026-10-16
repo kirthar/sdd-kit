@@ -36,7 +36,7 @@
 - Depends on: T3
 - Package: .
 - Slice: S1
-- Status: todo
+- Status: done
 
 ## T5: Count pull request size against the budget
 - Covers: AC-10
