@@ -8,7 +8,7 @@
 - Outermost test: `sdd restack` on a fixture stack at CLI level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T2: Check a branch for conflicts with its base
 - Covers: AC-6
