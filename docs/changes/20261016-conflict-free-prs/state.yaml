@@ -1,0 +1,5 @@
+id: 20261016-conflict-free-prs
+route: standard
+capabilities: [lifecycle, validation, config]
+approvals: {}
+prs: []
