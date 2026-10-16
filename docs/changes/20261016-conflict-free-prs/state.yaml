@@ -1,0 +1,8 @@
+id: 20261016-conflict-free-prs
+route: standard
+capabilities: [lifecycle, validation, config]
+approvals:
+  route: { by: kirthar, at: 2026-10-16T15:51:53.403Z }
+  spec: { by: kirthar, at: 2026-10-16T15:51:53.493Z }
+  tasks: { by: kirthar, at: 2026-10-16T15:51:53.493Z }
+prs: [https://github.com/kirthar/sdd-kit/pull/14]

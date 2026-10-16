@@ -23,18 +23,30 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context)
    neighbours. The title is the future squash commit subject: it follows `commit.format`
    (conventional: `<type>(<scope>): <behaviour>`, ≤72 characters; guard enforces it). No absolute local paths, no secrets, no @mentions,
    and no AI attribution (no AI co-author, no "Generated with" line; `sdd validate` rejects them).
+   Release notes belong in `docs/changes/<id>/changelog.md` (template `changelog`); never edit the
+   project changelog in a pull request — parallel pull requests would conflict there, and
+   `/sdd:archive` folds the entries in.
 5. If `pr.forge` is `github` and `gh auth status` succeeds: push the branch
    (`git push -u origin HEAD`) and run `gh pr create --draft --base <base_branch> --title … --body-file docs/changes/<id>/pr.md`.
    Slice k ≥ 2 is stacked: `gh pr create --draft --base sdd/<id>[-s<k-1>] --title … --body-file docs/changes/<id>/pr-s<k>.md`.
    Add each URL to `prs` in `state.yaml`. Otherwise leave the bodies ready to paste and say so.
-6. If `pr.auto_ready` is true (the default) and the verification is GO (quick: the proving test
-   ran red then green), run `gh pr ready <url>` so the PR ends ready for review. Otherwise leave it
+6. Conflict check: `git fetch origin`, then
+   `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" conflicts --base origin/<base of this PR>`. On
+   conflicts, merge that base, resolve, re-run the tests, commit and push, and check again; a
+   pull request is never handed over with conflicts.
+7. If `pr.auto_ready` is true (the default), the conflict check is clean and the verification is GO
+   (quick: the proving test ran red then green), run `gh pr ready <url>` so the PR ends ready for review. Otherwise leave it
    as a draft and say why.
 
-**Restack.** When a lower slice has been merged (its pull request shows merged), for the next
-slice: `git checkout sdd/<id>-s<k>`, `git fetch origin`, `git merge origin/<base_branch>`
-(resolve, test, commit), `git push`, then `gh pr edit <url> --base <base_branch>` if the forge
-did not retarget it. Repeat up the stack.
+**Restack.** When a lower slice has been squash-merged, never merge the base branch straight into
+the next slice: the slice still holds the lower slice's original commits and every shared file
+would conflict. For the next slice: `git checkout sdd/<id>-s<k>`, `git fetch origin`, read the
+lower pull request's `mergeCommit` and `headRefOid` (`gh pr view <url> --json mergeCommit,headRefOid`),
+then run `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" restack --squash <mergeCommit> --slice-head <headRefOid>`.
+It merges only, so a plain `git push` follows. A conflict it reports comes from other work on the
+base: resolve, test, commit. Then `gh pr edit <url> --base <base_branch>` if the forge did not
+retarget it (if `gh pr edit` fails, `gh api -X PATCH repos/{owner}/{repo}/pulls/<n> -f base=<base_branch>`).
+Repeat up the stack.
 
 If git or the scan cannot run (missing tool, sandbox, no remote), still write the body from the
 change folder and say exactly which checks did not run — never skip the body.

@@ -54,3 +54,8 @@
 - Why: authorship belongs to the person who answers for the change.
 - How to apply: no AI co-author trailer and no "Generated with" line; the author may sign.
 - Added: 2026-10-16
+
+## R12: Hand over pull requests without conflicts
+- Why: a conflict the agent could have prevented costs the person a context switch and a risky manual merge.
+- How to apply: run `sdd conflicts` before marking ready; restack slices with `sdd restack`; keep release notes in the change's `changelog.md`, never in the project changelog.
+- Added: 2026-10-16

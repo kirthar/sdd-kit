@@ -3,7 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { loadChange, changesDir } from './changes.mjs';
-import { loadConfig } from './config.mjs';
+import { loadConfig, isProjectRelative } from './config.mjs';
+import { changelogEntries, foldChangelog } from './changelog.mjs';
 import { validate, templateFor } from './validate.mjs';
 import { section, splitFrontmatter, deltaParts } from './markdown.mjs';
 
@@ -26,11 +27,28 @@ export function archive(root, id, { mergedConfirmed = false, today = new Date().
     fs.mkdirSync(path.dirname(w.file), { recursive: true });
     fs.writeFileSync(w.file, w.text);
   }
+  const notes = foldNotes(root, change);
   const target = path.join(changesDir(root), 'archive', id);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.renameSync(change.dir, target);
   const after = validate(root, { specs: true }).filter((f) => f.level === 'error');
-  return { ok: true, message: `Archived ${id}; updated ${plan.writes.length} living spec(s).${after.length ? ` Warning: ${after.length} spec finding(s) after archive.` : ''}` };
+  return { ok: true, message: `Archived ${id}; updated ${plan.writes.length} living spec(s).${notes ? ` ${notes}` : ''}${after.length ? ` Warning: ${after.length} spec finding(s) after archive.` : ''}` };
+}
+
+// The change's own release notes go into the project changelog here, once, instead of every pull
+// request editing that shared file (REQ-VAL-9).
+function foldNotes(root, change) {
+  const src = path.join(change.dir, 'changelog.md');
+  if (!fs.existsSync(src)) return '';
+  const entries = changelogEntries(fs.readFileSync(src, 'utf8'));
+  const count = Object.values(entries).flat().length;
+  if (!count) return '';
+  const rel = loadConfig(root).config.paths.changelog;
+  const file = isProjectRelative(rel) ? path.join(root, rel) : null;
+  const folded = file && fs.existsSync(file) ? foldChangelog(fs.readFileSync(file, 'utf8'), entries) : null;
+  if (!folded) return `changelog: skipped (no "## [Unreleased]" in ${rel}).`;
+  fs.writeFileSync(file, folded);
+  return `changelog: ${count} entries added to ${rel}.`;
 }
 
 // true = all merged, false = some open, null = unknown (no forge, no PRs or gh unavailable)

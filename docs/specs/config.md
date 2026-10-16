@@ -29,7 +29,7 @@ autopilot:
   budgets: { tasks: 3, repairs: 1, ci_polls: 3, minutes: 60 }
   tripwires: { paths: [], keywords: [], max_files: 5 }
 integrations: {}                   # see integrations spec; empty = files only
-paths: { constitution: .sdd/constitution.md }   # relative to the project root
+paths: { constitution: .sdd/constitution.md, changelog: CHANGELOG.md }   # relative to the project root
 ```
 
 ## Local state (never committed)

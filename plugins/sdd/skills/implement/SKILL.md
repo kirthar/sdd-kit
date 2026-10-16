@@ -27,7 +27,10 @@ the person must run. Never edit `state.yaml` approvals.
 3. Stay inside the task's Expected paths. If you need to leave them, or you touch contracts,
    schemas, security or more packages than planned, stop and explain.
 4. When the behaviour is complete: format, lint (commit rewrites), full test command, clean tree.
-5. Mark the task `- Status: done` in `tasks.md` (not for quick), then go on with the next task
+5. When the task changes behaviour a user or caller can observe, add a line to
+   `docs/changes/<id>/changelog.md` (template `changelog`); never edit the project changelog —
+   `/sdd:archive` folds the entries in, so parallel pull requests never conflict on it.
+6. Mark the task `- Status: done` in `tasks.md` (not for quick), then go on with the next task
    without asking.
 
 ## Next

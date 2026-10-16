@@ -90,7 +90,7 @@ test('pr opens one stacked PR per slice and restacks after a merge (AC-14)', () 
   assert.match(text, /sdd\.mjs" size/);
   assert.match(text, /pr-s<k>\.md/);
   assert.match(text, /--base sdd\/<id>/);
-  assert.match(text, /git merge origin\/<base_branch>/);
+  assert.match(text, /sdd\.mjs" restack/);
   assert.match(text, /gh pr edit <url> --base <base_branch>/);
 });
 
@@ -102,4 +102,28 @@ test('pr titles follow commit.format and over-budget bodies explain their size (
   assert.match(tpl, /Slice <k> of <n>/);
   assert.match(tpl, /## Size/);
   assert.match(read('references/pr-description.md'), /squash commit/i);
+});
+
+// ---- conflict-free pull requests (REQ-LIFE-17, REQ-VAL-8, REQ-VAL-9, AC-10) ----
+
+test('pr restacks with sdd restack instead of merging the base directly', () => {
+  const text = skill('pr');
+  assert.match(text, /sdd\.mjs" restack --squash/);
+  assert.match(text, /--slice-head/);
+  assert.doesNotMatch(text, /git merge origin\/<base_branch>/);
+});
+
+test('pr runs the conflict check before marking ready', () => {
+  const text = skill('pr');
+  assert.match(text, /sdd\.mjs" conflicts/);
+  assert.ok(text.indexOf('conflicts') < text.indexOf('gh pr ready'), 'conflict check comes before gh pr ready');
+});
+
+test('release notes go to the change changelog, never the project changelog', () => {
+  for (const name of ['implement', 'pr']) {
+    assert.match(skill(name), /changelog\.md/, name);
+    assert.match(skill(name), /never edit[^.]*project changelog/i, name);
+  }
+  assert.match(skill('archive'), /changelog/i);
+  assert.match(read('templates/changelog.md'), /### Added/);
 });

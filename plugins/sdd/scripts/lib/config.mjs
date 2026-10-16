@@ -7,7 +7,7 @@ export const DEFAULTS = Object.freeze({
   version: 1,
   language: 'en',
   base_branch: 'main',
-  paths: { constitution: '.sdd/constitution.md' },
+  paths: { constitution: '.sdd/constitution.md', changelog: 'CHANGELOG.md' },
   packages: [{ path: '.', commands: { test: '', test_single: '', lint: '', format: '', build: '' } }],
   testing: { tdd: 'strict', doubles: 'explicit' },
   git: { integration: 'merge' },
@@ -100,7 +100,7 @@ export function validateConfig(raw, file = '.sdd/config.yaml') {
         add('error', key, `must be a ${typeof d}`);
       } else if (key === 'pr.max_lines' && !(Number.isInteger(v) && v >= 1)) {
         add('error', key, 'must be an integer of at least 1');
-      } else if (key === 'paths.constitution' && !isProjectRelative(v)) {
+      } else if ((key === 'paths.constitution' || key === 'paths.changelog') && !isProjectRelative(v)) {
         add('error', key, 'must be a non-empty path inside the project (no absolute path, no "..")');
       }
     }
