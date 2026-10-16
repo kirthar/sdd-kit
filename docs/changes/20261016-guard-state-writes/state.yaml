@@ -1,0 +1,5 @@
+id: 20261016-guard-state-writes
+route: standard
+capabilities: [hooks]
+approvals: {}
+prs: []
