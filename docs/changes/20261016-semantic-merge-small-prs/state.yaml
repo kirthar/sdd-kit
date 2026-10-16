@@ -1,0 +1,5 @@
+id: 20261016-semantic-merge-small-prs
+route: standard
+capabilities: [lifecycle, config, validation, hooks, init]
+approvals: {}
+prs: []
