@@ -7,6 +7,9 @@ description: Guides connecting GitHub Issues through the person's gh CLI so task
 
 Files in the repository remain the source of truth; issues only link back to task headings.
 
+Before any check, know what sync does: `/sdd:sync` shows a dry run first, and
+nothing is written before confirmation. It never assigns, comments or closes issues.
+
 1. Check `gh --version` and `gh auth status`. If gh is missing or unauthenticated, explain how to
    install it and run `gh auth login` themselves (suggest `! gh auth login`); never handle tokens.
 2. Read-only test: `gh repo view --json nameWithOwner`.
@@ -16,4 +19,4 @@ Files in the repository remain the source of truth; issues only link back to tas
    integrations:
      tracker: { kind: github, repo: <owner/name>, label: sdd, write: confirm }
    ```
-5. Explain that `/sdd:sync` shows a dry run first and never assigns, comments or closes issues.
+5. Remind the person to run `/sdd:sync` when ready: the dry run comes first.

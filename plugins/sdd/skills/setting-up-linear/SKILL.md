@@ -5,6 +5,9 @@ description: Guides connecting the person's own Linear workspace through their M
 
 # Set up Linear (optional)
 
+Before any check, know what sync does: `/sdd:sync` shows a dry run first, and
+nothing is written before confirmation. It never assigns, comments or changes states.
+
 1. Check whether a Linear-capable MCP server is available (tool names mentioning linear). If not,
    explain how the person adds their own with `claude mcp add …`, authenticating through its OAuth
    flow or an API key kept in an environment variable — never in repository files.
@@ -15,4 +18,4 @@ description: Guides connecting the person's own Linear workspace through their M
    integrations:
      tracker: { kind: linear, team: <KEY>, write: confirm }
    ```
-5. Explain that `/sdd:sync` shows a dry run first and never assigns, comments or changes states.
+5. Remind the person to run `/sdd:sync` when ready: the dry run comes first.
