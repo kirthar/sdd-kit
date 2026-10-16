@@ -1,7 +1,7 @@
 // `sdd context`: what every skill sees first (REQ-RULE-3).
 import fs from 'node:fs';
 import path from 'node:path';
-import { loadConfig } from './config.mjs';
+import { loadConfig, isProjectRelative } from './config.mjs';
 import { loadChange, resolveActive, derivePhase, missingApprovals, nextCommand } from './changes.mjs';
 import { splitFrontmatter } from './markdown.mjs';
 
@@ -18,7 +18,8 @@ export function context(root) {
     out.push(`Next: ${nextCommand(change)}`);
   } else out.push('Active change: none. Code edits are gated until the person starts and confirms one.');
 
-  const constitution = read(path.join(root, '.sdd', 'constitution.md'));
+  const configured = loadConfig(root).config.paths.constitution;
+  const constitution = isProjectRelative(configured) ? read(path.join(root, configured)) : null;
   if (constitution) out.push('', '## Constitution', splitFrontmatter(constitution).body.trim());
 
   const rules = parseRules(read(path.join(root, '.sdd', 'rules.md')) ?? '');

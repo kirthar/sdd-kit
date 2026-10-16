@@ -19,7 +19,11 @@ Write nothing.
 ## Steps
 1. Review the proposed config above. For every unresolved command, look for it in the repository
    (scripts, Makefile, README, CI files). Never guess; leave it empty if you cannot find it.
-2. Draft `.sdd/constitution.md` (template `${CLAUDE_PLUGIN_ROOT}/templates/constitution.md`):
+2. Find the constitution location: `paths.constitution` in the proposed config above, or
+   `.sdd/constitution.md` when the key is absent. An existing config's value is kept; never create
+   `.sdd/constitution.md` when the config names another location. If the person wants a different
+   project-relative location, set `paths.constitution` to it in the config you show.
+   Draft the constitution for that location (template `${CLAUDE_PLUGIN_ROOT}/templates/constitution.md`):
    3–10 invariants **observed in this repository** (layering, tenancy or authorisation boundaries,
    public contracts, release model, data ownership). Each row: ID · invariant · violated when ·
    evidence (a repository file). No generic values such as "quality" or "simplicity". ≤40 lines.
@@ -31,12 +35,13 @@ Write nothing.
 4. **Wait for confirmation.** If the person declines, write nothing.
 5. On confirmation run
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" init --apply [--seed <groups>] [--ci] [--team <owner/repo>]`,
-   then write your edited `.sdd/config.yaml` values and `.sdd/constitution.md`. If the person wanted
+   then write your edited `.sdd/config.yaml` values and the constitution at the location from step 2. If the person wanted
    the permissions list, add `Bash(<command>)` entries for each detected command plus
    `Bash(git add:*)`, `Bash(git commit:*)` and `Bash(gh pr create:*)` to `.claude/settings.json`.
-6. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" validate --all` and fix any error.
+6. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" validate --all` and fix any error. It warns
+   when the constitution is missing at the configured location.
 7. Offer to commit exactly the files init wrote: the `Wrote:` paths from step 5 plus
-   `.sdd/constitution.md` and `.claude/settings.json` if you wrote them. Show the list and ask yes/no.
+   the constitution file at `paths.constitution` and `.claude/settings.json` if you wrote them. Show the list and ask yes/no.
    - Accepted: run `git add -- <paths>` then `git commit -m "chore: adopt sdd" -- <paths>`, listing
      each path explicitly (never `git add .` or `-A`). Files the person had already staged stay out
      of the commit. Then run `git status` and confirm the tree is clean apart from their files.

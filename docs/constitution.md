@@ -3,18 +3,18 @@
 Invariants for the kit itself. Every spec, ADR and pull request in this repo cites the ones it
 could break. Changing this file requires an ADR.
 
-| ID | Invariant | Violated when |
-|---|---|---|
-| K1 | Files first | Any command needs an external service to complete its job |
-| K2 | Proportional ceremony | A `quick` change produces a spec, or any artifact exceeds its template's size budget |
-| K3 | Human owns every transition | The agent advances a phase, merges, approves or requests reviewers without a human act |
-| K4 | Critical rules are enforced by tools | A rule marked critical exists only as prose (no hook, validator or CI check) |
-| K5 | Stack agnostic | Plugin code assumes a language, build tool or framework, or requires a forge (a forge CLI is optional and degrades) |
-| K6 | Neutral and public | The repo, including git history, names a real organization, customer, host, ticket or person (third-party license notices excepted) |
-| K7 | No credentials, no servers | The kit ships a server address, token or account identifier |
-| K8 | One runtime | A script or hook needs anything beyond Node.js and git (optional `npx` tools degrade gracefully) |
-| K9 | Tests first | Plugin behaviour (scripts, hooks, validators) lands without a test that failed before it |
-| K10 | Living specs | A merged change leaves `docs/specs/` describing something other than current behaviour |
+| ID | Invariant | Violated when | Evidence |
+|---|---|---|---|
+| K1 | Files first | Any command needs an external service to complete its job | `docs/adr/0005-files-first-optional-integrations.md` |
+| K2 | Proportional ceremony | A `quick` change produces a spec, or any artifact exceeds its template's size budget | `docs/adr/0001-size-based-routes.md` |
+| K3 | Human owns every transition | The agent advances a phase, merges, approves or requests reviewers without a human act | `plugins/sdd/hooks/gate.mjs` |
+| K4 | Critical rules are enforced by tools | A rule marked critical exists only as prose (no hook, validator or CI check) | `docs/adr/0003-rules-enforced-by-tools.md` |
+| K5 | Stack agnostic | Plugin code assumes a language, build tool or framework, or requires a forge (a forge CLI is optional and degrades) | `docs/adr/0004-stack-independence.md` |
+| K6 | Neutral and public | The repo, including git history, names a real organization, customer, host, ticket or person (third-party license notices excepted) | `plugins/sdd/scripts/lib/validate.mjs` |
+| K7 | No credentials, no servers | The kit ships a server address, token or account identifier | `plugins/sdd/scripts/lib/validate.mjs` |
+| K8 | One runtime | A script or hook needs anything beyond Node.js and git (optional `npx` tools degrade gracefully) | `docs/adr/0007-node-single-runtime.md` |
+| K9 | Tests first | Plugin behaviour (scripts, hooks, validators) lands without a test that failed before it | `.github/workflows/ci.yml` |
+| K10 | Living specs | A merged change leaves `docs/specs/` describing something other than current behaviour | `docs/adr/0002-living-specs-with-deltas.md` |
 
 Consequences for contributors
 - New skills follow the authoring rules in `CONTRIBUTING.md` and ship activation evals.

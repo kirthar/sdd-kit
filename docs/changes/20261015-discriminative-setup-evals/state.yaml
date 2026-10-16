@@ -1,0 +1,8 @@
+id: 20261015-discriminative-setup-evals
+route: standard
+capabilities: [integrations]
+approvals:
+  route: { by: kirthar, at: 2026-10-15T16:21:46.299Z }
+  spec: { by: kirthar, at: 2026-10-15T17:45:44.984Z }
+  tasks: { by: kirthar, at: 2026-10-15T18:20:40.680Z }
+prs: []

@@ -253,7 +253,8 @@ test('Makefile targets win per command; scripts fill the rest', () => {
   assert.equal(commands.lint, 'make lint');
   assert.equal(commands.format, 'npm run format');
   assert.equal(commands.build, 'npm run build');
-  assert.deepEqual(r.unresolved, ['.:test_single']);
+  assert.equal(commands.test_single, 'node --test --test-name-pattern <Name>');
+  assert.deepEqual(r.unresolved, []);
 });
 
 test('Makefile fmt target maps to format; Makefile-only repo is stack make', () => {
@@ -357,4 +358,9 @@ test('commit format: free below threshold or empty', () => {
 test('commit format: exactly 70% counts', () => {
   const s = [...Array(7).fill('fix: x'), 'a', 'b', 'c'];
   assert.equal(detectCommitFormat(s), 'conventional');
+});
+
+test('node:test script gets a name-pattern single-test command', () => {
+  const dir = tmpRepo({ 'package.json': JSON.stringify({ scripts: { test: 'node --test' } }) }, { git: false });
+  assert.equal(pkg(detect(dir)).commands.test_single, 'node --test --test-name-pattern <Name>');
 });
