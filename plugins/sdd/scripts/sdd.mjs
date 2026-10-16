@@ -19,6 +19,7 @@ import { releaseCheck } from './lib/release-check.mjs';
 import { forgeSettings, formatForgeSettings } from './lib/forge.mjs';
 import { size, formatSize } from './lib/size.mjs';
 import { restack } from './lib/restack.mjs';
+import { conflicts } from './lib/conflicts.mjs';
 import fs from 'node:fs';
 
 const EXIT = { ok: 0, fail: 1, usage: 2, env: 3 };
@@ -63,6 +64,10 @@ const commands = {
   'forge-settings'() {
     const res = forgeSettings(root());
     emit(res, formatForgeSettings(res));
+  },
+  conflicts() {
+    const { exitCode, ...res } = conflicts(root(), { base: opt('--base') });
+    emit({ base: res.base, conflicts: res.conflicts }, res.message, exitCode);
   },
   restack() {
     const res = restack(root(), { squash: opt('--squash'), sliceHead: opt('--slice-head'), base: opt('--base') });

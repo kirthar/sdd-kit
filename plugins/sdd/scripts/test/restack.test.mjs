@@ -104,3 +104,23 @@ test('restack stops on a genuine conflict with later base work (AC-5)', () => {
   assert.match(out.stdout, /a\.txt/);
   assert.ok(fs.existsSync(path.join(r.root, '.git', 'MERGE_HEAD')), 'merge left in progress');
 });
+
+// ---- conflict check (REQ-VAL-8) ----
+
+test('conflicts lists files that clash with the base and exits 1 (AC-6)', () => {
+  const r = stack();
+  const head = r.git('rev-parse', 'HEAD');
+  const out = run(r.root, 'conflicts', '--base', 'main');
+  assert.equal(out.status, 1, out.stdout + out.stderr);
+  assert.match(out.stdout, /a\.txt/);
+  assert.equal(r.git('rev-parse', 'HEAD'), head);
+  assert.equal(r.git('status', '--porcelain'), '');
+});
+
+test('conflicts exits 0 when the branch merges cleanly (AC-6)', () => {
+  const r = stack();
+  run(r.root, 'restack', '--squash', r.squash, '--slice-head', r.s1, '--base', 'main');
+  const out = run(r.root, 'conflicts', '--base', 'main', '--json');
+  assert.equal(out.status, 0, out.stdout + out.stderr);
+  assert.deepEqual(JSON.parse(out.stdout), { base: 'main', conflicts: [] });
+});

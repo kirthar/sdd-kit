@@ -16,7 +16,7 @@
 - Outermost test: `sdd conflicts --base main` on fixture branches at CLI level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T3: Fold change changelog entries into the changelog on archive
 - Covers: AC-7, AC-8, AC-9
