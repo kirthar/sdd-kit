@@ -9,7 +9,7 @@
 - Depends on: none
 - Package: .
 - Slice: S1
-- Status: todo
+- Status: done
 
 ## T2: Block pull request titles outside the commit format
 - Covers: AC-3, AC-4, AC-5

@@ -18,6 +18,8 @@ testing: { tdd: strict, doubles: explicit }   # tdd: strict | on-request · doub
 git: { integration: merge }                   # merge | rebase
 commit: { format: conventional }              # conventional | ticket-prefix | free
 pr: { draft: true, auto_ready: true, forge: github }    # forge: github | none; auto_ready: mark ready after a GO verification
+pr: { merge: squash, max_lines: 400 }                     # merge: squash | merge | rebase; max_lines: review budget per PR
+# pr.size_exclude: globs not counted by `sdd size` (default: docs, tests, lockfiles, vendor)
 gates: { enforce: true, exempt: [] }          # exempt: extra globs the gate never blocks
 routes: { quick_max_files: 5 }                # predicted files; above ⇒ at least standard
 release: { branch: main }

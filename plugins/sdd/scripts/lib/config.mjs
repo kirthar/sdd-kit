@@ -12,7 +12,17 @@ export const DEFAULTS = Object.freeze({
   testing: { tdd: 'strict', doubles: 'explicit' },
   git: { integration: 'merge' },
   commit: { format: 'conventional' },
-  pr: { draft: true, auto_ready: true, forge: 'github' },
+  pr: {
+    draft: true,
+    auto_ready: true,
+    forge: 'github',
+    merge: 'squash',
+    max_lines: 400,
+    size_exclude: [
+      'docs/**', '**/test/**', '**/tests/**', '**/__tests__/**', '**/*.test.*', '**/*.spec.*', '**/*_test.*',
+      '**/package-lock.json', '**/pnpm-lock.yaml', '**/yarn.lock', '**/*.lock', '**/vendor/**',
+    ],
+  },
   gates: { enforce: true, exempt: [] },
   routes: { quick_max_files: 5 },
   release: { branch: 'main' },
@@ -31,6 +41,7 @@ const ENUMS = {
   'git.integration': ['merge', 'rebase'],
   'commit.format': ['conventional', 'ticket-prefix', 'free'],
   'pr.forge': ['github', 'none'],
+  'pr.merge': ['squash', 'merge', 'rebase'],
 };
 
 export function configPath(root) {
@@ -87,6 +98,8 @@ export function validateConfig(raw, file = '.sdd/config.yaml') {
         else walk(d, v, key);
       } else if (typeof d !== typeof v) {
         add('error', key, `must be a ${typeof d}`);
+      } else if (key === 'pr.max_lines' && !(Number.isInteger(v) && v >= 1)) {
+        add('error', key, 'must be an integer of at least 1');
       } else if (key === 'paths.constitution' && !isProjectRelative(v)) {
         add('error', key, 'must be a non-empty path inside the project (no absolute path, no "..")');
       }
