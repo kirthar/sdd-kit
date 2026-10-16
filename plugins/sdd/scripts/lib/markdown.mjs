@@ -103,6 +103,7 @@ const FIELD_KEYS = {
   outermost_test: 'Outermost test',
   depends_on: 'Depends on',
   package: 'Package',
+  slice: 'Slice',
   status: 'Status',
 };
 export const TASK_REQUIRED = ['covers', 'expected_paths', 'outermost_test', 'depends_on', 'package'];

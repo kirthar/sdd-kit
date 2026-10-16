@@ -1,6 +1,8 @@
 # Pull request description
 
-Behaviour first; never a file-by-file changelog.
+Behaviour first; never a file-by-file changelog. With squash merges (`pr.merge: squash`) the
+title and this body become the squash commit on the base branch, so write them for the history:
+the title is a conventional subject naming the behaviour, not the branch.
 
 1. **Why** — the problem and who has it (link the change folder, not a copy of it).
 2. **Behaviour change** — before → after, as a user or caller observes it.

@@ -20,7 +20,9 @@ allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" context)
    passed, or an observation you made by running the software. Reading the code is not evidence.
    Write `docs/changes/<id>/verification.md` (template `verification`): commands, criterion →
    evidence table, what was not verified locally, verdict.
-5. Verdict: **GO** only when every criterion has evidence, validators pass and tests are green;
+5. With slices, verify the slice being shipped: the criteria its tasks cover, appending a
+   `S<k>` block to `verification.md`; criteria of later slices are not yet expected.
+6. Verdict: **GO** only when every criterion has evidence, validators pass and tests are green;
    otherwise **NO-GO** naming each gap.
 
 ## Next

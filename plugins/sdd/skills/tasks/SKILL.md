@@ -22,13 +22,19 @@ approved or not; if missing, run `/sdd:spec` first.
    - Outermost test: <behaviour> at <layer> level
    - Depends on: T<k> | none
    - Package: <path from .sdd/config.yaml>
+   - Slice: S<n>            # only when the change is split, see step 4
    - Status: todo
    ```
 3. Order by dependency: providers before consumers; one package per task; every prefix of the
    list must be releasable on its own. A breaking contract becomes expand → migrate → contract.
-4. Every criterion is covered by at least one task; every task covers at least one criterion.
-5. Delegate to `sdd-spec-reviewer` for a quick check; fix BLOCKING findings.
-6. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" validate <id>` until clean.
+4. Predict the reviewable diff (source lines, not tests, docs or files in `pr.size_exclude`). If it
+   exceeds `pr.max_lines` (default 400), group consecutive tasks into slices `Slice: S<n>`, each
+   under the budget and releasable on its own; every task then carries a slice and none depends on
+   a later slice (V-SLICE). Each slice becomes one stacked pull request. A change that fits stays
+   unsliced. A slice that cannot shrink below the budget is allowed; say why in the plan.
+5. Every criterion is covered by at least one task; every task covers at least one criterion.
+6. Delegate to `sdd-spec-reviewer` for a quick check; fix BLOCKING findings.
+7. Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/sdd.mjs" validate <id>` until clean.
 
 ## Stop
 Do not write code. Summarise the plan (spec, criteria, tasks and the questions already answered)

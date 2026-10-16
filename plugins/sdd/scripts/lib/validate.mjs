@@ -88,8 +88,9 @@ function validateChange(root, change, add, rel) {
     if (fs.existsSync(p)) checkArtifact(root, p, tpl, add, rel);
   }
 
-  const prBody = path.join(dir, 'pr.md');
-  if (fs.existsSync(prBody)) {
+  // Pull request bodies: `pr.md`, and `pr-s<k>.md` for later slices (REQ-LIFE-16).
+  for (const name of files.filter((n) => /^pr(-s\d+)?\.md$/.test(n))) {
+    const prBody = path.join(dir, name);
     fs.readFileSync(prBody, 'utf8').split('\n').forEach((line, i) => {
       const hit = findAttribution(line);
       if (hit) add('V-ATTRIBUTION', 'error', rel(prBody), i + 1, `"${hit}" credits an AI assistant`);
@@ -97,6 +98,7 @@ function validateChange(root, change, add, rel) {
   }
 
   const taskList = fs.existsSync(path.join(dir, 'tasks.md')) ? tasks(fs.readFileSync(path.join(dir, 'tasks.md'), 'utf8')) : null;
+  if (taskList) checkSlices(taskList, rel(path.join(dir, 'tasks.md')), add);
   for (const t of Object.keys(state.approvals?.plans ?? {})) {
     if (!taskList?.some((x) => x.id === t)) add('V-STATE', 'error', sf, null, `plan approval for unknown task ${t}`);
   }
@@ -187,6 +189,34 @@ function checkTasks(list, crit, file, add, rel, allIds = new Set(crit.map((c) =>
     }
   }
   for (const c of crit) if (!covered.has(c.id)) add('V-TRACE', 'error', rel(file), null, `${c.id} is not covered by any task`);
+}
+
+// Slices (REQ-LIFE-15): all or none; S1, S2, … contiguous; no dependency on a later slice.
+function checkSlices(list, file, add) {
+  const sliced = list.filter((t) => t.fields.slice !== undefined);
+  if (!sliced.length) return;
+  for (const t of list.filter((x) => x.fields.slice === undefined)) add('V-SLICE', 'error', file, t.line, `${t.id} has no Slice while other tasks do`);
+  const num = new Map();
+  for (const t of sliced) {
+    const m = /^S([1-9]\d*)$/.exec(t.fields.slice);
+    if (!m) add('V-SLICE', 'error', file, t.line, `${t.id} slice "${t.fields.slice}" must read S<n>`);
+    else num.set(t.id, Number(m[1]));
+  }
+  let expected = 1;
+  for (const t of list) {
+    const n = num.get(t.id);
+    if (n === undefined) continue;
+    if (n === expected - 1) continue;
+    if (n !== expected) add('V-SLICE', 'error', file, t.line, `${t.id} is in S${n} but the next slice must be S${expected}`);
+    expected = n + 1;
+  }
+  for (const t of list) {
+    for (const d of t.fields.depends_on ?? []) {
+      if (num.has(t.id) && num.has(d) && num.get(d) > num.get(t.id)) {
+        add('V-SLICE', 'error', file, t.line, `${t.id} (S${num.get(t.id)}) depends on ${d} (S${num.get(d)}), a later slice`);
+      }
+    }
+  }
 }
 
 function checkDelta(root, change, add, rel) {

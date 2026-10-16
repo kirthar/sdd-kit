@@ -17,6 +17,7 @@ import { initPlan, initApply } from './lib/init.mjs';
 import { acquireLock, releaseLock, heartbeat, eligible, tripwires, preflight, writeReport } from './lib/autopilot.mjs';
 import { releaseCheck } from './lib/release-check.mjs';
 import { forgeSettings, formatForgeSettings } from './lib/forge.mjs';
+import { size, formatSize } from './lib/size.mjs';
 import fs from 'node:fs';
 
 const EXIT = { ok: 0, fail: 1, usage: 2, env: 3 };
@@ -61,6 +62,10 @@ const commands = {
   'forge-settings'() {
     const res = forgeSettings(root());
     emit(res, formatForgeSettings(res));
+  },
+  size() {
+    const res = size(root(), { base: opt('--base') });
+    emit(res, formatSize(res));
   },
   validate() {
     const opts = { all: flag('--all'), specs: flag('--specs'), templates: flag('--templates'), id: positional[0] };

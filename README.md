@@ -33,7 +33,9 @@ measured with evals.
 
 `/sdd:new` proposes the route; a person confirms it. Claude then asks every question it has, writes
 the whole plan and asks once for `/sdd:approve <id> plan`. After that it implements every task,
-verifies and leaves the pull request ready for review — no prompts in between. Living specs in `docs/specs/` always describe
+verifies and leaves the pull request ready for review — no prompts in between. A change larger
+than the review budget (`pr.max_lines`, 400 source lines) ships as small stacked pull requests,
+one per slice, and every merge lands as one squash commit named by the pull request's title. Living specs in `docs/specs/` always describe
 current behaviour: each merged change folds its ADDED / MODIFIED / REMOVED deltas in with
 `/sdd:archive`.
 
@@ -49,7 +51,8 @@ Then, in your repository: `/sdd:init`. Requirements: Claude Code, git, Node.js �
 ## What is enforced, not just suggested
 
 - **guard hook** — blocks force push, history rewrites, branch deletion, merge, approve, reviewer
-  requests, @mentions and AI co-author or "Generated with" lines. Every block prints the exact
+  requests, @mentions, AI co-author or "Generated with" lines, and pull request titles outside
+  the commit format. Every block prints the exact
   command so *you* can run it.
 - **gate hook** — no code edits until the change's route (and spec and tasks, when required) are
   approved; approvals are recorded only by `/sdd:approve`, which only a person can run.

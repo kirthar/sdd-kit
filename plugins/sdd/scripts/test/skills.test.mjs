@@ -66,3 +66,40 @@ test('the agents section names the two interaction points and ready PRs', () => 
   assert.match(text, /\/sdd:approve <id> plan/);
   assert.match(text, /ready for review/i);
 });
+
+// ---- stacked slices and semantic titles (REQ-LIFE-15, REQ-LIFE-16, AC-14, AC-15) ----
+
+test('tasks groups tasks into slices by the size budget (AC-14)', () => {
+  const text = skill('tasks');
+  assert.match(text, /pr\.max_lines/);
+  assert.match(text, /Slice: S<n>/);
+});
+
+test('implement works slice by slice on stacked branches (AC-14)', () => {
+  const text = skill('implement');
+  assert.match(text, /slice by slice/i);
+  assert.match(text, /sdd\/<id>-s<k>/);
+});
+
+test('verify checks the criteria of the current slice', () => {
+  assert.match(skill('verify'), /slice/i);
+});
+
+test('pr opens one stacked PR per slice and restacks after a merge (AC-14)', () => {
+  const text = skill('pr');
+  assert.match(text, /sdd\.mjs" size/);
+  assert.match(text, /pr-s<k>\.md/);
+  assert.match(text, /--base sdd\/<id>/);
+  assert.match(text, /git merge origin\/<base_branch>/);
+  assert.match(text, /gh pr edit <url> --base <base_branch>/);
+});
+
+test('pr titles follow commit.format and over-budget bodies explain their size (AC-15)', () => {
+  const text = skill('pr');
+  assert.match(text, /commit\.format/);
+  assert.match(text, /## Size/);
+  const tpl = read('templates/pr.md');
+  assert.match(tpl, /Slice <k> of <n>/);
+  assert.match(tpl, /## Size/);
+  assert.match(read('references/pr-description.md'), /squash commit/i);
+});
