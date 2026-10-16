@@ -304,3 +304,32 @@ test('criteria carried unchanged in a MODIFIED requirement need no task', () => 
   const f = validate(repo({ 'docs/specs/bookings.md': living, 'docs/changes/c1/delta.md': delta }), { id: 'c1' });
   assert.deepEqual(f.filter((x) => x.level === 'error'), []);
 });
+
+// ---- V-ATTRIBUTION (REQ-VAL-6) ----
+
+test('an AI attribution line in an open pr.md fails V-ATTRIBUTION with its line (AC-11, AC-VAL-6.1)', () => {
+  const root = repo({ 'docs/changes/c1/pr.md': '# PR\n\nBody.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n' });
+  const hit = validate(root, { id: 'c1' }).find((x) => x.rule === 'V-ATTRIBUTION');
+  assert.ok(hit, 'expected a V-ATTRIBUTION finding');
+  assert.equal(hit.level, 'error');
+  assert.equal(hit.file, 'docs/changes/c1/pr.md');
+  assert.equal(hit.line, 5);
+});
+
+test('an AI co-author line in an open pr.md fails V-ATTRIBUTION', () => {
+  const root = repo({ 'docs/changes/c1/pr.md': '# PR\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n' });
+  assert.ok(rules(validate(root, { id: 'c1' })).includes('V-ATTRIBUTION'));
+});
+
+test('the author sign-off and human co-authors pass V-ATTRIBUTION', () => {
+  const root = repo({ 'docs/changes/c1/pr.md': '# PR\n\nSigned-off-by: Some Person\nCo-authored-by: Other Person\n' });
+  assert.ok(!rules(validate(root, { id: 'c1' })).includes('V-ATTRIBUTION'));
+});
+
+test('archived changes are not checked for attribution (AC-12, AC-VAL-6.2)', () => {
+  const root = repo({
+    'docs/changes/archive/old/state.yaml': state('old', 'quick', ['route']),
+    'docs/changes/archive/old/pr.md': '# PR\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n',
+  });
+  assert.ok(!validate(root, { all: true }).some((x) => x.rule === 'V-ATTRIBUTION'));
+});

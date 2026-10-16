@@ -32,7 +32,7 @@
 - Outermost test: `sdd validate` reports V-ATTRIBUTION at CLI level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
 
 ## T5: Default pull requests to ready for review
 - Covers: AC-13, AC-14, AC-CFG-2.1

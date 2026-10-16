@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { parse, ParseError, shortFlags, basename } from './lib/shell.mjs';
 import { findRepoRoot, sddCommonDir } from '../scripts/lib/git.mjs';
 import { loadConfig, DEFAULTS } from '../scripts/lib/config.mjs';
+import { findAttribution } from '../scripts/lib/attribution.mjs';
 
 const HEARTBEAT_TTL_MS = 10 * 60 * 1000;
 const MAX_DEPTH = 5;
@@ -570,21 +571,6 @@ function checkGhApi(args) {
 }
 
 // --- AI attribution ----------------------------------------------------------------------------
-
-// An AI assistant credited as co-author, or a "Generated with" footer naming one. The author's own
-// signature (`-S`, `-s`, `Signed-off-by:`) and human co-authors are fine.
-const ATTRIBUTION = [
-  /^[ \t>]*co-authored-by:[^\n]*\b(claude|anthropic)\b[^\n]*/im,
-  /^[^\w\n]*generated (with|by)\b[^\n]*\b(claude|anthropic)\b[^\n]*/im,
-];
-
-export function findAttribution(text) {
-  for (const re of ATTRIBUTION) {
-    const m = re.exec(text);
-    if (m) return m[0].trim();
-  }
-  return null;
-}
 
 function checkAttribution(texts) {
   for (const text of texts) {
