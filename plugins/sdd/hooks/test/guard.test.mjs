@@ -168,7 +168,7 @@ const BLOCKED = [
 ];
 
 const ALLOWED = [
-  ['grep -o reads a change state file', 'grep -o spec docs/changes/c1/state.yaml'],
+  'grep -o spec docs/changes/c1/state.yaml',
   'git push -u origin HEAD',
   'git push origin feat',
   'git push origin feat 2>&1',
