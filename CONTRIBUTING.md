@@ -6,6 +6,9 @@ living specs are `docs/specs/`. Claude Code treats the files of the loaded plugi
 a session cannot edit the kit it is running. Work in a git worktree and load the plugin from the
 main checkout: `claude --plugin-dir <main checkout>/plugins/sdd`.
 
+Release notes go in the change's `docs/changes/<id>/changelog.md`; never edit `CHANGELOG.md` in a
+pull request — `/sdd:archive` folds the entries in, so open pull requests never conflict there.
+
 ## Development
 ```bash
 npm test            # node:test suites for scripts and hooks (no dependencies)

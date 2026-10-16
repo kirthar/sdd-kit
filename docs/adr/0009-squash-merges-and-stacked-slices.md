@@ -18,8 +18,9 @@ quality drops sharply past a few hundred changed lines, so large pull requests w
   (`pr.size_exclude` skips docs, tests, lockfiles and vendored code).
 - Over budget, `/sdd:tasks` groups tasks into slices (`Slice: S<n>`, checked by V-SLICE). Each
   slice is one pull request stacked on the slice below (`sdd/<id>-s<k>`), implemented, verified
-  and marked ready in order without prompts. After a lower slice merges, `/sdd:pr` merges the base
-  branch into the next slice and retargets it.
+  and marked ready in order without prompts. After a lower slice merges, `/sdd:pr` restacks the
+  next slice and retargets it (superseded in part by ADR-0010: restack with `sdd restack`, never a
+  plain merge of the base).
 - A slice that cannot shrink below the budget is allowed; its body explains why in `## Size`.
 
 ## Consequences

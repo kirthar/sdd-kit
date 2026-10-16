@@ -62,14 +62,15 @@ sequenceDiagram
     C->>S: scan --diff (secrets)
     C->>S: size (source lines vs pr.max_lines)
     C->>G: push branch, gh pr create --draft (title in commit format)
-    C->>G: gh pr ready (verification GO, pr.auto_ready)
+    C->>S: conflicts (simulated merge with the PR base; resolve first if any)
+    C->>G: gh pr ready (verification GO, no conflicts, pr.auto_ready)
     Note over C,G: sliced change: repeat implement, verify and pr per slice, each PR based on the slice below
     C->>H: gh pr merge or git push --force
     H-->>C: blocked, with "! {command}" for the person
     G-->>P: pull request ready for review
     P->>G: review, squash merge (subject = PR title, message = PR body)
     P->>S: /sdd:archive {id}
-    S->>R: deltas into docs/specs, change folder to archive
+    S->>R: deltas into docs/specs, changelog.md into CHANGELOG.md, change folder to archive
 ```
 
 ## Reading the diagram

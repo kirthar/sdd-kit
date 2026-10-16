@@ -24,7 +24,9 @@ Rules every agent follows:
 5. Pull requests open as drafts with an explicit base and a behaviour-first description, and are
    marked ready for review once verification is GO (`pr.auto_ready`). Titles follow the commit
    format: they become the squash commit subject. Over `pr.max_lines`, a change ships as stacked
-   slices, one small pull request each.
+   slices, one small pull request each. A pull request is handed over without conflicts
+   (`sdd conflicts`, `sdd restack`); release notes go in the change's `changelog.md`, never in the
+   project changelog.
 6. Commits and pull requests never name an AI assistant as co-author nor carry a "Generated with"
    line; the author may sign them.
 7. Read the constitution (`paths.constitution` in `.sdd/config.yaml`) and `.sdd/rules.md` before planning or coding.

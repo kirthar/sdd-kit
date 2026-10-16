@@ -35,7 +35,10 @@ measured with evals.
 the whole plan and asks once for `/sdd:approve <id> plan`. After that it implements every task,
 verifies and leaves the pull request ready for review — no prompts in between. A change larger
 than the review budget (`pr.max_lines`, 400 source lines) ships as small stacked pull requests,
-one per slice, and every merge lands as one squash commit named by the pull request's title. Living specs in `docs/specs/` always describe
+one per slice, and every merge lands as one squash commit named by the pull request's title. Pull requests are
+handed over without conflicts: stacks restack cleanly after each squash, every pull request is
+checked against its base before it is marked ready, and release notes live per change instead of
+in a shared changelog. Living specs in `docs/specs/` always describe
 current behaviour: each merged change folds its ADDED / MODIFIED / REMOVED deltas in with
 `/sdd:archive`.
 
