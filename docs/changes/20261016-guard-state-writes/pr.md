@@ -42,7 +42,7 @@ Run locally before this PR:
 - `node plugins/sdd/scripts/sdd.mjs validate 20261016-guard-state-writes` — ok
 - `node plugins/sdd/scripts/sdd.mjs validate --all` — ok
 - `npm test` — 328 passed, 0 failed
-- `node --test plugins/sdd/hooks/test/guard.test.mjs` — 333 tests (184 in the guard suite)ed, 0 failed
+- `node --test plugins/sdd/hooks/test/guard.test.mjs` — 184 passed, 0 failed; `npm test` — 333 passed
 - `node plugins/sdd/scripts/sdd.mjs scan --diff main` — no secrets found
 - Observed: a `node -e` append to `docs/changes/c1/state.yaml` piped into the guard exits 2 and
   names `/sdd:approve`.
