@@ -45,7 +45,7 @@ automated test. Details: `docs/changes/20261015-configurable-constitution-path/v
 
 ## To confirm
 - [ ] Maintainer: accept that `docs/constitution.md` has no autopilot write protection until the hooks follow-up.
-- [ ] Reviewers: check that `paths.constitution` values like `C:\x` and `a/../b.md` are rejected.
+- [ ] Reviewers: check that `paths.constitution` values such as a Windows drive path and `a/../b.md` are rejected.
 
 ## Beyond the task
 - **Living specs.** The requirement deltas are folded into `docs/specs/` by `/sdd:archive` after the merge,
