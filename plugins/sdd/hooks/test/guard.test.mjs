@@ -47,6 +47,11 @@ const DEFAULT_REPO = repo();
 
 // AC-HOOK-1.1 — one row per blocked shape.
 const BLOCKED = [
+  // Change state named in heredoc code or through a write option of a read-only program
+  ['state via python heredoc', "python3 - <<'EOF'\nopen('docs/changes/c1/state.yaml','a').write('  spec: x')\nEOF"],
+  ['state via node heredoc', "node <<EOF\nrequire('fs').appendFileSync('docs/changes/c1/state.yaml', 'x')\nEOF"],
+  ['state via git diff --output', 'git diff --output=docs/changes/c1/state.yaml'],
+  ['state via less -o', 'less -o docs/changes/c1/state.yaml README.md'],
   // Push
   ['push --force', 'git push --force'],
   ['push -f', 'git push -f origin feat'],
@@ -148,12 +153,22 @@ const BLOCKED = [
   ['tee -a to state.yaml', 'tee -a ./docs/changes/add-x/state.yaml < approvals.txt'],
   ['sed -i to state.yaml', "sed -i '' 's/a/b/' docs/changes/add-x/state.yaml"],
   ['sed -i.bak to state.yaml', "sed -i.bak 's/a/b/' docs/changes/add-x/state.yaml"],
+  ['node -e append to state.yaml', "node -e \"require('fs').appendFileSync('docs/changes/c1/state.yaml', 'approvals: {}')\""],
+  ['node --eval write to state.yaml', "node --eval \"require('fs').writeFileSync('docs/changes/c1/state.yaml', 'x')\""],
+  ['python3 -c write to state.yaml', "python3 -c \"open('docs/changes/c1/state.yaml', 'w').write('x')\""],
+  ['ruby -e write to state.yaml', "ruby -e \"File.write('docs/changes/c1/state.yaml', 'x')\""],
+  ['dd of= state.yaml', 'dd if=approvals.txt of=docs/changes/c1/state.yaml'],
+  ['truncate state.yaml', 'truncate -s 0 docs/changes/c1/state.yaml'],
+  ['cp onto state.yaml', 'cp approvals.yaml docs/changes/c1/state.yaml'],
+  ['bash -c python write', "bash -c \"python3 -c \\\"open('docs/changes/c1/state.yaml','a').write('x')\\\"\""],
+  ['git checkout of state.yaml', 'git checkout feat -- docs/changes/c1/state.yaml'],
   // Unparseable git/gh
   ['unparseable git', 'git push "unterminated'],
   ['unparseable gh', "gh pr create --body 'oops"],
 ];
 
 const ALLOWED = [
+  'grep -o spec docs/changes/c1/state.yaml',
   'git push -u origin HEAD',
   'git push origin feat',
   'git push origin feat 2>&1',
@@ -189,6 +204,15 @@ const ALLOWED = [
   'gh pr create --draft --title t --body "mail dev@example.invalid"',
   "gh pr create --draft --title t --body \"$(cat <<'EOF'\n```java\n@Override\nvoid run() {}\n```\nEOF\n)\"",
   'cat docs/changes/add-x/state.yaml',
+  'grep approvals docs/changes/c1/state.yaml',
+  'head -n 5 docs/changes/c1/state.yaml',
+  'git diff docs/changes/c1/state.yaml',
+  'git log -p docs/changes/c1/state.yaml',
+  'git add docs/changes/c1/state.yaml',
+  'git commit -m "docs: update docs/changes/c1/state.yaml" -- docs/changes/c1/state.yaml',
+  'git restore --staged docs/changes/c1/state.yaml',
+  'echo "see docs/changes/c1/state.yaml"',
+  'node plugins/sdd/scripts/sdd.mjs validate docs/changes/c1/state.yaml',
   'node plugins/sdd/scripts/sdd.mjs status',
   'echo sdd.mjs approve',
   'echo "not a quote\'s end"',

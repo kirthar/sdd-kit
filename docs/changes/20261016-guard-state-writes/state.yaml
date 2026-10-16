@@ -1,0 +1,8 @@
+id: 20261016-guard-state-writes
+route: standard
+capabilities: [hooks]
+approvals:
+  route: { by: kirthar, at: 2026-10-16T07:22:32.082Z }
+  spec: { by: kirthar, at: 2026-10-16T07:22:32.167Z }
+  tasks: { by: kirthar, at: 2026-10-16T07:22:32.245Z }
+prs: []
