@@ -5,6 +5,11 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 ### Added
+- Semantic squash merges: `pr.merge` (default `squash`), `sdd forge-settings` and an `/sdd:init`
+  offer to set the repository so each merge commit is the pull request title and body; `guard`
+  requires titles in the commit format (`20261016-semantic-merge-small-prs`).
+- Small pull requests: `pr.max_lines` (default 400) and `pr.size_exclude`, `sdd size`, task slices
+  (`Slice: S<n>`, V-SLICE) shipped as stacked pull requests; ADR-0009.
 - `/sdd:approve <id> plan` records every planning phase (functional, spec, tasks) in one act; `sdd
   status` names it once every planning artifact is written (`20261016-autonomous-flow-no-attribution`).
 - `guard` blocks commits and `gh pr create|edit` that credit an AI assistant as co-author or carry a

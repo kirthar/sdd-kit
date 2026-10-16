@@ -10,9 +10,9 @@
 - How to apply: list each path in git add; check git status before committing.
 - Added: 2026-10-15
 
-## R3: Keep pull requests self-contained and draft until verified
-- Why: chains of dependent pull requests cannot be reviewed or reverted on their own.
-- How to apply: open as draft with an explicit base; mark ready only after a GO verification; never stack on unfinished work.
+## R3: Keep pull requests small, self-contained and draft until verified
+- Why: large or entangled pull requests cannot be reviewed or reverted on their own.
+- How to apply: open as draft with an explicit base; mark ready only after a GO verification; stack only slices of the same change, each releasable alone.
 - Added: 2026-10-15
 
 ## R4: Write the failing test first

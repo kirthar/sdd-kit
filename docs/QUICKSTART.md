@@ -23,6 +23,7 @@ Larger change? After the route, Claude asks all its questions, writes the spec a
 ```
 /sdd:approve <id> plan
 ```
-Everything after that runs without prompts.
+Everything after that runs without prompts. A change over the review budget arrives as several
+small stacked pull requests: merge them bottom-up; each lands as one semantic squash commit.
 
 At any time: `/sdd:status` shows what is open and the next command.
