@@ -64,18 +64,19 @@ lint; open questions under `## Open questions` marked BLOCKING or NON-BLOCKING.
 `/sdd:spec` (auto, standard and full). Invokes `sdd-researcher` first and records
 reuse candidates and duplicates in `## Reuse`. Standard: `delta.md` (ADDED / MODIFIED / REMOVED,
 criteria). Full: `technical.md` + `contracts/*.yaml` + `## Living spec deltas`, and an ADR for
-every decision with rejected alternatives. Then `sdd-spec-reviewer` and `sdd validate`.
+every decision with rejected alternatives. Then `sdd-spec-reviewer` and `sdd validate`. On full it
+needs `functional.md` with no BLOCKING open question (approved or not), and continues to `/sdd:tasks`.
 - AC-LIFE-3.1 Given a quick change, When spec is invoked, Then it refuses and no file is created.
 - AC-LIFE-3.2 Given the researcher reports an existing component covering a requirement, When the
   spec is written, Then `## Reuse` links that file.
-- AC-LIFE-3.3 Given full with no `functional` approval, When spec is invoked, Then it stops and names
-  `/sdd:approve <id> functional`.
+- AC-LIFE-3.3 Given full with no `functional.md` or one with a BLOCKING open question, When spec is
+  invoked, Then it stops and names `/sdd:refine` or the question.
 
 ### REQ-LIFE-4: Tasks
-`/sdd:tasks` (auto). Requires `spec` approval. Writes `## T<n>: <imperative>`
+`/sdd:tasks` (auto). Requires a spec artifact that validates (approved or not). Writes `## T<n>: <imperative>`
 blocks with Covers, Expected paths (globs), Outermost test (behaviour + layer), Depends on, Package.
 Every prefix of the order is releasable; a breaking contract becomes expand / migrate / contract
-tasks. Then `sdd-spec-reviewer` and `sdd validate`.
+tasks. Then `sdd-spec-reviewer` and `sdd validate`, and asks for `/sdd:approve <id> plan`.
 - AC-LIFE-4.1 Given generated tasks, When `sdd validate` runs, Then V-TRACE and V-TASK-FIELDS pass.
 
 ### REQ-LIFE-5: Approve
@@ -83,7 +84,11 @@ tasks. Then `sdd-spec-reviewer` and `sdd validate`.
 the skill's pre-execution shell injection, so it happens as part of the person's act, not as a
 model tool call. `sdd approve` validates `<id>` and `<phase>` against strict patterns, refuses when an
 earlier phase is not approved yet, when the phase artifact does not exist or fails validation, records
-`by` and `at`, and prints the next command.
+`by` and `at`, and prints the next command. The phase `plan` (standard and full) records, in one act
+and with the same `by` and `at`, every planning phase of the route that is not approved yet
+(`functional` on full, `spec`, `tasks`); it requires `route`, and refuses, writing nothing, when any
+of those artifacts is missing or fails validation. After a successful approval the skill continues
+with the next command in the same turn when that command is the agent's to run.
 - AC-LIFE-5.1 Given the model runs `sdd approve` through the Bash tool, When the guard hook
   evaluates it, Then it is blocked with a hand-off to `/sdd:approve`.
 - AC-LIFE-5.2 Given a delta failing V-SECTIONS, When the person approves `spec`, Then the approval
@@ -91,13 +96,20 @@ earlier phase is not approved yet, when the phase artifact does not exist or fai
 - AC-LIFE-5.3 Given an id containing `;`, When approve runs, Then it exits 2 and writes nothing.
 - AC-LIFE-5.4 Given a standard change without `spec` approval, When the person approves `tasks`, Then
   it is refused naming `spec`.
+- AC-LIFE-5.5 Given a standard change with `route` approved and valid `delta.md` and `tasks.md`,
+  When the person approves `plan`, Then `spec` and `tasks` are recorded and the next command is
+  `/sdd:implement`.
+- AC-LIFE-5.6 Given a standard change with no `tasks.md`, When the person approves `plan`, Then it is
+  refused naming `tasks.md` and `state.yaml` is unchanged.
 
 ### REQ-LIFE-6: Implement
 `/sdd:implement [T<n>]` (auto). With `testing.tdd: strict`: for each small step,
 write one test, run it through `sdd tdd red -- <cmd>` (must fail), write the minimum code, run
 `sdd tdd green -- <cmd>` (must pass), refactor, commit. Format and lint first and commit their
-rewrites; then the configured tests; then a clean tree. Marks the task done. Stops after each task,
-and immediately if the diff leaves the task's Expected paths or touches a tripwire.
+rewrites; then the configured tests; then a clean tree. Marks each task done. Without `T<n>` it
+implements every remaining task in dependency order and then continues to `/sdd:verify`; with
+`T<n>` it implements that task only. It stops immediately if the diff leaves the task's Expected
+paths or touches a tripwire. Commits never name an AI assistant as co-author; the author's signature is allowed.
 - AC-LIFE-6.1 Given strict TDD, When a task is implemented, Then the tdd log shows a red run
   before the first green run for each test file touched.
 - AC-LIFE-6.2 Given a diff outside Expected paths, When the step ends, Then implement stops and
@@ -123,9 +135,14 @@ automated / manual / developer-level; `BLOCKED — <missing>` instead of invente
 `sdd-pr-reviewer`, then a behaviour-first body from `pr.md`. Quick: a ≤20-line body from
 `pr-quick.md`, no reviewer subagent. Opens a draft PR with an explicit base when
 `pr.forge: github` and `gh` work; otherwise writes the body to the change folder. Records the URL.
-- AC-LIFE-9.1 Given `gh` is available, When pr runs, Then the PR is a draft and has no reviewers.
+When `pr.auto_ready` is true and verification is GO (quick: the proving test ran red then green),
+it then marks the PR ready for review. The body carries no AI attribution line (REQ-VAL-6).
+- AC-LIFE-9.1 Given `gh` is available and `pr.auto_ready: false`, When pr runs, Then the PR is a
+  draft and has no reviewers.
 - AC-LIFE-9.2 Given `pr.forge: none`, When pr runs, Then the body is written and no forge command
   is executed.
+- AC-LIFE-9.3 Given `pr.auto_ready: true` and a GO verification, When pr runs, Then it runs
+  `gh pr ready` after `gh pr create --draft` and requests no reviewers.
 
 ### REQ-LIFE-10: Archive
 `/sdd:archive <id>` (user-only). Defined in the validation spec; applies to every
@@ -151,6 +168,21 @@ there is no active change. An archived change is not open. Resolution only reads
 rewrites the pointer file, and every reader (`status`, `context`, `tdd`, the approval gate) uses it.
 - A detached HEAD or an unborn branch resolves like any other checkout.
 - No active change keeps the approval gate closed (REQ-HOOK-4).
+
+### REQ-LIFE-14: Interaction points
+A change asks the person at fixed moments only: the route (every route) and one plan review
+(standard and full). Before writing any planning artifact the agent asks every clarification
+question in consecutive batches of at most 4. After `/sdd:approve <id> route` on standard or full it
+writes, without stopping, the functional spec (full), the spec and the tasks, then asks once for
+`/sdd:approve <id> plan`. After the last required approval it runs, without stopping, every task in
+order, `/sdd:verify`, `/sdd:test-plan` (standard and full) and `/sdd:pr`. It stops early only on a
+refused approval, a BLOCKING open question, a step leaving Expected paths or touching a tripwire,
+a failing test it cannot fix within the task, a NO-GO verification or a secret finding, and then
+names the reason and the exact next command.
+- AC-LIFE-14.1 Given a standard change whose route the person just approved, When the agent
+  continues, Then `delta.md` and `tasks.md` exist and the only question asked is the `plan` approval.
+- AC-LIFE-14.2 Given a change with every required approval, When the person's approval returns,
+  Then the agent implements all tasks and opens the pull request without asking to continue.
 
 ## Subagents
 
