@@ -54,7 +54,7 @@
 - Depends on: none
 - Package: .
 - Slice: S2
-- Status: todo
+- Status: done
 
 ## T7: Open one stacked pull request per slice in the skills
 - Covers: AC-14, AC-15
