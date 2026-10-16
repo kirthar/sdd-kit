@@ -5,4 +5,4 @@ approvals:
   route: { by: kirthar, at: 2026-10-16T15:09:19.696Z }
   spec: { by: kirthar, at: 2026-10-16T15:10:06.354Z }
   tasks: { by: kirthar, at: 2026-10-16T15:10:35.522Z }
-prs: []
+prs: [https://github.com/kirthar/sdd-kit/pull/11]
