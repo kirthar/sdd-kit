@@ -81,4 +81,13 @@ a `permissions.allow` list for the detected commands plus `git add|commit` and `
 - AC-INIT-7.1 Given the person accepts only team activation, When init ends, Then
   `.claude/settings.json` contains exactly the marketplace and plugin entries and nothing else changed.
 
+### REQ-INIT-8: Forge merge settings
+`sdd forge-settings` prints, for the configured `pr.merge`, the repository settings that make the
+merge commit semantic and the single `gh api -X PATCH repos/{owner}/{repo}` command that applies
+them: only the configured method allowed; its commit title from the pull request title and its
+message from the pull request body; `delete_branch_on_merge` on, so stacked pull requests retarget
+to the base branch when the one below merges. `/sdd:init` shows them in its single confirmation
+and, once confirmed and `gh` is authenticated, runs the command; otherwise it hands the command to
+the person. With `pr.forge: none` it prints nothing to apply.
+
 ## History

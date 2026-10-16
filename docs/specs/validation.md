@@ -83,3 +83,22 @@ Archived changes are not checked. Matching is case-insensitive.
 - AC-VAL-6.2 Given the same line in an archived `pr.md`, When `sdd validate --all` runs, Then no
   V-ATTRIBUTION finding is reported.
 
+### REQ-VAL-7: Pull request size
+`sdd size [--base <ref>]` counts added plus deleted lines in `<ref>...HEAD` (default
+`base_branch`), skipping binary files and `pr.size_exclude`, and prints counted lines, excluded
+lines, the budget and `within` or `over`. It always exits 0; `--json` prints the same fields.
+
+### REQ-VAL-8: Conflict check
+`sdd conflicts [--base <ref>]` simulates merging `<ref>` (default `origin/<base_branch>`) into HEAD
+with `git merge-tree --write-tree` and lists conflicting files: exit 0 when clean, 1 on conflicts,
+3 when git cannot simulate. Before marking a pull request ready, `/sdd:pr` fetches, runs it
+against the pull request's base and, on conflicts, merges that base, resolves, re-runs the tests
+and pushes first.
+
+### REQ-VAL-9: Changelog entries
+A change keeps its release notes in `docs/changes/<id>/changelog.md` (template `changelog`:
+`### Added`, `### Changed`, `### Fixed`, bullet lines) and never edits the project changelog.
+`sdd archive` appends each bullet under the same heading of `## [Unreleased]` in the file at
+`paths.changelog` (default `CHANGELOG.md`), creating missing headings in that order; when that file
+or its `## [Unreleased]` section does not exist it skips the fold and says so.
+
