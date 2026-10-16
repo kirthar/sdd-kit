@@ -45,7 +45,7 @@
 - Depends on: T1
 - Package: .
 - Slice: S2
-- Status: todo
+- Status: done
 
 ## T6: Validate slices in tasks
 - Covers: AC-11, AC-12, AC-13
@@ -54,7 +54,7 @@
 - Depends on: none
 - Package: .
 - Slice: S2
-- Status: todo
+- Status: done
 
 ## T7: Open one stacked pull request per slice in the skills
 - Covers: AC-14, AC-15
@@ -63,7 +63,7 @@
 - Depends on: T5, T6
 - Package: .
 - Slice: S2
-- Status: todo
+- Status: done
 
 ## T8: Document squash merges and stacked slices
 - Covers: AC-14
@@ -72,4 +72,4 @@
 - Depends on: T7
 - Package: .
 - Slice: S2
-- Status: todo
+- Status: done

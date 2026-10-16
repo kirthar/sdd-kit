@@ -25,7 +25,9 @@ Rules every agent follows:
 4. Never force push, amend published commits, delete branches, merge, approve or request reviewers.
    When one of these is needed, give the exact command to the person.
 5. Pull requests open as drafts with an explicit base and a behaviour-first description, and are
-   marked ready for review once verification is GO (`pr.auto_ready`).
+   marked ready for review once verification is GO (`pr.auto_ready`). Titles follow the commit
+   format: they become the squash commit subject. Over `pr.max_lines`, a change ships as stacked
+   slices, one small pull request each.
 6. Commits and pull requests never name an AI assistant as co-author nor carry a "Generated with"
    line; the author may sign them.
 7. Read the constitution (`paths.constitution` in `.sdd/config.yaml`) and `.sdd/rules.md` before planning or coding.

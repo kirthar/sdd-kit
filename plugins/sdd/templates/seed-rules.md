@@ -34,9 +34,9 @@ required: []
 - Why: wildcard staging sweeps in local secrets and generated files.
 - How to apply: list each path in git add; check git status before committing.
 
-## R8: Keep pull requests self-contained and draft until verified
-- Why: chains of dependent pull requests cannot be reviewed or reverted on their own.
-- How to apply: open as draft with an explicit base; mark ready only after a GO verification; never stack on unfinished work.
+## R8: Keep pull requests small, self-contained and draft until verified
+- Why: large or entangled pull requests cannot be reviewed or reverted on their own.
+- How to apply: open as draft with an explicit base; mark ready only after a GO verification; stack only slices of the same change, each releasable alone.
 
 # Testing
 

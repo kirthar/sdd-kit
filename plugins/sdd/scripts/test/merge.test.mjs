@@ -88,3 +88,44 @@ test('init offers the forge merge settings in its single confirmation', async ()
   assert.match(text, /sdd\.mjs" forge-settings/);
   assert.match(text, /! <command>/);
 });
+
+// ---- size (REQ-VAL-7) ----
+
+function sizedRepo(files, config = 'version: 1\n') {
+  const root = tmpRepo({ '.sdd/config.yaml': config, 'README.md': 'x\n' });
+  const git = (...a) => spawnSync('git', ['-C', root, ...a], { encoding: 'utf8' });
+  git('-c', 'user.name=T', '-c', 'user.email=t@example.invalid', 'add', '.');
+  git('-c', 'user.name=T', '-c', 'user.email=t@example.invalid', 'commit', '-qm', 'base');
+  git('checkout', '-qb', 'feat');
+  return import('node:fs').then((fs) => {
+    for (const [rel, lines] of Object.entries(files)) {
+      fs.mkdirSync(path.join(root, path.dirname(rel)), { recursive: true });
+      fs.writeFileSync(path.join(root, rel), typeof lines === 'number' ? 'l\n'.repeat(lines) : lines);
+    }
+    git('-c', 'user.name=T', '-c', 'user.email=t@example.invalid', 'add', '.');
+    git('-c', 'user.name=T', '-c', 'user.email=t@example.invalid', 'commit', '-qm', 'work');
+    return root;
+  });
+}
+
+test('size counts source lines, excludes tests and reports over budget (AC-10)', async () => {
+  const root = await sizedRepo({ 'src/a.js': 300, 'src/b.js': 200, 'test/a.test.js': 300 });
+  const r = run(root, 'size', '--base', 'main', '--json');
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(json(r), { base: 'main', counted: 500, excluded: 300, budget: 400, verdict: 'over' });
+  assert.match(run(root, 'size', '--base', 'main').stdout, /500 counted[\s\S]*over/);
+});
+
+test('size is within budget under the limit and ignores binary files', async () => {
+  const root = await sizedRepo({ 'src/a.js': 120, 'img/logo.bin': Buffer.from([0, 1, 2, 0, 255]) });
+  const out = json(run(root, 'size', '--json'));
+  assert.equal(out.base, 'main');
+  assert.equal(out.counted, 120);
+  assert.equal(out.verdict, 'within');
+});
+
+test('size honours a custom budget and exclusions', async () => {
+  const root = await sizedRepo({ 'src/a.js': 50, 'gen/out.js': 900 }, 'version: 1\npr: { max_lines: 40, size_exclude: ["gen/**"] }\n');
+  const out = json(run(root, 'size', '--json'));
+  assert.deepEqual([out.counted, out.excluded, out.budget, out.verdict], [50, 900, 40, 'over']);
+});

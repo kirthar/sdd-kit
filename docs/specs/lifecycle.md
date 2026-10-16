@@ -27,7 +27,7 @@ approvals:            # written only by /sdd:approve (human act)
   spec: …             # standard (delta.md) and full (technical.md)
   tasks: …           # `/sdd:approve <id> plan` records functional, spec and tasks in one act
   plans: { T3: … }    # autopilot lane B
-prs: [<url>]
+prs: [<url>]         # one per slice when tasks carry `Slice: S<n>`
 ```
 The phase is **derived**, never stored: `sdd status` computes it from artifacts and approvals.
 
