@@ -180,6 +180,7 @@ function checkCommand(cmd, ctx) {
   checkWrites(cmd, ctx);
   const argv = cmd.argv;
   if (!argv.length) return;
+  checkStateNamed(argv);
   const name = basename(argv[0]);
   if (name === 'git') return checkGit(cmd, ctx);
   if (name === 'gh') return checkGh(argv, ctx);
@@ -225,6 +226,33 @@ function checkWrites(cmd, ctx) {
       throw new Block(`autopilot mode: ${t} is owned by the person and cannot be changed by a pass`);
     }
   }
+}
+
+// Any command whose text (quoted arguments and inline code included) names a change state file is
+// blocked unless its program only reads or stages. Paths built at run time are not detected (ADR-0003).
+const STATE_YAML_TEXT = /docs\/changes\/[^/\s'"`]+\/state\.yaml/;
+const READ_ONLY = new Set(['cat', 'head', 'tail', 'less', 'more', 'grep', 'rg', 'wc', 'ls', 'stat', 'file', 'diff', 'echo']);
+const SDD_READ_VERBS = new Set(['validate', 'status', 'context']);
+const GIT_READ_VERBS = new Set(['diff', 'log', 'show', 'status', 'add', 'commit']);
+
+function namesStateOnlyToRead(argv) {
+  const name = basename(argv[0]);
+  if (READ_ONLY.has(name)) return true;
+  const isSdd = (a) => basename(a) === 'sdd.mjs' || basename(a) === 'sdd';
+  const sddArgs = isSdd(argv[0]) ? argv.slice(1) : name === 'node' && argv[1] && isSdd(argv[1]) ? argv.slice(2) : null;
+  if (sddArgs) return SDD_READ_VERBS.has(sddArgs.find((a) => !a.startsWith('-')));
+  if (name === 'git') {
+    const verb = argv.slice(1).find((a, k, all) => !a.startsWith('-') && !(k > 0 && ['-C', '-c'].includes(all[k - 1])));
+    if (GIT_READ_VERBS.has(verb)) return true;
+    return verb === 'restore' && argv.includes('--staged') && !argv.includes('--worktree');
+  }
+  return false;
+}
+
+function checkStateNamed(argv) {
+  if (!argv.some((a) => STATE_YAML_TEXT.test(a))) return;
+  if (namesStateOnlyToRead(argv)) return;
+  throw new Block('command names a change state file: approvals are recorded by the person via /sdd:approve, not by the agent');
 }
 
 // --- sdd approve -------------------------------------------------------------------------------

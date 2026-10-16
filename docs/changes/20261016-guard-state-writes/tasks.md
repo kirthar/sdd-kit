@@ -6,4 +6,4 @@
 - Outermost test: guard evaluate on each command shape at hook level
 - Depends on: none
 - Package: .
-- Status: todo
+- Status: done
